@@ -83,6 +83,14 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "endianconv.h"
 #include "crc64.h"
 
+#define JINSU
+
+/*shared memory*/
+#ifdef JINSU
+#include <sys/types.h>
+#include <sys/shm.h>
+#endif
+
 /* Error codes */
 #define C_OK                    0
 #define C_ERR                   -1
@@ -1281,6 +1289,12 @@ struct redisServer {
     long long second_replid_offset; /* Accept offsets up to this for replid2. */
     int slaveseldb;                 /* Last SELECTed DB in replication output */
     int repl_ping_slave_period;     /* Master pings the slave every N seconds */
+#ifdef JINSU
+    int* buf_psync_offset;
+    int repl_backlog_int;
+    void *shared_memory;
+    key_t repl_backlog_key;
+#endif
     char *repl_backlog;             /* Replication backlog for partial syncs */
     long long repl_backlog_size;    /* Backlog circular buffer size */
     long long repl_backlog_histlen; /* Backlog actual data length */

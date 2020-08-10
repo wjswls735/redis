@@ -1,6 +1,6 @@
 num=0
 conf="master.conf slave_1.conf slave_2.conf"
-node_number="8000 8001 8002 8100"
+node_number="8100 8000"
 
 if [[ $# -lt 1 ]]; then
     echo "./$0 clockdown | standard"
@@ -16,9 +16,9 @@ find /home/jinsu/redis/ -name "*appendonly.aof" -exec rm {} \;
 
 #redis turn on
 for nd in $conf; do
-    /home/jinsu/redis/src/redis-server /home/jinsu/redis/cpu_freq_test/$nd
+    /home/jinsu/redis/src/redis-server /home/jinsu/redis/replicatest/$nd
 done
-/home/jinsu/redis/src/redis-sentinel /home/jinsu/redis/cpu_freq_test/sentinel.conf
+/home/jinsu/redis/src/redis-sentinel /home/jinsu/redis/replicatest/sentinel.conf
 
 ##cpu_freq setting low 
 if [[ $1 == "clockdown" ]]; then

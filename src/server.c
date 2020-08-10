@@ -56,6 +56,7 @@
 #include <locale.h>
 #include <sys/socket.h>
 
+
 /* Our shared "common" objects */
 
 struct sharedObjectsStruct shared;
@@ -2400,6 +2401,12 @@ void initServerConfig(void) {
     server.master_repl_offset = 0;
 
     /* Replication partial resync backlog */
+
+#ifdef JINSU
+    server.repl_backlog_int=NULL;
+    server.shared_memory=(void*)0;
+    server.repl_backlog_key=1234;
+#endif
     server.repl_backlog = NULL;
     server.repl_backlog_histlen = 0;
     server.repl_backlog_idx = 0;

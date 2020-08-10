@@ -39,6 +39,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 
+#ifdef JINSU
+#include <string.h>
+#endif
 void replicationDiscardCachedMaster(void);
 void replicationResurrectCachedMaster(connection *conn);
 void replicationSendAck(void);
@@ -110,11 +113,22 @@ int bg_unlink(const char *filename) {
 /* ---------------------------------- MASTER -------------------------------- */
 
 void createReplicationBacklog(void) {
+
+#ifdef JINSU
+
+    serverAssert(server.repl_backlog == NULL);
+    server.repl_backlog_int = shmget(server.repl_backlog_key, server.repl_backlog_size, 0666|IPC_CREAT);
+    server.shared_memory= shmat(server.repl_backlog_int, (void*)0, 0);
+    server.repl_backlog = (char *)server.shared_memory;
+    server.repl_backlog_histlen = 0;
+    server.repl_backlog_idx = 0;
+
+#else
     serverAssert(server.repl_backlog == NULL);
     server.repl_backlog = zmalloc(server.repl_backlog_size);
     server.repl_backlog_histlen = 0;
     server.repl_backlog_idx = 0;
-
+#endif
     /* We don't have any data inside our buffer, but virtually the first
      * byte we have is the next byte that will be generated for the
      * replication stream. */
@@ -139,10 +153,19 @@ void resizeReplicationBacklog(long long newsize) {
          * The reason is that copying a few gigabytes adds latency and even
          * worse often we need to alloc additional space before freeing the
          * old buffer. */
+#ifdef JINSU
+        shmdt(server.repl_backlog);
+        server.repl_backlog_int=shmget(server.repl_backlog_key, server.repl_backlog_size, 0666|IPC_CREAT);
+        server.shared_memory= shmat(server.repl_backlog_int, (void*)0, 0);
+        server.repl_backlog=(char *)server.shared_memory;
+        server.repl_backlog_histlen = 0;
+        server.repl_backlog_idx = 0;
+#else
         zfree(server.repl_backlog);
         server.repl_backlog = zmalloc(server.repl_backlog_size);
         server.repl_backlog_histlen = 0;
         server.repl_backlog_idx = 0;
+#endif
         /* Next byte we have is... the next since the buffer is empty. */
         server.repl_backlog_off = server.master_repl_offset+1;
     }
@@ -150,7 +173,11 @@ void resizeReplicationBacklog(long long newsize) {
 
 void freeReplicationBacklog(void) {
     serverAssert(listLength(server.slaves) == 0);
+#ifdef JINSU
+    shmdt(server.shared_memory);
+#else
     zfree(server.repl_backlog);
+#endif
     server.repl_backlog = NULL;
 }
 
@@ -551,7 +578,7 @@ int masterTryPartialResynchronization(client *c) {
             }
         } else {
             serverLog(LL_NOTICE,"Full resync requested by replica %s",
-                replicationGetSlaveName(c));
+                    replicationGetSlaveName(c));
         }
         goto need_full_resync;
     }
@@ -784,7 +811,6 @@ void syncCommand(client *c) {
                             "replication IDs are '%s' and '%s'",
                             server.replid, server.replid2);
     }
-
     /* CASE 1: BGSAVE is in progress, with disk target. */
     if (server.rdb_child_pid != -1 &&
         server.rdb_child_type == RDB_CHILD_TYPE_DISK)
@@ -2478,6 +2504,11 @@ void replicationSetMaster(char *ip, int port) {
     sdsfree(server.masterhost);
     server.masterhost = sdsnew(ip);
     server.masterport = port;
+    
+#ifdef JINSU
+    createReplicationBacklog();
+    
+#endif
     if (server.master) {
         freeClient(server.master);
     }
@@ -2565,11 +2596,54 @@ void replicationUnsetMaster(void) {
  * master into an unexpected way. */
 void replicationHandleMasterDisconnection(void) {
     /* Fire the master link modules event. */
-    if (server.repl_state == REPL_STATE_CONNECTED)
+#ifdef JINSU
+    char buf[server.repl_backlog_size];
+    robj *key=NULL, *value=NULL;
+    char *ptr;
+    int count;
+#endif
+
+    if (server.repl_state == REPL_STATE_CONNECTED){
+#ifdef JINSU
+        if (server.repl_backlog) {
+            
+            memcpy(buf, server.repl_backlog, server.repl_backlog_size); 
+            ptr = strtok(buf, "\r\n");
+            int count = 0;
+            while(ptr != NULL){
+             //   serverLog(LL_NOTICE, "%s", ptr);
+                if(ptr[0] == '*'){
+                    count = 0;
+                }
+                if(count == 4){
+                    key=setTypeCreate((sds)ptr);
+             //       serverLog(LL_NOTICE, "key=%s", ptr);
+                }
+                if(count == 6){
+                    value=setTypeCreate((sds)ptr);
+                   
+                    if(lookupKeyWrite(server.db+0, key) == NULL)
+                        dbAdd(server.db+0, key, value);
+                    else 
+                        dbOverwrite(server.db+0, key, value);
+                    incrRefCount(value);
+                    serverLog(LL_NOTICE, "replica backup to master's backlog" );
+
+               //     signalModifedKey(server,server.db+0, key);
+               //     serverLog(LL_NOTICE, "value=%s", ptr);
+                }
+                count++;
+
+                ptr=strtok(NULL, "\r\n");
+            }
+
+        }
+           
+#endif
         moduleFireServerEvent(REDISMODULE_EVENT_MASTER_LINK_CHANGE,
                               REDISMODULE_SUBEVENT_MASTER_LINK_DOWN,
                               NULL);
-
+    }
     server.master = NULL;
     server.repl_state = REPL_STATE_CONNECT;
     server.repl_down_since = server.unixtime;
