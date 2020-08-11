@@ -2616,11 +2616,11 @@ void replicationHandleMasterDisconnection(void) {
                     count = 0;
                 }
                 if(count == 4){
-                    key=setTypeCreate((sds)ptr);
+                    key=createStringObject(ptr, strlen(ptr));
              //       serverLog(LL_NOTICE, "key=%s", ptr);
                 }
                 if(count == 6){
-                    value=setTypeCreate((sds)ptr);
+                    value=createStringObject(ptr, strlen(ptr));
                    
                     if(lookupKeyWrite(server.db+0, key) == NULL)
                         dbAdd(server.db+0, key, value);

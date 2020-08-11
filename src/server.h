@@ -83,7 +83,9 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "endianconv.h"
 #include "crc64.h"
 
+
 #define JINSU
+
 
 /*shared memory*/
 #ifdef JINSU
