@@ -241,12 +241,17 @@ void dbOverwrite(redisDb *db, robj *key, robj *val) {
  * All the new keys in the database should be created via this interface.
  * The client 'c' argument may be set to NULL if the operation is performed
  * in a context where there is no clear client performing the operation. */
+/*count check JINSU*/
+long value_count=0;
 void genericSetKey(client *c, redisDb *db, robj *key, robj *val, int keepttl, int signal) {
+
     if (lookupKeyWrite(db,key) == NULL) {
         dbAdd(db,key,val);
     } else {
         dbOverwrite(db,key,val);
     }
+    value_count++;
+    serverLog(LL_NOTICE, "value count = %lu", value_count);
     incrRefCount(val);
     if (!keepttl) removeExpire(db,key);
     if (signal) signalModifiedKey(c,db,key);

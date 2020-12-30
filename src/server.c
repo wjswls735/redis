@@ -56,7 +56,6 @@
 #include <locale.h>
 #include <sys/socket.h>
 
-
 /* Our shared "common" objects */
 
 struct sharedObjectsStruct shared;
@@ -2402,10 +2401,11 @@ void initServerConfig(void) {
 
     /* Replication partial resync backlog */
 
-#ifdef JINSU
+#ifdef SHM
     server.repl_backlog_int=NULL;
     server.shared_memory=(void*)0;
     server.repl_backlog_key=1234;
+    
 #endif
     server.repl_backlog = NULL;
     server.repl_backlog_histlen = 0;
@@ -3281,8 +3281,10 @@ void call(client *c, int flags) {
     dirty = server.dirty;
     updateCachedTime(0);
     start = server.ustime;
-    c->cmd->proc(c);
+    c->cmd->proc(c); /*insert data to DB*/
     duration = ustime()-start;
+    /*db에 들어가는 시간 측정*/
+   // serverLog(LL_NOTICE, "insert db : %llu", duration);
     dirty = server.dirty-dirty;
     if (dirty < 0) dirty = 0;
 

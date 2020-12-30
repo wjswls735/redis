@@ -55,19 +55,19 @@ ACLStringHasSpaces	acl.c	/^int ACLStringHasSpaces(const char *s, size_t len) {$/
 ACLUserCanExecuteFutureCommands	acl.c	/^int ACLUserCanExecuteFutureCommands(user *u) {$/;"	f
 ACLUserFlag	acl.c	/^struct ACLUserFlag {$/;"	s	file:
 ACLUserFlags	acl.c	/^} ACLUserFlags[] = {$/;"	v	typeref:struct:ACLUserFlag
-ACL_DENIED_AUTH	server.h	1900;"	d
-ACL_DENIED_CMD	server.h	1898;"	d
-ACL_DENIED_KEY	server.h	1899;"	d
+ACL_DENIED_AUTH	server.h	1922;"	d
+ACL_DENIED_CMD	server.h	1920;"	d
+ACL_DENIED_KEY	server.h	1921;"	d
 ACL_LOG_CTX_LUA	acl.c	1503;"	d	file:
 ACL_LOG_CTX_MULTI	acl.c	1504;"	d	file:
 ACL_LOG_CTX_TOPLEVEL	acl.c	1502;"	d	file:
 ACL_LOG_GROUPING_MAX_TIME_DELTA	acl.c	1505;"	d	file:
-ACL_OK	server.h	1897;"	d
+ACL_OK	server.h	1919;"	d
 ACTIVE_EXPIRE_CYCLE_ACCEPTABLE_STALE	expire.c	120;"	d	file:
-ACTIVE_EXPIRE_CYCLE_FAST	server.h	127;"	d
+ACTIVE_EXPIRE_CYCLE_FAST	server.h	136;"	d
 ACTIVE_EXPIRE_CYCLE_FAST_DURATION	expire.c	118;"	d	file:
 ACTIVE_EXPIRE_CYCLE_KEYS_PER_LOOP	expire.c	117;"	d	file:
-ACTIVE_EXPIRE_CYCLE_SLOW	server.h	126;"	d
+ACTIVE_EXPIRE_CYCLE_SLOW	server.h	135;"	d
 ACTIVE_EXPIRE_CYCLE_SLOW_TIME_PERC	expire.c	119;"	d	file:
 ADDEQU	rand.c	53;"	d	file:
 AE_ALL_EVENTS	ae.h	52;"	d
@@ -87,7 +87,7 @@ AE_TIME_EVENTS	ae.h	51;"	d
 AE_WRITABLE	ae.h	43;"	d
 AF_LOCAL	anet.h	45;"	d
 ALLOC	Makefile	/^	echo MALLOC=$(MALLOC) >> .make-settings$/;"	m
-ALLOW_EMPTY_STRING	config.c	1658;"	d	file:
+ALLOW_EMPTY_STRING	config.c	1665;"	d	file:
 AL_START_HEAD	adlist.h	93;"	d
 AL_START_HEAD	quicklist.h	206;"	d
 AL_START_TAIL	adlist.h	94;"	d
@@ -101,15 +101,15 @@ ANET_H	anet.h	32;"	d
 ANET_IP_ONLY	anet.h	42;"	d
 ANET_NONE	anet.h	41;"	d
 ANET_OK	anet.h	36;"	d
-AOF_FSYNC_ALWAYS	server.h	361;"	d
-AOF_FSYNC_EVERYSEC	server.h	362;"	d
-AOF_FSYNC_NO	server.h	360;"	d
-AOF_OFF	server.h	211;"	d
-AOF_ON	server.h	212;"	d
-AOF_READ_DIFF_INTERVAL_BYTES	server.h	111;"	d
-AOF_REWRITE_ITEMS_PER_CMD	server.h	110;"	d
+AOF_FSYNC_ALWAYS	server.h	370;"	d
+AOF_FSYNC_EVERYSEC	server.h	371;"	d
+AOF_FSYNC_NO	server.h	369;"	d
+AOF_OFF	server.h	220;"	d
+AOF_ON	server.h	221;"	d
+AOF_READ_DIFF_INTERVAL_BYTES	server.h	120;"	d
+AOF_REWRITE_ITEMS_PER_CMD	server.h	119;"	d
 AOF_RW_BUF_BLOCK_SIZE	aof.c	60;"	d	file:
-AOF_WAIT_REWRITE	server.h	213;"	d
+AOF_WAIT_REWRITE	server.h	222;"	d
 AOF_WRITE_LOG_ERROR_RATE	aof.c	337;"	d	file:
 ARN	Makefile	/^	echo WARN=$(WARN) >> .make-settings$/;"	m
 AVOID_ERRNO	lzfP.h	104;"	d
@@ -136,13 +136,13 @@ BITOP_AND	bitops.c	397;"	d	file:
 BITOP_NOT	bitops.c	400;"	d	file:
 BITOP_OR	bitops.c	398;"	d	file:
 BITOP_XOR	bitops.c	399;"	d	file:
-BLOCKED_LIST	server.h	271;"	d
-BLOCKED_MODULE	server.h	273;"	d
-BLOCKED_NONE	server.h	270;"	d
-BLOCKED_NUM	server.h	276;"	d
-BLOCKED_STREAM	server.h	274;"	d
-BLOCKED_WAIT	server.h	272;"	d
-BLOCKED_ZSET	server.h	275;"	d
+BLOCKED_LIST	server.h	280;"	d
+BLOCKED_MODULE	server.h	282;"	d
+BLOCKED_NONE	server.h	279;"	d
+BLOCKED_NUM	server.h	285;"	d
+BLOCKED_STREAM	server.h	283;"	d
+BLOCKED_WAIT	server.h	281;"	d
+BLOCKED_ZSET	server.h	284;"	d
 BUFSIZE	sha1.c	201;"	d	file:
 BUILD_WITH_SYSTEMD	Makefile	/^	BUILD_WITH_SYSTEMD=yes$/;"	m
 BUILD_WITH_SYSTEMD	Makefile	/^BUILD_WITH_SYSTEMD=no$/;"	m
@@ -159,62 +159,62 @@ CC_FORCE	redis-cli.c	148;"	d	file:
 CC_QUIET	redis-cli.c	149;"	d	file:
 CH	sha256.c	24;"	d	file:
 CHECK_INPUT	lzfP.h	125;"	d
-CHILD_INFO_MAGIC	server.h	1045;"	d
-CHILD_INFO_TYPE_AOF	server.h	1047;"	d
-CHILD_INFO_TYPE_MODULE	server.h	1048;"	d
-CHILD_INFO_TYPE_RDB	server.h	1046;"	d
-CLIENTS_CRON_MIN_ITERATIONS	server.c	1654;"	d	file:
-CLIENTS_PEAK_MEM_USAGE_SLOTS	server.c	1574;"	d	file:
-CLIENT_ASKING	server.h	226;"	d
-CLIENT_BLOCKED	server.h	220;"	d
-CLIENT_CLOSE_AFTER_REPLY	server.h	222;"	d
-CLIENT_CLOSE_ASAP	server.h	227;"	d
-CLIENT_DIRTY_CAS	server.h	221;"	d
-CLIENT_DIRTY_EXEC	server.h	229;"	d
-CLIENT_FORCE_AOF	server.h	231;"	d
-CLIENT_FORCE_REPL	server.h	232;"	d
+CHILD_INFO_MAGIC	server.h	1054;"	d
+CHILD_INFO_TYPE_AOF	server.h	1056;"	d
+CHILD_INFO_TYPE_MODULE	server.h	1057;"	d
+CHILD_INFO_TYPE_RDB	server.h	1055;"	d
+CLIENTS_CRON_MIN_ITERATIONS	server.c	1653;"	d	file:
+CLIENTS_PEAK_MEM_USAGE_SLOTS	server.c	1573;"	d	file:
+CLIENT_ASKING	server.h	235;"	d
+CLIENT_BLOCKED	server.h	229;"	d
+CLIENT_CLOSE_AFTER_REPLY	server.h	231;"	d
+CLIENT_CLOSE_ASAP	server.h	236;"	d
+CLIENT_DIRTY_CAS	server.h	230;"	d
+CLIENT_DIRTY_EXEC	server.h	238;"	d
+CLIENT_FORCE_AOF	server.h	240;"	d
+CLIENT_FORCE_REPL	server.h	241;"	d
 CLIENT_GET_EVENTLOOP	redis-benchmark.c	60;"	d	file:
-CLIENT_ID_AOF	server.h	781;"	d
-CLIENT_IN_TO_TABLE	server.h	265;"	d
-CLIENT_LUA	server.h	225;"	d
-CLIENT_LUA_DEBUG	server.h	244;"	d
-CLIENT_LUA_DEBUG_SYNC	server.h	245;"	d
-CLIENT_MASTER	server.h	217;"	d
-CLIENT_MASTER_FORCE_REPLY	server.h	230;"	d
-CLIENT_MODULE	server.h	246;"	d
-CLIENT_MONITOR	server.h	218;"	d
-CLIENT_MULTI	server.h	219;"	d
-CLIENT_PENDING_COMMAND	server.h	251;"	d
-CLIENT_PENDING_READ	server.h	248;"	d
-CLIENT_PENDING_WRITE	server.h	239;"	d
-CLIENT_PREVENT_AOF_PROP	server.h	236;"	d
-CLIENT_PREVENT_PROP	server.h	238;"	d
-CLIENT_PREVENT_REPL_PROP	server.h	237;"	d
-CLIENT_PRE_PSYNC	server.h	233;"	d
-CLIENT_PROTECTED	server.h	247;"	d
-CLIENT_PROTOCOL_ERROR	server.h	266;"	d
-CLIENT_PUBSUB	server.h	235;"	d
-CLIENT_READONLY	server.h	234;"	d
-CLIENT_REPLY_OFF	server.h	241;"	d
-CLIENT_REPLY_SKIP	server.h	243;"	d
-CLIENT_REPLY_SKIP_NEXT	server.h	242;"	d
-CLIENT_SLAVE	server.h	216;"	d
+CLIENT_ID_AOF	server.h	790;"	d
+CLIENT_IN_TO_TABLE	server.h	274;"	d
+CLIENT_LUA	server.h	234;"	d
+CLIENT_LUA_DEBUG	server.h	253;"	d
+CLIENT_LUA_DEBUG_SYNC	server.h	254;"	d
+CLIENT_MASTER	server.h	226;"	d
+CLIENT_MASTER_FORCE_REPLY	server.h	239;"	d
+CLIENT_MODULE	server.h	255;"	d
+CLIENT_MONITOR	server.h	227;"	d
+CLIENT_MULTI	server.h	228;"	d
+CLIENT_PENDING_COMMAND	server.h	260;"	d
+CLIENT_PENDING_READ	server.h	257;"	d
+CLIENT_PENDING_WRITE	server.h	248;"	d
+CLIENT_PREVENT_AOF_PROP	server.h	245;"	d
+CLIENT_PREVENT_PROP	server.h	247;"	d
+CLIENT_PREVENT_REPL_PROP	server.h	246;"	d
+CLIENT_PRE_PSYNC	server.h	242;"	d
+CLIENT_PROTECTED	server.h	256;"	d
+CLIENT_PROTOCOL_ERROR	server.h	275;"	d
+CLIENT_PUBSUB	server.h	244;"	d
+CLIENT_READONLY	server.h	243;"	d
+CLIENT_REPLY_OFF	server.h	250;"	d
+CLIENT_REPLY_SKIP	server.h	252;"	d
+CLIENT_REPLY_SKIP_NEXT	server.h	251;"	d
+CLIENT_SLAVE	server.h	225;"	d
 CLIENT_ST_KEYLEN	timeout.c	93;"	d	file:
-CLIENT_TRACKING	server.h	255;"	d
-CLIENT_TRACKING_BCAST	server.h	258;"	d
-CLIENT_TRACKING_BROKEN_REDIR	server.h	257;"	d
-CLIENT_TRACKING_CACHING	server.h	261;"	d
-CLIENT_TRACKING_NOLOOP	server.h	263;"	d
-CLIENT_TRACKING_OPTIN	server.h	259;"	d
-CLIENT_TRACKING_OPTOUT	server.h	260;"	d
-CLIENT_TYPE_COUNT	server.h	288;"	d
-CLIENT_TYPE_MASTER	server.h	287;"	d
-CLIENT_TYPE_NORMAL	server.h	284;"	d
-CLIENT_TYPE_OBUF_COUNT	server.h	289;"	d
-CLIENT_TYPE_PUBSUB	server.h	286;"	d
-CLIENT_TYPE_SLAVE	server.h	285;"	d
-CLIENT_UNBLOCKED	server.h	223;"	d
-CLIENT_UNIX_SOCKET	server.h	228;"	d
+CLIENT_TRACKING	server.h	264;"	d
+CLIENT_TRACKING_BCAST	server.h	267;"	d
+CLIENT_TRACKING_BROKEN_REDIR	server.h	266;"	d
+CLIENT_TRACKING_CACHING	server.h	270;"	d
+CLIENT_TRACKING_NOLOOP	server.h	272;"	d
+CLIENT_TRACKING_OPTIN	server.h	268;"	d
+CLIENT_TRACKING_OPTOUT	server.h	269;"	d
+CLIENT_TYPE_COUNT	server.h	297;"	d
+CLIENT_TYPE_MASTER	server.h	296;"	d
+CLIENT_TYPE_NORMAL	server.h	293;"	d
+CLIENT_TYPE_OBUF_COUNT	server.h	298;"	d
+CLIENT_TYPE_PUBSUB	server.h	295;"	d
+CLIENT_TYPE_SLAVE	server.h	294;"	d
+CLIENT_UNBLOCKED	server.h	232;"	d
+CLIENT_UNIX_SOCKET	server.h	237;"	d
 CLI_HELP_COMMAND	redis-cli.c	463;"	d	file:
 CLI_HELP_GROUP	redis-cli.c	464;"	d	file:
 CLUSTERMSG_FLAG0_FORCEACK	cluster.h	279;"	d
@@ -320,71 +320,71 @@ CLUSTER_TODO_HANDLE_FAILOVER	cluster.h	76;"	d
 CLUSTER_TODO_SAVE_CONFIG	cluster.h	78;"	d
 CLUSTER_TODO_UPDATE_STATE	cluster.h	77;"	d
 CLUSTER_WRITABLE_DELAY	cluster.c	3865;"	d	file:
-CMD_ADMIN	server.h	170;"	d
-CMD_ASKING	server.h	179;"	d
-CMD_CALL_FULL	server.h	414;"	d
-CMD_CALL_NONE	server.h	408;"	d
-CMD_CALL_NOWRAP	server.h	415;"	d
-CMD_CALL_PROPAGATE	server.h	413;"	d
-CMD_CALL_PROPAGATE_AOF	server.h	411;"	d
-CMD_CALL_PROPAGATE_REPL	server.h	412;"	d
-CMD_CALL_SLOWLOG	server.h	409;"	d
-CMD_CALL_STATS	server.h	410;"	d
-CMD_CATEGORY_ADMIN	server.h	201;"	d
-CMD_CATEGORY_BITMAP	server.h	196;"	d
-CMD_CATEGORY_BLOCKING	server.h	204;"	d
-CMD_CATEGORY_CONNECTION	server.h	206;"	d
-CMD_CATEGORY_DANGEROUS	server.h	205;"	d
-CMD_CATEGORY_FAST	server.h	202;"	d
-CMD_CATEGORY_GEO	server.h	198;"	d
-CMD_CATEGORY_HASH	server.h	194;"	d
-CMD_CATEGORY_HYPERLOGLOG	server.h	197;"	d
-CMD_CATEGORY_KEYSPACE	server.h	188;"	d
-CMD_CATEGORY_LIST	server.h	193;"	d
-CMD_CATEGORY_PUBSUB	server.h	200;"	d
-CMD_CATEGORY_READ	server.h	189;"	d
-CMD_CATEGORY_SCRIPTING	server.h	208;"	d
-CMD_CATEGORY_SET	server.h	191;"	d
-CMD_CATEGORY_SLOW	server.h	203;"	d
-CMD_CATEGORY_SORTEDSET	server.h	192;"	d
-CMD_CATEGORY_STREAM	server.h	199;"	d
-CMD_CATEGORY_STRING	server.h	195;"	d
-CMD_CATEGORY_TRANSACTION	server.h	207;"	d
-CMD_CATEGORY_WRITE	server.h	190;"	d
-CMD_DENYOOM	server.h	168;"	d
-CMD_FAST	server.h	180;"	d
-CMD_LOADING	server.h	175;"	d
-CMD_MODULE	server.h	169;"	d
-CMD_MODULE_GETKEYS	server.h	184;"	d
-CMD_MODULE_NO_CLUSTER	server.h	185;"	d
-CMD_NOSCRIPT	server.h	172;"	d
-CMD_NO_AUTH	server.h	181;"	d
-CMD_PUBSUB	server.h	171;"	d
-CMD_RANDOM	server.h	173;"	d
-CMD_READONLY	server.h	167;"	d
-CMD_SKIP_MONITOR	server.h	177;"	d
-CMD_SKIP_SLOWLOG	server.h	178;"	d
-CMD_SORT_FOR_SCRIPT	server.h	174;"	d
-CMD_STALE	server.h	176;"	d
-CMD_WRITE	server.h	166;"	d
+CMD_ADMIN	server.h	179;"	d
+CMD_ASKING	server.h	188;"	d
+CMD_CALL_FULL	server.h	423;"	d
+CMD_CALL_NONE	server.h	417;"	d
+CMD_CALL_NOWRAP	server.h	424;"	d
+CMD_CALL_PROPAGATE	server.h	422;"	d
+CMD_CALL_PROPAGATE_AOF	server.h	420;"	d
+CMD_CALL_PROPAGATE_REPL	server.h	421;"	d
+CMD_CALL_SLOWLOG	server.h	418;"	d
+CMD_CALL_STATS	server.h	419;"	d
+CMD_CATEGORY_ADMIN	server.h	210;"	d
+CMD_CATEGORY_BITMAP	server.h	205;"	d
+CMD_CATEGORY_BLOCKING	server.h	213;"	d
+CMD_CATEGORY_CONNECTION	server.h	215;"	d
+CMD_CATEGORY_DANGEROUS	server.h	214;"	d
+CMD_CATEGORY_FAST	server.h	211;"	d
+CMD_CATEGORY_GEO	server.h	207;"	d
+CMD_CATEGORY_HASH	server.h	203;"	d
+CMD_CATEGORY_HYPERLOGLOG	server.h	206;"	d
+CMD_CATEGORY_KEYSPACE	server.h	197;"	d
+CMD_CATEGORY_LIST	server.h	202;"	d
+CMD_CATEGORY_PUBSUB	server.h	209;"	d
+CMD_CATEGORY_READ	server.h	198;"	d
+CMD_CATEGORY_SCRIPTING	server.h	217;"	d
+CMD_CATEGORY_SET	server.h	200;"	d
+CMD_CATEGORY_SLOW	server.h	212;"	d
+CMD_CATEGORY_SORTEDSET	server.h	201;"	d
+CMD_CATEGORY_STREAM	server.h	208;"	d
+CMD_CATEGORY_STRING	server.h	204;"	d
+CMD_CATEGORY_TRANSACTION	server.h	216;"	d
+CMD_CATEGORY_WRITE	server.h	199;"	d
+CMD_DENYOOM	server.h	177;"	d
+CMD_FAST	server.h	189;"	d
+CMD_LOADING	server.h	184;"	d
+CMD_MODULE	server.h	178;"	d
+CMD_MODULE_GETKEYS	server.h	193;"	d
+CMD_MODULE_NO_CLUSTER	server.h	194;"	d
+CMD_NOSCRIPT	server.h	181;"	d
+CMD_NO_AUTH	server.h	190;"	d
+CMD_PUBSUB	server.h	180;"	d
+CMD_RANDOM	server.h	182;"	d
+CMD_READONLY	server.h	176;"	d
+CMD_SKIP_MONITOR	server.h	186;"	d
+CMD_SKIP_SLOWLOG	server.h	187;"	d
+CMD_SORT_FOR_SCRIPT	server.h	183;"	d
+CMD_STALE	server.h	185;"	d
+CMD_WRITE	server.h	175;"	d
 COM	geohash_helper.c	47;"	d	file:
 COMPRESS_MAX	quicklist.c	113;"	d	file:
-CONFIG_AUTHPASS_MAX_LEN	server.h	112;"	d
-CONFIG_BGSAVE_RETRY_DELAY	server.h	116;"	d
-CONFIG_BINDADDR_MAX	server.h	123;"	d
-CONFIG_DEFAULT_CLUSTER_CONFIG_FILE	server.h	118;"	d
-CONFIG_DEFAULT_HZ	server.h	99;"	d
-CONFIG_DEFAULT_LOGFILE	server.h	120;"	d
-CONFIG_DEFAULT_PID_FILE	server.h	117;"	d
-CONFIG_DEFAULT_UNIX_SOCKET_PERM	server.h	119;"	d
-CONFIG_FDSET_INCR	server.h	159;"	d
-CONFIG_MAX_HZ	server.h	101;"	d
-CONFIG_MAX_LINE	server.h	103;"	d
-CONFIG_MIN_HZ	server.h	100;"	d
-CONFIG_MIN_RESERVED_FDS	server.h	124;"	d
-CONFIG_REPL_BACKLOG_MIN_SIZE	server.h	115;"	d
-CONFIG_REPL_SYNCIO_TIMEOUT	server.h	329;"	d
-CONFIG_RUN_ID_SIZE	server.h	113;"	d
+CONFIG_AUTHPASS_MAX_LEN	server.h	121;"	d
+CONFIG_BGSAVE_RETRY_DELAY	server.h	125;"	d
+CONFIG_BINDADDR_MAX	server.h	132;"	d
+CONFIG_DEFAULT_CLUSTER_CONFIG_FILE	server.h	127;"	d
+CONFIG_DEFAULT_HZ	server.h	108;"	d
+CONFIG_DEFAULT_LOGFILE	server.h	129;"	d
+CONFIG_DEFAULT_PID_FILE	server.h	126;"	d
+CONFIG_DEFAULT_UNIX_SOCKET_PERM	server.h	128;"	d
+CONFIG_FDSET_INCR	server.h	168;"	d
+CONFIG_MAX_HZ	server.h	110;"	d
+CONFIG_MAX_LINE	server.h	112;"	d
+CONFIG_MIN_HZ	server.h	109;"	d
+CONFIG_MIN_RESERVED_FDS	server.h	133;"	d
+CONFIG_REPL_BACKLOG_MIN_SIZE	server.h	124;"	d
+CONFIG_REPL_SYNCIO_TIMEOUT	server.h	338;"	d
+CONFIG_RUN_ID_SIZE	server.h	122;"	d
 CONN_FLAG_CLOSE_SCHEDULED	connection.h	48;"	d
 CONN_FLAG_WRITE_BARRIER	connection.h	49;"	d
 CONN_INFO_LEN	connection.h	34;"	d
@@ -396,13 +396,13 @@ CONN_STATE_ERROR	connection.h	/^    CONN_STATE_ERROR$/;"	e	enum:__anon27
 CONN_STATE_NONE	connection.h	/^    CONN_STATE_NONE = 0,$/;"	e	enum:__anon27
 CRC64_H	crc64.h	2;"	d
 CRCSPEED_H	crcspeed.h	29;"	d
-CRON_DBS_PER_CALL	server.h	104;"	d
+CRON_DBS_PER_CALL	server.h	113;"	d
 CT_Socket	connection.c	/^ConnectionType CT_Socket = {$/;"	v
 CT_Socket	connection.c	/^ConnectionType CT_Socket;$/;"	v
 CT_TLS	tls.c	/^ConnectionType CT_TLS = {$/;"	v
 CT_TLS	tls.c	/^ConnectionType CT_TLS;$/;"	v
-C_ERR	server.h	96;"	d
-C_OK	server.h	95;"	d
+C_ERR	server.h	105;"	d
+C_OK	server.h	104;"	d
 ClientsPeakMemInput	server.c	/^size_t ClientsPeakMemInput[CLIENTS_PEAK_MEM_USAGE_SLOTS];$/;"	v
 ClientsPeakMemOutput	server.c	/^size_t ClientsPeakMemOutput[CLIENTS_PEAK_MEM_USAGE_SLOTS];$/;"	v
 ConnectionCallbackFunc	connection.h	/^typedef void (*ConnectionCallbackFunc)(struct connection *conn);$/;"	t
@@ -428,19 +428,19 @@ DICT_HT_INITIAL_SIZE	dict.h	101;"	d
 DICT_NOTUSED	dict.h	45;"	d
 DICT_OK	dict.h	41;"	d
 DICT_STATS_VECTLEN	dict.c	1065;"	d	file:
-DISK_ERROR_TYPE_AOF	server.h	1857;"	d
-DISK_ERROR_TYPE_NONE	server.h	1859;"	d
-DISK_ERROR_TYPE_RDB	server.h	1858;"	d
+DISK_ERROR_TYPE_AOF	server.h	1879;"	d
+DISK_ERROR_TYPE_NONE	server.h	1881;"	d
+DISK_ERROR_TYPE_RDB	server.h	1880;"	d
 D_R	geohash_helper.c	42;"	d	file:
 DefaultUser	acl.c	/^user *DefaultUser;  \/* Global reference to the default user.$/;"	v
 EARTH_RADIUS_IN_METERS	geohash_helper.c	/^const double EARTH_RADIUS_IN_METERS = 6372797.560856;$/;"	v
 ECCENT	geohash_helper.c	46;"	d	file:
 EDIS_CFLAGS	Makefile	/^	echo REDIS_CFLAGS=$(REDIS_CFLAGS) >> .make-settings$/;"	m
 EDIS_LDFLAGS	Makefile	/^	echo REDIS_LDFLAGS=$(REDIS_LDFLAGS) >> .make-settings$/;"	m
-EMPTYDB_ASYNC	server.h	2125;"	d
-EMPTYDB_BACKUP	server.h	2126;"	d
-EMPTYDB_NO_FLAGS	server.h	2124;"	d
-EMPTY_STRING_IS_NULL	config.c	1659;"	d	file:
+EMPTYDB_ASYNC	server.h	2147;"	d
+EMPTYDB_BACKUP	server.h	2148;"	d
+EMPTYDB_NO_FLAGS	server.h	2146;"	d
+EMPTY_STRING_IS_NULL	config.c	1666;"	d	file:
 ENDCOLOR	Makefile	/^ENDCOLOR="\\033[0m"$/;"	m
 EP0	sha256.c	26;"	d	file:
 EP1	sha256.c	27;"	d	file:
@@ -477,7 +477,7 @@ GEO_LONG_MAX	geohash.h	53;"	d
 GEO_LONG_MIN	geohash.h	52;"	d
 GEO_STEP_MAX	geohash.h	47;"	d
 GETFAIR_NUM_ENTRIES	dict.c	753;"	d	file:
-GET_NUMERIC_TYPE	config.c	1756;"	d	file:
+GET_NUMERIC_TYPE	config.c	1763;"	d	file:
 GISNOTZERO	geohash_helper.h	39;"	d
 GISZERO	geohash_helper.h	38;"	d
 GNUC_VERSION	config.h	200;"	d
@@ -491,13 +491,13 @@ GeoHashRadius	geohash_helper.h	/^} GeoHashRadius;$/;"	t	typeref:struct:__anon24
 GeoHashRange	geohash.h	/^} GeoHashRange;$/;"	t	typeref:struct:__anon30
 GeoHashVarBits	geohash_helper.h	/^typedef uint64_t GeoHashVarBits;$/;"	t
 HASHISZERO	geohash.h	43;"	d
-HASHTABLE_MIN_FILL	server.h	162;"	d
+HASHTABLE_MIN_FILL	server.h	171;"	d
 HASH_PASSWORD_LEN	acl.c	102;"	d	file:
-HASH_SET_COPY	server.h	2050;"	d
+HASH_SET_COPY	server.h	2072;"	d
 HASH_SET_COPY	t_hash.c	201;"	d	file:
-HASH_SET_TAKE_FIELD	server.h	2048;"	d
+HASH_SET_TAKE_FIELD	server.h	2070;"	d
 HASH_SET_TAKE_FIELD	t_hash.c	199;"	d	file:
-HASH_SET_TAKE_VALUE	server.h	2049;"	d
+HASH_SET_TAKE_VALUE	server.h	2071;"	d
 HASH_SET_TAKE_VALUE	t_hash.c	200;"	d	file:
 HAVE_ATOMIC	config.h	202;"	d
 HAVE_ATOMIC	config.h	206;"	d
@@ -609,7 +609,7 @@ HelloZsumRange_RedisCommand	modules/helloworld.c	/^int HelloZsumRange_RedisComma
 IDX	lzf_c.c	51;"	d	file:
 IDX	lzf_c.c	53;"	d	file:
 IDX	lzf_c.c	55;"	d	file:
-IMMUTABLE_CONFIG	config.c	1556;"	d	file:
+IMMUTABLE_CONFIG	config.c	1563;"	d	file:
 INIT_HTAB	lzfP.h	95;"	d
 INIT_SETPROCTITLE_REPLACEMENT	config.h	128;"	d
 INSTALL	Makefile	/^	INSTALL=cp -pf$/;"	m
@@ -617,17 +617,16 @@ INSTALL	Makefile	/^INSTALL=install$/;"	m
 INSTALL_BIN	Makefile	/^INSTALL_BIN=$(PREFIX)\/bin$/;"	m
 INT24_MAX	ziplist.c	220;"	d	file:
 INT24_MIN	ziplist.c	221;"	d	file:
-INTEGER_CONFIG	config.c	1868;"	d	file:
+INTEGER_CONFIG	config.c	1875;"	d	file:
 INTERPOLATE	defrag.c	1026;"	d	file:
 INTSET_ENC_INT16	intset.c	40;"	d	file:
 INTSET_ENC_INT32	intset.c	41;"	d	file:
 INTSET_ENC_INT64	intset.c	42;"	d	file:
 IOThreadMain	networking.c	/^void *IOThreadMain(void *myid) {$/;"	f
-IO_THREADS_MAX_NUM	networking.c	2909;"	d	file:
-IO_THREADS_OP_READ	networking.c	2910;"	d	file:
-IO_THREADS_OP_WRITE	networking.c	2911;"	d	file:
+IO_THREADS_MAX_NUM	networking.c	2941;"	d	file:
+IO_THREADS_OP_READ	networking.c	2942;"	d	file:
+IO_THREADS_OP_WRITE	networking.c	2943;"	d	file:
 InitServerLast	server.c	/^void InitServerLast() {$/;"	f
-JINSU	server.h	86;"	d
 Keyspace	modules/hellodict.c	/^static RedisModuleDict *Keyspace;$/;"	v	file:
 LATENCY_DIST_DEFAULT_INTERVAL	redis-cli.c	6625;"	d	file:
 LATENCY_GRAPH_COLS	latency.c	516;"	d	file:
@@ -646,37 +645,31 @@ LFUDecrAndReturn	evict.c	/^unsigned long LFUDecrAndReturn(robj *o) {$/;"	f
 LFUGetTimeInMinutes	evict.c	/^unsigned long LFUGetTimeInMinutes(void) {$/;"	f
 LFULogIncr	evict.c	/^uint8_t LFULogIncr(uint8_t counter) {$/;"	f
 LFUTimeElapsed	evict.c	/^unsigned long LFUTimeElapsed(unsigned long ldt) {$/;"	f
-LFU_INIT_VAL	server.h	2218;"	d
-LIBCRYPTO_LIBS	Makefile	/^	LIBCRYPTO_LIBS=$(shell $(PKG_CONFIG) --libs libcrypto)$/;"	m
-LIBCRYPTO_LIBS	Makefile	/^	LIBCRYPTO_LIBS=-lcrypto$/;"	m
-LIBCRYPTO_PKGCONFIG	Makefile	/^	LIBCRYPTO_PKGCONFIG := $(shell $(PKG_CONFIG) --exists libcrypto && echo $$?)$/;"	m
-LIBSSL_LIBS	Makefile	/^	LIBSSL_LIBS=$(shell $(PKG_CONFIG) --libs libssl)$/;"	m
-LIBSSL_LIBS	Makefile	/^	LIBSSL_LIBS=-lssl$/;"	m
-LIBSSL_PKGCONFIG	Makefile	/^	LIBSSL_PKGCONFIG := $(shell $(PKG_CONFIG) --exists libssl && echo $$?)$/;"	m
+LFU_INIT_VAL	server.h	2240;"	d
 LIBSYSTEMD_PKGCONFIG	Makefile	/^	LIBSYSTEMD_PKGCONFIG := $(shell $(PKG_CONFIG) --exists libsystemd && echo $$?)$/;"	m
 LIMIT	defrag.c	1027;"	d	file:
-LIMIT_PENDING_QUERYBUF	server.h	153;"	d
+LIMIT_PENDING_QUERYBUF	server.h	162;"	d
 LINKCOLOR	Makefile	/^LINKCOLOR="\\033[34;1m"$/;"	m
 LISTPACK_ALLOC_H	listpack_malloc.h	40;"	d
-LIST_HEAD	server.h	332;"	d
-LIST_TAIL	server.h	333;"	d
+LIST_HEAD	server.h	341;"	d
+LIST_TAIL	server.h	342;"	d
 LITTLE_ENDIAN	config.h	143;"	d
 LITTLE_ENDIAN	config.h	175;"	d
-LL_DEBUG	server.h	341;"	d
-LL_NOTICE	server.h	343;"	d
-LL_RAW	server.h	345;"	d
-LL_VERBOSE	server.h	342;"	d
-LL_WARNING	server.h	344;"	d
-LOADBUF_SIZE	config.c	1552;"	d	file:
+LL_DEBUG	server.h	350;"	d
+LL_NOTICE	server.h	352;"	d
+LL_RAW	server.h	354;"	d
+LL_VERBOSE	server.h	351;"	d
+LL_WARNING	server.h	353;"	d
+LOADBUF_SIZE	config.c	1559;"	d	file:
 LOG_COLOR_BOLD	redis-cli.c	141;"	d	file:
 LOG_COLOR_GREEN	redis-cli.c	143;"	d	file:
 LOG_COLOR_RED	redis-cli.c	142;"	d	file:
 LOG_COLOR_RESET	redis-cli.c	145;"	d	file:
 LOG_COLOR_YELLOW	redis-cli.c	144;"	d	file:
-LOG_MAX_LEN	server.h	109;"	d
-LONG_STR_SIZE	server.h	150;"	d
-LOOKUP_NONE	server.h	2111;"	d
-LOOKUP_NOTOUCH	server.h	2112;"	d
+LOG_MAX_LEN	server.h	118;"	d
+LONG_STR_SIZE	server.h	159;"	d
+LOOKUP_NONE	server.h	2133;"	d
+LOOKUP_NOTOUCH	server.h	2134;"	d
 LOW	rand.c	48;"	d	file:
 LP_AFTER	listpack.h	44;"	d
 LP_BEFORE	listpack.h	43;"	d
@@ -722,10 +715,10 @@ LP_MAX_INT_ENCODING_LEN	listpack.c	47;"	d	file:
 LP_REPLACE	listpack.h	45;"	d
 LRUTestGenKey	redis-cli.c	/^void LRUTestGenKey(char *buf, size_t buflen) {$/;"	f
 LRUTestMode	redis-cli.c	/^static void LRUTestMode(void) {$/;"	f	file:
-LRU_BITS	server.h	613;"	d
+LRU_BITS	server.h	622;"	d
 LRU_CLOCK	evict.c	/^unsigned int LRU_CLOCK(void) {$/;"	f
-LRU_CLOCK_MAX	server.h	614;"	d
-LRU_CLOCK_RESOLUTION	server.h	615;"	d
+LRU_CLOCK_MAX	server.h	623;"	d
+LRU_CLOCK_RESOLUTION	server.h	624;"	d
 LRU_CYCLE_PERIOD	redis-cli.c	7851;"	d	file:
 LRU_CYCLE_PIPELINE_SIZE	redis-cli.c	7852;"	d	file:
 LUA_CMD_OBJCACHE_MAX_LEN	scripting.c	474;"	d	file:
@@ -750,30 +743,30 @@ MALLOC	Makefile	/^	MALLOC=tcmalloc$/;"	m
 MALLOC	Makefile	/^	MALLOC=tcmalloc_minimal$/;"	m
 MALLOC	Makefile	/^MALLOC=libc$/;"	m
 MASK	rand.c	47;"	d	file:
-MAXMEMORY_ALLKEYS_LFU	server.h	393;"	d
-MAXMEMORY_ALLKEYS_LRU	server.h	392;"	d
-MAXMEMORY_ALLKEYS_RANDOM	server.h	394;"	d
-MAXMEMORY_FLAG_ALLKEYS	server.h	384;"	d
-MAXMEMORY_FLAG_LFU	server.h	383;"	d
-MAXMEMORY_FLAG_LRU	server.h	382;"	d
-MAXMEMORY_FLAG_NO_SHARED_INTEGERS	server.h	385;"	d
-MAXMEMORY_NO_EVICTION	server.h	395;"	d
-MAXMEMORY_VOLATILE_LFU	server.h	389;"	d
-MAXMEMORY_VOLATILE_LRU	server.h	388;"	d
-MAXMEMORY_VOLATILE_RANDOM	server.h	391;"	d
-MAXMEMORY_VOLATILE_TTL	server.h	390;"	d
-MAX_ACCEPTS_PER_CALL	networking.c	895;"	d	file:
-MAX_CLIENTS_PER_CLOCK_TICK	server.h	102;"	d
+MAXMEMORY_ALLKEYS_LFU	server.h	402;"	d
+MAXMEMORY_ALLKEYS_LRU	server.h	401;"	d
+MAXMEMORY_ALLKEYS_RANDOM	server.h	403;"	d
+MAXMEMORY_FLAG_ALLKEYS	server.h	393;"	d
+MAXMEMORY_FLAG_LFU	server.h	392;"	d
+MAXMEMORY_FLAG_LRU	server.h	391;"	d
+MAXMEMORY_FLAG_NO_SHARED_INTEGERS	server.h	394;"	d
+MAXMEMORY_NO_EVICTION	server.h	404;"	d
+MAXMEMORY_VOLATILE_LFU	server.h	398;"	d
+MAXMEMORY_VOLATILE_LRU	server.h	397;"	d
+MAXMEMORY_VOLATILE_RANDOM	server.h	400;"	d
+MAXMEMORY_VOLATILE_TTL	server.h	399;"	d
+MAX_ACCEPTS_PER_CALL	networking.c	912;"	d	file:
+MAX_CLIENTS_PER_CLOCK_TICK	server.h	111;"	d
 MAX_CLUSTER_ACCEPTS_PER_CALL	cluster.c	651;"	d	file:
 MAX_EVENT_BATCHSZ	ae_evport.c	66;"	d	file:
-MAX_KEYS_BUFFER	db.c	1321;"	d	file:
+MAX_KEYS_BUFFER	db.c	1326;"	d	file:
 MAX_LATENCY_PRECISION	redis-benchmark.c	56;"	d	file:
 MAX_LIT	lzf_c.c	74;"	d	file:
 MAX_LONG_DOUBLE_CHARS	util.h	39;"	d
 MAX_OFF	lzf_c.c	75;"	d	file:
 MAX_REF	lzf_c.c	76;"	d	file:
 MAX_THREADS	redis-benchmark.c	57;"	d	file:
-MEMORY_CONFIG	config.c	1869;"	d	file:
+MEMORY_CONFIG	config.c	1876;"	d	file:
 MEMTEST_32BIT	memtest.c	44;"	d	file:
 MEMTEST_64BIT	memtest.c	46;"	d	file:
 MEMTEST_BACKUP_WORDS	memtest.c	275;"	d	file:
@@ -785,7 +778,7 @@ MIGRATE_SOCKET_CACHE_ITEMS	cluster.c	5073;"	d	file:
 MIGRATE_SOCKET_CACHE_TTL	cluster.c	5074;"	d	file:
 MIN_COMPRESS_BYTES	quicklist.c	54;"	d	file:
 MIN_COMPRESS_IMPROVE	quicklist.c	59;"	d	file:
-MODIFIABLE_CONFIG	config.c	1555;"	d	file:
+MODIFIABLE_CONFIG	config.c	1562;"	d	file:
 MODULE_LOOKUP_CACHE_SIZE	module.c	3451;"	d	file:
 MSGTYPE_PING	modules/hellocluster.c	40;"	d	file:
 MSGTYPE_PONG	modules/hellocluster.c	41;"	d	file:
@@ -795,26 +788,26 @@ ModuleTypeNameCharSet	module.c	/^const char *ModuleTypeNameCharSet =$/;"	v
 ModulesInHooks	module.c	/^unsigned long long ModulesInHooks = 0; \/* Total number of modules in hooks$/;"	v
 MurmurHash64A	hyperloglog.c	/^uint64_t MurmurHash64A (const void * key, int len, unsigned int seed) {$/;"	f
 N	rand.c	46;"	d	file:
-NET_FIRST_BIND_ADDR	server.h	446;"	d
-NET_IP_STR_LEN	server.h	121;"	d
-NET_MAX_WRITES_PER_EVENT	server.h	105;"	d
-NET_PEER_ID_LEN	server.h	122;"	d
+NET_FIRST_BIND_ADDR	server.h	455;"	d
+NET_IP_STR_LEN	server.h	130;"	d
+NET_MAX_WRITES_PER_EVENT	server.h	114;"	d
+NET_PEER_ID_LEN	server.h	131;"	d
 NEXT	lzf_c.c	49;"	d	file:
 NODEPS	Makefile	/^NODEPS:=clean distclean$/;"	m
-NOTIFY_ALL	server.h	443;"	d
-NOTIFY_EVICTED	server.h	439;"	d
-NOTIFY_EXPIRED	server.h	438;"	d
-NOTIFY_GENERIC	server.h	432;"	d
-NOTIFY_HASH	server.h	436;"	d
-NOTIFY_KEYEVENT	server.h	431;"	d
-NOTIFY_KEYSPACE	server.h	430;"	d
-NOTIFY_KEY_MISS	server.h	441;"	d
-NOTIFY_LIST	server.h	434;"	d
-NOTIFY_LOADED	server.h	442;"	d
-NOTIFY_SET	server.h	435;"	d
-NOTIFY_STREAM	server.h	440;"	d
-NOTIFY_STRING	server.h	433;"	d
-NOTIFY_ZSET	server.h	437;"	d
+NOTIFY_ALL	server.h	452;"	d
+NOTIFY_EVICTED	server.h	448;"	d
+NOTIFY_EXPIRED	server.h	447;"	d
+NOTIFY_GENERIC	server.h	441;"	d
+NOTIFY_HASH	server.h	445;"	d
+NOTIFY_KEYEVENT	server.h	440;"	d
+NOTIFY_KEYSPACE	server.h	439;"	d
+NOTIFY_KEY_MISS	server.h	450;"	d
+NOTIFY_LIST	server.h	443;"	d
+NOTIFY_LOADED	server.h	451;"	d
+NOTIFY_SET	server.h	444;"	d
+NOTIFY_STREAM	server.h	449;"	d
+NOTIFY_STRING	server.h	442;"	d
+NOTIFY_ZSET	server.h	446;"	d
 NUMERIC_TYPE_INT	config.c	/^    NUMERIC_TYPE_INT,$/;"	e	enum:numericType	file:
 NUMERIC_TYPE_LONG	config.c	/^    NUMERIC_TYPE_LONG,$/;"	e	enum:numericType	file:
 NUMERIC_TYPE_LONG_LONG	config.c	/^    NUMERIC_TYPE_LONG_LONG,$/;"	e	enum:numericType	file:
@@ -827,38 +820,39 @@ NUMERIC_TYPE_ULONG	config.c	/^    NUMERIC_TYPE_ULONG,$/;"	e	enum:numericType	fil
 NUMERIC_TYPE_ULONG_LONG	config.c	/^    NUMERIC_TYPE_ULONG_LONG,$/;"	e	enum:numericType	file:
 NotifyCallback	modules/testmodule.c	/^int NotifyCallback(RedisModuleCtx *ctx, int type, const char *event,$/;"	f
 OBJ_COMPUTE_SIZE_DEF_SAMPLES	object.c	776;"	d	file:
-OBJ_ENCODING_EMBSTR	server.h	609;"	d
+OBJ_ENCODING_EMBSTR	server.h	618;"	d
 OBJ_ENCODING_EMBSTR_SIZE_LIMIT	object.c	118;"	d	file:
-OBJ_ENCODING_HT	server.h	603;"	d
-OBJ_ENCODING_INT	server.h	602;"	d
-OBJ_ENCODING_INTSET	server.h	607;"	d
-OBJ_ENCODING_LINKEDLIST	server.h	605;"	d
-OBJ_ENCODING_QUICKLIST	server.h	610;"	d
-OBJ_ENCODING_RAW	server.h	601;"	d
-OBJ_ENCODING_SKIPLIST	server.h	608;"	d
-OBJ_ENCODING_STREAM	server.h	611;"	d
-OBJ_ENCODING_ZIPLIST	server.h	606;"	d
-OBJ_ENCODING_ZIPMAP	server.h	604;"	d
-OBJ_FIRST_SPECIAL_REFCOUNT	server.h	619;"	d
-OBJ_HASH	server.h	469;"	d
-OBJ_HASH_KEY	server.h	1557;"	d
-OBJ_HASH_VALUE	server.h	1558;"	d
-OBJ_LIST	server.h	466;"	d
-OBJ_MODULE	server.h	482;"	d
-OBJ_SET	server.h	467;"	d
+OBJ_ENCODING_HT	server.h	612;"	d
+OBJ_ENCODING_INT	server.h	611;"	d
+OBJ_ENCODING_INTSET	server.h	616;"	d
+OBJ_ENCODING_LINKEDLIST	server.h	614;"	d
+OBJ_ENCODING_QUICKLIST	server.h	619;"	d
+OBJ_ENCODING_RAW	server.h	610;"	d
+OBJ_ENCODING_SKIPLIST	server.h	617;"	d
+OBJ_ENCODING_STREAM	server.h	620;"	d
+OBJ_ENCODING_ZIPLIST	server.h	615;"	d
+OBJ_ENCODING_ZIPMAP	server.h	613;"	d
+OBJ_FIRST_SPECIAL_REFCOUNT	server.h	628;"	d
+OBJ_HASH	server.h	478;"	d
+OBJ_HASH_KEY	server.h	1574;"	d
+OBJ_HASH_VALUE	server.h	1575;"	d
+OBJ_LIST	server.h	475;"	d
+OBJ_MODULE	server.h	491;"	d
+OBJ_SET	server.h	476;"	d
 OBJ_SET_EX	t_string.c	64;"	d	file:
+OBJ_SET_KEEPTTL	replication.c	2602;"	d	file:
 OBJ_SET_KEEPTTL	t_string.c	66;"	d	file:
 OBJ_SET_NO_FLAGS	t_string.c	61;"	d	file:
 OBJ_SET_NX	t_string.c	62;"	d	file:
 OBJ_SET_PX	t_string.c	65;"	d	file:
 OBJ_SET_XX	t_string.c	63;"	d	file:
-OBJ_SHARED_BULKHDR_LEN	server.h	108;"	d
-OBJ_SHARED_INTEGERS	server.h	107;"	d
-OBJ_SHARED_REFCOUNT	server.h	617;"	d
-OBJ_STATIC_REFCOUNT	server.h	618;"	d
-OBJ_STREAM	server.h	483;"	d
-OBJ_STRING	server.h	465;"	d
-OBJ_ZSET	server.h	468;"	d
+OBJ_SHARED_BULKHDR_LEN	server.h	117;"	d
+OBJ_SHARED_INTEGERS	server.h	116;"	d
+OBJ_SHARED_REFCOUNT	server.h	626;"	d
+OBJ_STATIC_REFCOUNT	server.h	627;"	d
+OBJ_STREAM	server.h	492;"	d
+OBJ_STRING	server.h	474;"	d
+OBJ_ZSET	server.h	477;"	d
 OK	quicklist.c	1527;"	d	file:
 OPENSSL_CFLAGS	Makefile	/^	OPENSSL_CFLAGS=-I\/usr\/local\/opt\/openssl\/include$/;"	m
 OPENSSL_LDFLAGS	Makefile	/^	OPENSSL_LDFLAGS=-L\/usr\/local\/opt\/openssl\/lib$/;"	m
@@ -878,24 +872,24 @@ PREFIX	Makefile	/^PREFIX?=\/usr\/local$/;"	m
 PREFIX_SIZE	zmalloc.c	50;"	d	file:
 PREFIX_SIZE	zmalloc.c	53;"	d	file:
 PREFIX_SIZE	zmalloc.c	55;"	d	file:
-PROPAGATE_AOF	server.h	420;"	d
-PROPAGATE_NONE	server.h	419;"	d
-PROPAGATE_REPL	server.h	421;"	d
-PROTO_DUMP_LEN	networking.c	1584;"	d	file:
-PROTO_INLINE_MAX_SIZE	server.h	148;"	d
-PROTO_IOBUF_LEN	server.h	146;"	d
-PROTO_MAX_QUERYBUF_LEN	server.h	145;"	d
-PROTO_MBULK_BIG_ARG	server.h	149;"	d
-PROTO_REPLY_CHUNK_BYTES	server.h	147;"	d
-PROTO_REQ_INLINE	server.h	279;"	d
-PROTO_REQ_MULTIBULK	server.h	280;"	d
-PROTO_SHARED_SELECT_CMDS	server.h	106;"	d
-PSYNC_CONTINUE	replication.c	1978;"	d	file:
-PSYNC_FULLRESYNC	replication.c	1979;"	d	file:
-PSYNC_NOT_SUPPORTED	replication.c	1980;"	d	file:
-PSYNC_TRY_LATER	replication.c	1981;"	d	file:
-PSYNC_WAIT_REPLY	replication.c	1977;"	d	file:
-PSYNC_WRITE_ERROR	replication.c	1976;"	d	file:
+PROPAGATE_AOF	server.h	429;"	d
+PROPAGATE_NONE	server.h	428;"	d
+PROPAGATE_REPL	server.h	430;"	d
+PROTO_DUMP_LEN	networking.c	1601;"	d	file:
+PROTO_INLINE_MAX_SIZE	server.h	157;"	d
+PROTO_IOBUF_LEN	server.h	155;"	d
+PROTO_MAX_QUERYBUF_LEN	server.h	154;"	d
+PROTO_MBULK_BIG_ARG	server.h	158;"	d
+PROTO_REPLY_CHUNK_BYTES	server.h	156;"	d
+PROTO_REQ_INLINE	server.h	288;"	d
+PROTO_REQ_MULTIBULK	server.h	289;"	d
+PROTO_SHARED_SELECT_CMDS	server.h	115;"	d
+PSYNC_CONTINUE	replication.c	1982;"	d	file:
+PSYNC_FULLRESYNC	replication.c	1983;"	d	file:
+PSYNC_NOT_SUPPORTED	replication.c	1984;"	d	file:
+PSYNC_TRY_LATER	replication.c	1985;"	d	file:
+PSYNC_WAIT_REPLY	replication.c	1981;"	d	file:
+PSYNC_WRITE_ERROR	replication.c	1980;"	d	file:
 PT	Makefile	/^	echo OPT=$(OPT) >> .make-settings$/;"	m
 PendingEntryContext	defrag.c	/^} PendingEntryContext;$/;"	t	typeref:struct:__anon20	file:
 PingReceiver	modules/hellocluster.c	/^void PingReceiver(RedisModuleCtx *ctx, const char *sender_id, uint8_t type, const unsigned char *payload, uint32_t len) {$/;"	f
@@ -959,16 +953,16 @@ RDB_CHECK_DOING_READ_LEN	redis-check-rdb.c	59;"	d	file:
 RDB_CHECK_DOING_READ_OBJECT_VALUE	redis-check-rdb.c	57;"	d	file:
 RDB_CHECK_DOING_READ_TYPE	redis-check-rdb.c	54;"	d	file:
 RDB_CHECK_DOING_START	redis-check-rdb.c	53;"	d	file:
-RDB_CHILD_TYPE_DISK	server.h	425;"	d
-RDB_CHILD_TYPE_NONE	server.h	424;"	d
-RDB_CHILD_TYPE_SOCKET	server.h	426;"	d
+RDB_CHILD_TYPE_DISK	server.h	434;"	d
+RDB_CHILD_TYPE_NONE	server.h	433;"	d
+RDB_CHILD_TYPE_SOCKET	server.h	435;"	d
 RDB_ENCVAL	rdb.h	61;"	d
 RDB_ENC_INT16	rdb.h	68;"	d
 RDB_ENC_INT32	rdb.h	69;"	d
 RDB_ENC_INT8	rdb.h	67;"	d
 RDB_ENC_LZF	rdb.h	70;"	d
 RDB_EOF_MARK_SIZE	redis-cli.c	6767;"	d	file:
-RDB_EOF_MARK_SIZE	server.h	114;"	d
+RDB_EOF_MARK_SIZE	server.h	123;"	d
 RDB_LENERR	rdb.h	62;"	d
 RDB_LOAD_ENC	rdb.h	120;"	d
 RDB_LOAD_NONE	rdb.h	119;"	d
@@ -989,7 +983,7 @@ RDB_OPCODE_IDLE	rdb.h	101;"	d
 RDB_OPCODE_MODULE_AUX	rdb.h	100;"	d
 RDB_OPCODE_RESIZEDB	rdb.h	104;"	d
 RDB_OPCODE_SELECTDB	rdb.h	107;"	d
-RDB_SAVE_INFO_INIT	server.h	1004;"	d
+RDB_SAVE_INFO_INIT	server.h	1013;"	d
 RDB_TYPE_HASH	rdb.h	79;"	d
 RDB_TYPE_HASH_ZIPLIST	rdb.h	91;"	d
 RDB_TYPE_HASH_ZIPMAP	rdb.h	87;"	d
@@ -1018,9 +1012,9 @@ REDISMODULE_ARGV_NO_AOF	module.c	333;"	d	file:
 REDISMODULE_ARGV_NO_REPLICAS	module.c	334;"	d	file:
 REDISMODULE_ARGV_REPLICATE	module.c	332;"	d	file:
 REDISMODULE_AUX_AFTER_RDB	redismodule.h	161;"	d
-REDISMODULE_AUX_AFTER_RDB	server.h	493;"	d
+REDISMODULE_AUX_AFTER_RDB	server.h	502;"	d
 REDISMODULE_AUX_BEFORE_RDB	redismodule.h	160;"	d
-REDISMODULE_AUX_BEFORE_RDB	server.h	492;"	d
+REDISMODULE_AUX_BEFORE_RDB	server.h	501;"	d
 REDISMODULE_CLIENTINFO_FLAG_BLOCKED	redismodule.h	285;"	d
 REDISMODULE_CLIENTINFO_FLAG_MULTI	redismodule.h	288;"	d
 REDISMODULE_CLIENTINFO_FLAG_PUBSUB	redismodule.h	284;"	d
@@ -1172,11 +1166,11 @@ REDISMODULE_SUBEVENT_PERSISTENCE_RDB_START	redismodule.h	249;"	d
 REDISMODULE_SUBEVENT_PERSISTENCE_SYNC_RDB_START	redismodule.h	251;"	d
 REDISMODULE_SUBEVENT_REPLICA_CHANGE_OFFLINE	redismodule.h	268;"	d
 REDISMODULE_SUBEVENT_REPLICA_CHANGE_ONLINE	redismodule.h	267;"	d
-REDISMODULE_TYPE_ENCVER	server.h	488;"	d
-REDISMODULE_TYPE_ENCVER_BITS	server.h	486;"	d
-REDISMODULE_TYPE_ENCVER_MASK	server.h	487;"	d
+REDISMODULE_TYPE_ENCVER	server.h	497;"	d
+REDISMODULE_TYPE_ENCVER_BITS	server.h	495;"	d
+REDISMODULE_TYPE_ENCVER_MASK	server.h	496;"	d
 REDISMODULE_TYPE_METHOD_VERSION	redismodule.h	422;"	d
-REDISMODULE_TYPE_SIGN	server.h	489;"	d
+REDISMODULE_TYPE_SIGN	server.h	498;"	d
 REDISMODULE_WRITE	redismodule.h	19;"	d
 REDISMODULE_ZADD_ADDED	redismodule.h	55;"	d
 REDISMODULE_ZADD_NOP	redismodule.h	57;"	d
@@ -1193,7 +1187,7 @@ REDIS_AGGR_SUM	t_zset.c	2142;"	d	file:
 REDIS_ATOMIC_API	atomicvar.h	130;"	d
 REDIS_ATOMIC_API	atomicvar.h	83;"	d
 REDIS_ATOMIC_API	atomicvar.h	99;"	d
-REDIS_AUTOSYNC_BYTES	server.h	151;"	d
+REDIS_AUTOSYNC_BYTES	server.h	160;"	d
 REDIS_BENCHMARK_NAME	Makefile	/^REDIS_BENCHMARK_NAME=redis-benchmark$/;"	m
 REDIS_BENCHMARK_OBJ	Makefile	/^REDIS_BENCHMARK_OBJ=ae.o anet.o redis-benchmark.o adlist.o dict.o zmalloc.o siphash.o$/;"	m
 REDIS_BUILD_ID	release.h	3;"	d
@@ -1211,7 +1205,7 @@ REDIS_CLI_RCFILE_DEFAULT	redis-cli.c	74;"	d	file:
 REDIS_CLI_RCFILE_ENV	redis-cli.c	73;"	d	file:
 REDIS_COMPARE_BINARY	object.c	546;"	d	file:
 REDIS_COMPARE_COLL	object.c	547;"	d	file:
-REDIS_CONFIG_REWRITE_SIGNATURE	config.c	932;"	d	file:
+REDIS_CONFIG_REWRITE_SIGNATURE	config.c	939;"	d	file:
 REDIS_GIT_DIRTY	release.h	2;"	d
 REDIS_GIT_SHA1	release.h	1;"	d
 REDIS_INSTALL	Makefile	/^REDIS_INSTALL=$(QUIET_INSTALL)$(INSTALL)$/;"	m
@@ -1232,30 +1226,30 @@ REDIS_TLS_PROTO_TLSv1_2	tls.c	43;"	d	file:
 REDIS_TLS_PROTO_TLSv1_3	tls.c	44;"	d	file:
 REDIS_VERSION	version.h	1;"	d
 REGISTER_API	module.c	7246;"	d	file:
-REPL_DISKLESS_LOAD_DISABLED	server.h	365;"	d
-REPL_DISKLESS_LOAD_SWAPDB	server.h	367;"	d
-REPL_DISKLESS_LOAD_WHEN_DB_EMPTY	server.h	366;"	d
-REPL_MAX_WRITTEN_BEFORE_FSYNC	replication.c	1507;"	d	file:
-REPL_STATE_CONNECT	server.h	296;"	d
-REPL_STATE_CONNECTED	server.h	312;"	d
-REPL_STATE_CONNECTING	server.h	297;"	d
-REPL_STATE_NONE	server.h	295;"	d
-REPL_STATE_RECEIVE_AUTH	server.h	301;"	d
-REPL_STATE_RECEIVE_CAPA	server.h	307;"	d
-REPL_STATE_RECEIVE_IP	server.h	305;"	d
-REPL_STATE_RECEIVE_PONG	server.h	299;"	d
-REPL_STATE_RECEIVE_PORT	server.h	303;"	d
-REPL_STATE_RECEIVE_PSYNC	server.h	309;"	d
-REPL_STATE_SEND_AUTH	server.h	300;"	d
-REPL_STATE_SEND_CAPA	server.h	306;"	d
-REPL_STATE_SEND_IP	server.h	304;"	d
-REPL_STATE_SEND_PORT	server.h	302;"	d
-REPL_STATE_SEND_PSYNC	server.h	308;"	d
-REPL_STATE_TRANSFER	server.h	311;"	d
+REPL_DISKLESS_LOAD_DISABLED	server.h	374;"	d
+REPL_DISKLESS_LOAD_SWAPDB	server.h	376;"	d
+REPL_DISKLESS_LOAD_WHEN_DB_EMPTY	server.h	375;"	d
+REPL_MAX_WRITTEN_BEFORE_FSYNC	replication.c	1511;"	d	file:
+REPL_STATE_CONNECT	server.h	305;"	d
+REPL_STATE_CONNECTED	server.h	321;"	d
+REPL_STATE_CONNECTING	server.h	306;"	d
+REPL_STATE_NONE	server.h	304;"	d
+REPL_STATE_RECEIVE_AUTH	server.h	310;"	d
+REPL_STATE_RECEIVE_CAPA	server.h	316;"	d
+REPL_STATE_RECEIVE_IP	server.h	314;"	d
+REPL_STATE_RECEIVE_PONG	server.h	308;"	d
+REPL_STATE_RECEIVE_PORT	server.h	312;"	d
+REPL_STATE_RECEIVE_PSYNC	server.h	318;"	d
+REPL_STATE_SEND_AUTH	server.h	309;"	d
+REPL_STATE_SEND_CAPA	server.h	315;"	d
+REPL_STATE_SEND_IP	server.h	313;"	d
+REPL_STATE_SEND_PORT	server.h	311;"	d
+REPL_STATE_SEND_PSYNC	server.h	317;"	d
+REPL_STATE_TRANSFER	server.h	320;"	d
 REST	rand.c	64;"	d	file:
-RESTART_SERVER_CONFIG_REWRITE	server.h	2030;"	d
-RESTART_SERVER_GRACEFULLY	server.h	2029;"	d
-RESTART_SERVER_NONE	server.h	2028;"	d
+RESTART_SERVER_CONFIG_REWRITE	server.h	2052;"	d
+RESTART_SERVER_GRACEFULLY	server.h	2051;"	d
+RESTART_SERVER_NONE	server.h	2050;"	d
 REV_FINAL_CFLAGS	Makefile	/^	echo PREV_FINAL_CFLAGS=$(FINAL_CFLAGS) >> .make-settings$/;"	m
 REV_FINAL_LDFLAGS	Makefile	/^	echo PREV_FINAL_LDFLAGS=$(FINAL_LDFLAGS) >> .make-settings$/;"	m
 RIO_FLAG_READ_ERROR	rio.h	40;"	d
@@ -1662,7 +1656,7 @@ SDS_TYPE_8	sds.h	77;"	d
 SDS_TYPE_BITS	sds.h	82;"	d
 SDS_TYPE_MASK	sds.h	81;"	d
 SEED	rand.c	63;"	d	file:
-SENTINEL_ASK_FORCED	sentinel.c	3791;"	d	file:
+SENTINEL_ASK_FORCED	sentinel.c	3796;"	d	file:
 SENTINEL_ASK_PERIOD	sentinel.c	81;"	d	file:
 SENTINEL_DEFAULT_DENY_SCRIPTS_RECONFIG	sentinel.c	95;"	d	file:
 SENTINEL_DEFAULT_DOWN_AFTER	sentinel.c	83;"	d	file:
@@ -1680,9 +1674,9 @@ SENTINEL_FAILOVER_STATE_WAIT_START	sentinel.c	99;"	d	file:
 SENTINEL_GENERATE_EVENT	sentinel.c	113;"	d	file:
 SENTINEL_HELLO_CHANNEL	sentinel.c	84;"	d	file:
 SENTINEL_INFO_PERIOD	sentinel.c	79;"	d	file:
-SENTINEL_ISQR_NOAUTH	sentinel.c	3023;"	d	file:
-SENTINEL_ISQR_NOQUORUM	sentinel.c	3022;"	d	file:
-SENTINEL_ISQR_OK	sentinel.c	3021;"	d	file:
+SENTINEL_ISQR_NOAUTH	sentinel.c	3028;"	d	file:
+SENTINEL_ISQR_NOQUORUM	sentinel.c	3027;"	d	file:
+SENTINEL_ISQR_OK	sentinel.c	3026;"	d	file:
 SENTINEL_LEADER	sentinel.c	114;"	d	file:
 SENTINEL_MASTER_LINK_STATUS_DOWN	sentinel.c	107;"	d	file:
 SENTINEL_MASTER_LINK_STATUS_UP	sentinel.c	106;"	d	file:
@@ -1693,8 +1687,8 @@ SENTINEL_NO_FLAGS	sentinel.c	112;"	d	file:
 SENTINEL_OBSERVER	sentinel.c	115;"	d	file:
 SENTINEL_PING_PERIOD	sentinel.c	80;"	d	file:
 SENTINEL_PUBLISH_PERIOD	sentinel.c	82;"	d	file:
-SENTINEL_RESET_NO_SENTINELS	sentinel.c	1439;"	d	file:
-SENTINEL_SCRIPT_MAX_ARGS	sentinel.c	703;"	d	file:
+SENTINEL_RESET_NO_SENTINELS	sentinel.c	1444;"	d	file:
+SENTINEL_SCRIPT_MAX_ARGS	sentinel.c	708;"	d	file:
 SENTINEL_SCRIPT_MAX_QUEUE	sentinel.c	120;"	d	file:
 SENTINEL_SCRIPT_MAX_RETRY	sentinel.c	123;"	d	file:
 SENTINEL_SCRIPT_MAX_RUNNING	sentinel.c	121;"	d	file:
@@ -1708,17 +1702,17 @@ SENTINEL_SIMFAILURE_NONE	sentinel.c	127;"	d	file:
 SENTINEL_SLAVE_RECONF_TIMEOUT	sentinel.c	88;"	d	file:
 SENTINEL_TILT_PERIOD	sentinel.c	86;"	d	file:
 SENTINEL_TILT_TRIGGER	sentinel.c	85;"	d	file:
-SERVER_CHILD_NOERROR_RETVAL	server.h	135;"	d
+SERVER_CHILD_NOERROR_RETVAL	server.h	144;"	d
 SET3	rand.c	61;"	d	file:
 SETLOW	rand.c	62;"	d	file:
 SET_ERRNO	lzf_d.c	40;"	d	file:
 SET_ERRNO	lzf_d.c	43;"	d	file:
-SET_NUMERIC_TYPE	config.c	1731;"	d	file:
-SET_OP_DIFF	server.h	376;"	d
+SET_NUMERIC_TYPE	config.c	1738;"	d	file:
+SET_OP_DIFF	server.h	385;"	d
 SET_OP_DIFF	t_set.c	928;"	d	file:
-SET_OP_INTER	server.h	377;"	d
+SET_OP_INTER	server.h	386;"	d
 SET_OP_INTER	t_set.c	929;"	d	file:
-SET_OP_UNION	server.h	375;"	d
+SET_OP_UNION	server.h	384;"	d
 SET_OP_UNION	t_set.c	927;"	d	file:
 SHA1Final	sha1.c	/^void SHA1Final(unsigned char digest[20], SHA1_CTX* context)$/;"	f
 SHA1HANDSOFF	sha1.c	22;"	d	file:
@@ -1735,20 +1729,20 @@ SHOBJ_CFLAGS	modules/Makefile	/^	SHOBJ_CFLAGS ?= -W -Wall -fno-common -g -ggdb -
 SHOBJ_LDFLAGS	modules/Makefile	/^	SHOBJ_LDFLAGS ?= -bundle -undefined dynamic_lookup$/;"	m
 SHOBJ_LDFLAGS	modules/Makefile	/^	SHOBJ_LDFLAGS ?= -shared$/;"	m
 SHOULD_SIGNAL_MODIFIED_KEYS	module.c	340;"	d	file:
-SHUTDOWN_NOFLAGS	server.h	402;"	d
-SHUTDOWN_NOSAVE	server.h	405;"	d
-SHUTDOWN_SAVE	server.h	403;"	d
+SHUTDOWN_NOFLAGS	server.h	411;"	d
+SHUTDOWN_NOSAVE	server.h	414;"	d
+SHUTDOWN_SAVE	server.h	412;"	d
 SIG0	sha256.c	28;"	d	file:
 SIG1	sha256.c	29;"	d	file:
 SIPROUND	siphash.c	98;"	d	file:
 SIZE_SAFETY_LIMIT	quicklist.c	51;"	d	file:
-SLAVE_CAPA_EOF	server.h	325;"	d
-SLAVE_CAPA_NONE	server.h	324;"	d
-SLAVE_CAPA_PSYNC2	server.h	326;"	d
-SLAVE_STATE_ONLINE	server.h	321;"	d
-SLAVE_STATE_SEND_BULK	server.h	320;"	d
-SLAVE_STATE_WAIT_BGSAVE_END	server.h	319;"	d
-SLAVE_STATE_WAIT_BGSAVE_START	server.h	318;"	d
+SLAVE_CAPA_EOF	server.h	334;"	d
+SLAVE_CAPA_NONE	server.h	333;"	d
+SLAVE_CAPA_PSYNC2	server.h	335;"	d
+SLAVE_STATE_ONLINE	server.h	330;"	d
+SLAVE_STATE_SEND_BULK	server.h	329;"	d
+SLAVE_STATE_WAIT_BGSAVE_END	server.h	328;"	d
+SLAVE_STATE_WAIT_BGSAVE_START	server.h	327;"	d
 SLC_NOCREAT	stream.h	101;"	d
 SLC_NONE	stream.h	100;"	d
 SLC_NOREFRESH	stream.h	102;"	d
@@ -1757,7 +1751,7 @@ SLOWLOG_ENTRY_MAX_STRING	slowlog.h	34;"	d
 SORT_ASC	geo.c	452;"	d	file:
 SORT_DESC	geo.c	453;"	d	file:
 SORT_NONE	geo.c	451;"	d	file:
-SORT_OP_GET	server.h	338;"	d
+SORT_OP_GET	server.h	347;"	d
 SPARKLINE_FILL	sparkline.h	47;"	d
 SPARKLINE_LOG_SCALE	sparkline.h	48;"	d
 SPARKLINE_NO_FLAGS	sparkline.h	46;"	d
@@ -1781,11 +1775,11 @@ SRI_SENTINEL	sentinel.c	64;"	d	file:
 SRI_SLAVE	sentinel.c	63;"	d	file:
 SRI_S_DOWN	sentinel.c	65;"	d	file:
 STANDALONE	lzfP.h	40;"	d
-STATS_METRIC_COMMAND	server.h	139;"	d
-STATS_METRIC_COUNT	server.h	142;"	d
-STATS_METRIC_NET_INPUT	server.h	140;"	d
-STATS_METRIC_NET_OUTPUT	server.h	141;"	d
-STATS_METRIC_SAMPLES	server.h	138;"	d
+STATS_METRIC_COMMAND	server.h	148;"	d
+STATS_METRIC_COUNT	server.h	151;"	d
+STATS_METRIC_NET_INPUT	server.h	149;"	d
+STATS_METRIC_NET_OUTPUT	server.h	150;"	d
+STATS_METRIC_SAMPLES	server.h	147;"	d
 STD	Makefile	/^STD=-std=c11 -pedantic -DREDIS_STATIC=''$/;"	m
 STREAMID_STATIC_VECTOR_LEN	t_stream.c	46;"	d	file:
 STREAM_BYTES_PER_LISTPACK	t_stream.c	34;"	d	file:
@@ -1800,15 +1794,15 @@ STRICT_ALIGN	lzfP.h	179;"	d
 STRICT_ALIGN	lzfP.h	180;"	d
 STRICT_ALIGN	lzfP.h	83;"	d
 STRICT_ALIGN	lzfP.h	85;"	d
-SUPERVISED_AUTODETECT	server.h	349;"	d
-SUPERVISED_NONE	server.h	348;"	d
-SUPERVISED_SYSTEMD	server.h	350;"	d
-SUPERVISED_UPSTART	server.h	351;"	d
+SUPERVISED_AUTODETECT	server.h	358;"	d
+SUPERVISED_NONE	server.h	357;"	d
+SUPERVISED_SYSTEMD	server.h	359;"	d
+SUPERVISED_UPSTART	server.h	360;"	d
 SWAPINIT	pqsort.c	65;"	d	file:
 SYNCIO__RESOLUTION	syncio.c	43;"	d	file:
-SYNC_CMD_FULL	replication.c	1873;"	d	file:
-SYNC_CMD_READ	replication.c	1871;"	d	file:
-SYNC_CMD_WRITE	replication.c	1872;"	d	file:
+SYNC_CMD_FULL	replication.c	1877;"	d	file:
+SYNC_CMD_READ	replication.c	1875;"	d	file:
+SYNC_CMD_WRITE	replication.c	1876;"	d	file:
 ScanCBData	module.c	/^} ScanCBData;$/;"	t	typeref:struct:__anon55	file:
 ScanKeyCBData	module.c	/^} ScanKeyCBData;$/;"	t	typeref:struct:__anon56	file:
 String	redis-trib.rb	/^class String$/;"	c
@@ -1821,9 +1815,9 @@ THPIsEnabled	latency.c	/^int THPIsEnabled(void) {$/;"	f
 TIMEOUT_TIME	modules/helloacl.c	95;"	d	file:
 TLSCONN_DEBUG	tls.c	292;"	d	file:
 TLSCONN_DEBUG	tls.c	295;"	d	file:
-TLS_CLIENT_AUTH_NO	server.h	370;"	d
-TLS_CLIENT_AUTH_OPTIONAL	server.h	372;"	d
-TLS_CLIENT_AUTH_YES	server.h	371;"	d
+TLS_CLIENT_AUTH_NO	server.h	379;"	d
+TLS_CLIENT_AUTH_OPTIONAL	server.h	381;"	d
+TLS_CLIENT_AUTH_YES	server.h	380;"	d
 TLS_CONN_FLAG_FD_SET	tls.c	322;"	d	file:
 TLS_CONN_FLAG_READ_WANT_WRITE	tls.c	320;"	d	file:
 TLS_CONN_FLAG_WRITE_WANT_READ	tls.c	321;"	d	file:
@@ -1857,8 +1851,8 @@ ULONG_ZEROONE	memtest.c	53;"	d	file:
 ULONG_ZEROONE	memtest.c	56;"	d	file:
 ULTRA_FAST	lzfP.h	75;"	d
 UNALIGNED_LE_CPU	siphash.c	63;"	d	file:
-UNIT_MILLISECONDS	server.h	399;"	d
-UNIT_SECONDS	server.h	398;"	d
+UNIT_MILLISECONDS	server.h	408;"	d
+UNIT_SECONDS	server.h	407;"	d
 UNUSED	crc64.c	129;"	d	file:
 UNUSED	endianconv.c	107;"	d	file:
 UNUSED	intset.c	351;"	d	file:
@@ -1866,17 +1860,17 @@ UNUSED	quicklist.c	1547;"	d	file:
 UNUSED	redis-benchmark.c	54;"	d	file:
 UNUSED	redis-cli.c	64;"	d	file:
 UNUSED	sds.c	1131;"	d	file:
-UNUSED	server.h	354;"	d
+UNUSED	server.h	363;"	d
 UNUSED	sha1.c	203;"	d	file:
 UNUSED	util.c	922;"	d	file:
 UNUSED	zipmap.c	407;"	d	file:
 UNUSED	zmalloc.c	527;"	d	file:
-USER_COMMAND_BITS_COUNT	server.h	739;"	d
-USER_FLAG_ALLCOMMANDS	server.h	746;"	d
-USER_FLAG_ALLKEYS	server.h	745;"	d
-USER_FLAG_DISABLED	server.h	744;"	d
-USER_FLAG_ENABLED	server.h	743;"	d
-USER_FLAG_NOPASS	server.h	747;"	d
+USER_COMMAND_BITS_COUNT	server.h	748;"	d
+USER_FLAG_ALLCOMMANDS	server.h	755;"	d
+USER_FLAG_ALLKEYS	server.h	754;"	d
+USER_FLAG_DISABLED	server.h	753;"	d
+USER_FLAG_ENABLED	server.h	752;"	d
+USER_FLAG_NOPASS	server.h	756;"	d
 USE_ALIGNED_ACCESS	config.h	226;"	d
 USE_CRYPTO_LOCKS	tls.c	102;"	d	file:
 USE_SETCPUAFFINITY	config.h	252;"	d
@@ -1895,15 +1889,15 @@ X0	rand.c	54;"	d	file:
 X1	rand.c	55;"	d	file:
 X2	rand.c	56;"	d	file:
 XREAD_BLOCKED_DEFAULT_COUNT	t_stream.c	1376;"	d	file:
-ZADD_ADDED	server.h	1930;"	d
-ZADD_CH	server.h	1934;"	d
-ZADD_INCR	server.h	1923;"	d
-ZADD_NAN	server.h	1929;"	d
-ZADD_NONE	server.h	1922;"	d
-ZADD_NOP	server.h	1928;"	d
-ZADD_NX	server.h	1924;"	d
-ZADD_UPDATED	server.h	1931;"	d
-ZADD_XX	server.h	1925;"	d
+ZADD_ADDED	server.h	1952;"	d
+ZADD_CH	server.h	1956;"	d
+ZADD_INCR	server.h	1945;"	d
+ZADD_NAN	server.h	1951;"	d
+ZADD_NONE	server.h	1944;"	d
+ZADD_NOP	server.h	1950;"	d
+ZADD_NX	server.h	1946;"	d
+ZADD_UPDATED	server.h	1953;"	d
+ZADD_XX	server.h	1947;"	d
 ZIPLIST_BYTES	ziplist.c	230;"	d	file:
 ZIPLIST_END_SIZE	ziplist.c	245;"	d	file:
 ZIPLIST_ENTRY_END	ziplist.c	256;"	d	file:
@@ -1946,10 +1940,10 @@ ZMALLOC_LIB	zmalloc.h	65;"	d
 ZRANGE_LEX	t_zset.c	1693;"	d	file:
 ZRANGE_RANK	t_zset.c	1691;"	d	file:
 ZRANGE_SCORE	t_zset.c	1692;"	d	file:
-ZSET_MAX	server.h	335;"	d
-ZSET_MIN	server.h	334;"	d
-ZSKIPLIST_MAXLEVEL	server.h	356;"	d
-ZSKIPLIST_P	server.h	357;"	d
+ZSET_MAX	server.h	344;"	d
+ZSET_MIN	server.h	343;"	d
+ZSKIPLIST_MAXLEVEL	server.h	365;"	d
+ZSKIPLIST_P	server.h	366;"	d
 _ALL_SOURCE	fmacros.h	41;"	d
 _BSD_SOURCE	fmacros.h	33;"	d
 _CRC16_TABLE_H__	crc16_slottable.h	2;"	d
@@ -2525,6 +2519,7 @@ buf	sds.h	/^    char buf[];$/;"	m	struct:sdshdr64
 buf	sds.h	/^    char buf[];$/;"	m	struct:sdshdr8
 buf	server.h	/^    char buf[PROTO_REPLY_CHUNK_BYTES];$/;"	m	struct:client
 buf	server.h	/^    char buf[];$/;"	m	struct:clientReplyBlock
+buf_psync_offset	server.h	/^    int* buf_psync_offset;$/;"	m	struct:redisServer
 buffer	rio.h	/^        } buffer;$/;"	m	union:_rio::__anon3	typeref:struct:_rio::__anon3::__anon4
 buffer	sha1.h	/^    unsigned char buffer[64];$/;"	m	struct:__anon22
 buffered	rio.h	/^            off_t buffered; \/* Bytes written since last fsync. *\/$/;"	m	struct:_rio::__anon3::__anon5
@@ -2955,16 +2950,16 @@ configEpoch	cluster.h	/^    uint64_t configEpoch; \/* Config epoch of the specif
 configEpoch	cluster.h	/^    uint64_t configEpoch; \/* Last configEpoch observed for this node *\/$/;"	m	struct:clusterNode
 configSetCommand	config.c	/^void configSetCommand(client *c) {$/;"	f
 config_epoch	sentinel.c	/^    uint64_t config_epoch;  \/* Configuration epoch. *\/$/;"	m	struct:sentinelRedisInstance	file:
-config_get_bool_field	config.c	783;"	d	file:
-config_get_numerical_field	config.c	791;"	d	file:
-config_get_string_field	config.c	775;"	d	file:
+config_get_bool_field	config.c	790;"	d	file:
+config_get_numerical_field	config.c	798;"	d	file:
+config_get_string_field	config.c	782;"	d	file:
 config_hz	server.h	/^    int config_hz;              \/* Configured HZ value. May be different than$/;"	m	struct:redisServer
-config_set_bool_field	config.c	580;"	d	file:
-config_set_else	config.c	606;"	d	file:
-config_set_memory_field	config.c	593;"	d	file:
-config_set_numerical_field	config.c	586;"	d	file:
-config_set_special_field	config.c	599;"	d	file:
-config_set_special_field_with_alias	config.c	602;"	d	file:
+config_set_bool_field	config.c	587;"	d	file:
+config_set_else	config.c	613;"	d	file:
+config_set_memory_field	config.c	600;"	d	file:
+config_set_numerical_field	config.c	593;"	d	file:
+config_set_special_field	config.c	606;"	d	file:
+config_set_special_field_with_alias	config.c	609;"	d	file:
 configfile	server.h	/^    char *configfile;           \/* Absolute config file path, or NULL *\/$/;"	m	struct:redisServer
 configs	config.c	/^standardConfig configs[] = {$/;"	v
 configs	config.c	/^standardConfig configs[];$/;"	v
@@ -3095,7 +3090,7 @@ crcspeed64native	crcspeed.c	/^uint64_t crcspeed64native(uint64_t table[8][256], 
 crcspeed64native_init	crcspeed.c	/^void crcspeed64native_init(crcfn64 fn, uint64_t table[8][256]) {$/;"	f
 createAOFClient	aof.c	/^struct client *createAOFClient(void) {$/;"	f
 createBenchmarkThread	redis-benchmark.c	/^static benchmarkThread *createBenchmarkThread(int index) {$/;"	f	file:
-createBoolConfig	config.c	1612;"	d	file:
+createBoolConfig	config.c	1619;"	d	file:
 createClient	networking.c	/^client *createClient(connection *conn) {$/;"	f
 createClient	redis-benchmark.c	/^static client createClient(char *cmd, size_t len, client from, int thread_id) {$/;"	f	file:
 createClusterLink	cluster.c	/^clusterLink *createClusterLink(clusterNode *node) {$/;"	f
@@ -3104,47 +3099,47 @@ createClusterNode	cluster.c	/^clusterNode *createClusterNode(char *nodename, int
 createClusterNode	redis-benchmark.c	/^static clusterNode *createClusterNode(char *ip, int port) {$/;"	f	file:
 createDumpPayload	cluster.c	/^void createDumpPayload(rio *payload, robj *o, robj *key) {$/;"	f
 createEmbeddedStringObject	object.c	/^robj *createEmbeddedStringObject(const char *ptr, size_t len) {$/;"	f
-createEnumConfig	config.c	1717;"	d	file:
+createEnumConfig	config.c	1724;"	d	file:
 createHLLObject	hyperloglog.c	/^robj *createHLLObject(void) {$/;"	f
 createHashObject	object.c	/^robj *createHashObject(void) {$/;"	f
 createHelloTypeObject	modules/hellotype.c	/^struct HelloTypeObject *createHelloTypeObject(void) {$/;"	f
 createInstanceLink	sentinel.c	/^instanceLink *createInstanceLink(void) {$/;"	f
-createIntConfig	config.c	1882;"	d	file:
+createIntConfig	config.c	1889;"	d	file:
 createIntList	ziplist.c	/^static unsigned char *createIntList() {$/;"	f	file:
 createIntsetObject	object.c	/^robj *createIntsetObject(void) {$/;"	f
 createLatencyReport	latency.c	/^sds createLatencyReport(void) {$/;"	f
 createList	ziplist.c	/^static unsigned char *createList() {$/;"	f	file:
-createLongConfig	config.c	1896;"	d	file:
-createLongLongConfig	config.c	1910;"	d	file:
+createLongConfig	config.c	1903;"	d	file:
+createLongLongConfig	config.c	1917;"	d	file:
 createMissingClients	redis-benchmark.c	/^static void createMissingClients(client c) {$/;"	f	file:
 createModuleObject	object.c	/^robj *createModuleObject(moduleType *mt, void *value) {$/;"	f
 createObject	object.c	/^robj *createObject(int type, void *ptr) {$/;"	f
 createObjectFromStreamID	t_stream.c	/^robj *createObjectFromStreamID(streamID *id) {$/;"	f
-createOffTConfig	config.c	1945;"	d	file:
+createOffTConfig	config.c	1952;"	d	file:
 createPidFile	server.c	/^void createPidFile(void) {$/;"	f
 createQuicklistObject	object.c	/^robj *createQuicklistObject(void) {$/;"	f
 createRawStringObject	object.c	/^robj *createRawStringObject(const char *ptr, size_t len) {$/;"	f
 createReplicationBacklog	replication.c	/^void createReplicationBacklog(void) {$/;"	f
-createSSizeTConfig	config.c	1931;"	d	file:
+createSSizeTConfig	config.c	1938;"	d	file:
 createSentinelAddr	sentinel.c	/^sentinelAddr *createSentinelAddr(char *hostname, int port) {$/;"	f
 createSentinelRedisInstance	sentinel.c	/^sentinelRedisInstance *createSentinelRedisInstance(char *name, int flags, char *hostname, int port, int quorum, sentinelRedisInstance *master) {$/;"	f
 createSet	intset.c	/^static intset *createSet(int bits, int size) {$/;"	f	file:
 createSetObject	object.c	/^robj *createSetObject(void) {$/;"	f
 createSharedObjects	server.c	/^void createSharedObjects(void) {$/;"	f
-createSizeTConfig	config.c	1924;"	d	file:
+createSizeTConfig	config.c	1931;"	d	file:
 createSortOperation	sort.c	/^redisSortOperation *createSortOperation(int type, robj *pattern) {$/;"	f
 createSparklineSequence	sparkline.c	/^struct sequence *createSparklineSequence(void) {$/;"	f
 createStreamObject	object.c	/^robj *createStreamObject(void) {$/;"	f
-createStringConfig	config.c	1661;"	d	file:
+createStringConfig	config.c	1668;"	d	file:
 createStringObject	object.c	/^robj *createStringObject(const char *ptr, size_t len) {$/;"	f
 createStringObjectFromLongDouble	object.c	/^robj *createStringObjectFromLongDouble(long double value, int humanfriendly) {$/;"	f
 createStringObjectFromLongLong	object.c	/^robj *createStringObjectFromLongLong(long long value) {$/;"	f
 createStringObjectFromLongLongForValue	object.c	/^robj *createStringObjectFromLongLongForValue(long long value) {$/;"	f
 createStringObjectFromLongLongWithOptions	object.c	/^robj *createStringObjectFromLongLongWithOptions(long long value, int valueobj) {$/;"	f
-createTimeTConfig	config.c	1938;"	d	file:
-createUIntConfig	config.c	1889;"	d	file:
-createULongConfig	config.c	1903;"	d	file:
-createULongLongConfig	config.c	1917;"	d	file:
+createTimeTConfig	config.c	1945;"	d	file:
+createUIntConfig	config.c	1896;"	d	file:
+createULongConfig	config.c	1910;"	d	file:
+createULongLongConfig	config.c	1924;"	d	file:
 createZiplistObject	object.c	/^robj *createZiplistObject(void) {$/;"	f
 createZsetObject	object.c	/^robj *createZsetObject(void) {$/;"	f
 createZsetZiplistObject	object.c	/^robj *createZsetZiplistObject(void) {$/;"	f
@@ -3404,6 +3399,7 @@ dup	adlist.h	/^    void *(*dup)(void *ptr);$/;"	m	struct:list
 dupClientReplyValue	networking.c	/^void *dupClientReplyValue(void *o) {$/;"	f
 dupSentinelAddr	sentinel.c	/^sentinelAddr *dupSentinelAddr(sentinelAddr *src) {$/;"	f
 dupStringObject	object.c	/^robj *dupStringObject(const robj *o) {$/;"	f
+duration	networking.c	/^ustime_t start, duration;$/;"	v
 duration	slowlog.h	/^    long long duration; \/* Time spent by the query, in microseconds. *\/$/;"	m	struct:slowlogEntry
 dynamic_hz	server.h	/^    int dynamic_hz;             \/* Change hz value depending on # of clients. *\/$/;"	m	struct:redisServer
 east	geohash.h	/^    GeoHashBits east;$/;"	m	struct:__anon32
@@ -3415,9 +3411,9 @@ ele	server.h	/^    sds ele;$/;"	m	struct:zskiplistNode
 ele	t_zset.c	/^    sds ele;$/;"	m	struct:__anon40	file:
 elen	t_zset.c	/^    unsigned int elen;$/;"	m	struct:__anon40	file:
 ell	t_zset.c	/^    long long ell;$/;"	m	struct:__anon40	file:
-embedCommonConfig	config.c	1558;"	d	file:
-embedCommonNumericalConfig	config.c	1871;"	d	file:
-embedConfigInterface	config.c	1563;"	d	file:
+embedCommonConfig	config.c	1565;"	d	file:
+embedCommonNumericalConfig	config.c	1878;"	d	file:
+embedConfigInterface	config.c	1570;"	d	file:
 emptyDb	db.c	/^long long emptyDb(int dbnum, int flags, void(callback)(void*)) {$/;"	f
 emptyDbAsync	lazyfree.c	/^void emptyDbAsync(redisDb *db) {$/;"	f
 emptyDbGeneric	db.c	/^long long emptyDbGeneric(redisDb *dbarray, int dbnum, int flags, void(callback)(void*)) {$/;"	f
@@ -3780,6 +3776,7 @@ gopher_enabled	server.h	/^    int gopher_enabled;         \/* If true the server
 gossip	cluster.h	/^        clusterMsgDataGossip gossip[1];$/;"	m	struct:clusterMsgData::__anon48
 group	help.h	/^  int group;$/;"	m	struct:commandHelp
 groupname	stream.h	/^    robj *groupname;$/;"	m	struct:streamPropInfo
+had_shm	sentinel.c	/^    int had_shm;$/;"	m	struct:sentinelRedisInstance	file:
 handle	module.c	/^    void *handle;   \/* Module dlopen() handle. *\/$/;"	m	struct:RedisModule	file:
 handleBlockedClientsTimeout	timeout.c	/^void handleBlockedClientsTimeout(void) {$/;"	f
 handleClientsBlockedOnKeys	blocked.c	/^void handleClientsBlockedOnKeys(void) {$/;"	f
@@ -3879,7 +3876,7 @@ hvalsCommand	t_hash.c	/^void hvalsCommand(client *c) {$/;"	f
 hz	redismodule.h	/^    int32_t hz;             \/* Approximate number of events per second. *\/$/;"	m	struct:RedisModuleCronLoopInfo
 hz	redismodule.h	/^    int32_t hz;             \/* Approximate number of events per second. *\/$/;"	m	struct:RedisModuleLoadingProgressInfo
 hz	server.h	/^    int hz;                     \/* serverCron() calls frequency in hertz *\/$/;"	m	struct:redisServer
-hz	server.h	1042;"	d
+hz	server.h	1051;"	d
 i	config.c	/^        int *i;$/;"	m	union:numericConfigData::__anon26	file:
 i64	bitops.c	/^    int64_t i64;        \/* Increment amount (INCRBY) or SET value *\/$/;"	m	struct:bitfieldOp	file:
 iAmMaster	server.c	/^int iAmMaster(void) {$/;"	f
@@ -3919,7 +3916,7 @@ info	sentinel.c	/^    sds info; \/* cached INFO output *\/$/;"	m	struct:sentinel
 infoCommand	server.c	/^void infoCommand(client *c) {$/;"	f
 info_cb	module.c	/^    RedisModuleInfoFunc info_cb; \/* Callback for module to add INFO fields. *\/$/;"	m	struct:RedisModule	file:
 info_refresh	sentinel.c	/^    mstime_t info_refresh;  \/* Time at which we received INFO output from it. *\/$/;"	m	struct:sentinelRedisInstance	file:
-info_section_from_redis	sentinel.c	3366;"	d	file:
+info_section_from_redis	sentinel.c	3371;"	d	file:
 init	config.c	/^    void (*init)(typeData data);$/;"	m	struct:typeInterface	file:
 initBenchmarkThreads	redis-benchmark.c	/^static void initBenchmarkThreads() {$/;"	f	file:
 initClientMultiState	multi.c	/^void initClientMultiState(client *c) {$/;"	f
@@ -3930,7 +3927,7 @@ initSentinel	sentinel.c	/^void initSentinel(void) {$/;"	f
 initSentinelConfig	sentinel.c	/^void initSentinelConfig(void) {$/;"	f
 initServer	server.c	/^void initServer(void) {$/;"	f
 initServerConfig	server.c	/^void initServerConfig(void) {$/;"	f
-initStaticStringObject	server.h	639;"	d
+initStaticStringObject	server.h	648;"	d
 initThreadedIO	networking.c	/^void initThreadedIO(void) {$/;"	f
 initial_memory_usage	server.h	/^    size_t initial_memory_usage; \/* Bytes used after initialization. *\/$/;"	m	struct:redisServer
 inline	lzf_c.c	80;"	d	file:
@@ -4490,6 +4487,7 @@ max	server.h	/^    double min, max;$/;"	m	struct:__anon17
 max	server.h	/^    sds min, max;     \/* May be set to shared.(minstring|maxstring) *\/$/;"	m	struct:__anon18
 max	sparkline.h	/^    double min, max;$/;"	m	struct:sequence
 max_processing_chunk	rio.h	/^    size_t max_processing_chunk;$/;"	m	struct:_rio
+max_slave_repl_offset	sentinel.c	/^    unsigned long long max_slave_repl_offset; \/* If replcia used shared memory, $/;"	m	struct:sentinelRedisInstance	file:
 maxclients	server.h	/^    unsigned int maxclients;            \/* Max number of simultaneous clients *\/$/;"	m	struct:redisServer
 maxex	server.h	/^    int minex, maxex; \/* are min or max exclusive? *\/$/;"	m	struct:__anon17
 maxex	server.h	/^    int minex, maxex; \/* are min or max exclusive? *\/$/;"	m	struct:__anon18
@@ -4622,8 +4620,8 @@ moduleGetCommandKeysViaAPI	module.c	/^int *moduleGetCommandKeysViaAPI(struct red
 moduleGetReplyClient	module.c	/^client *moduleGetReplyClient(RedisModuleCtx *ctx) {$/;"	f
 moduleHandleBlockedClients	module.c	/^void moduleHandleBlockedClients(void) {$/;"	f
 moduleHandlePropagationAfterCommandCallback	module.c	/^void moduleHandlePropagationAfterCommandCallback(RedisModuleCtx *ctx) {$/;"	f
-moduleInitDigestContext	server.h	593;"	d
-moduleInitIOContext	server.h	572;"	d
+moduleInitDigestContext	server.h	602;"	d
+moduleInitIOContext	server.h	581;"	d
 moduleInitKey	module.c	/^static void moduleInitKey(RedisModuleKey *kp, RedisModuleCtx *ctx, robj *keyname, robj *value, int mode){$/;"	f	file:
 moduleInitModulesSystem	module.c	/^void moduleInitModulesSystem(void) {$/;"	f
 moduleKeyspaceSubscribers	module.c	/^static list *moduleKeyspaceSubscribers;$/;"	v	file:
@@ -4923,6 +4921,7 @@ pixels	lolwut.h	/^    char *pixels;$/;"	m	struct:lwCanvas
 plus	server.h	/^    *busykeyerr, *oomerr, *plus, *messagebulk, *pmessagebulk, *subscribebulk,$/;"	m	struct:sharedObjectsStruct
 pmessagebulk	server.h	/^    *busykeyerr, *oomerr, *plus, *messagebulk, *pmessagebulk, *subscribebulk,$/;"	m	struct:sharedObjectsStruct
 pointer	server.h	/^    unsigned long pointer;$/;"	m	struct:redisFunctionSym
+policy	server.h	/^    struct cpufreq_policy *policy;$/;"	m	struct:redisServer	typeref:struct:redisServer::cpufreq_policy
 pong	server.h	/^    robj *crlf, *ok, *err, *emptybulk, *czero, *cone, *pong, *space,$/;"	m	struct:sharedObjectsStruct
 pong_received	cluster.h	/^    mstime_t pong_received;  \/* Unix time we received the pong *\/$/;"	m	struct:clusterNode
 pong_received	cluster.h	/^    uint32_t pong_received;$/;"	m	struct:__anon43
@@ -4967,6 +4966,7 @@ preventCommandReplication	server.c	/^void preventCommandReplication(client *c) {
 previous_time	sentinel.c	/^    mstime_t previous_time;         \/* Last time we ran the time handler. *\/$/;"	m	struct:sentinelState	file:
 prevrawlen	ziplist.c	/^    unsigned int prevrawlen;     \/* Previous entry len. *\/$/;"	m	struct:zlentry	file:
 prevrawlensize	ziplist.c	/^    unsigned int prevrawlensize; \/* Bytes used to encode the previous entry len*\/$/;"	m	struct:zlentry	file:
+priQueueClient	networking.c	/^void priQueueClient(client *c){$/;"	f
 printBits	bitops.c	/^void printBits(unsigned char *p, unsigned long count) {$/;"	f
 private_data	connection.h	/^    void *private_data;$/;"	m	struct:connection
 privdata	dict.h	/^    void *privdata;$/;"	m	struct:dict
@@ -5288,6 +5288,7 @@ readString	redis-check-aof.c	/^int readString(FILE *fp, char** target) {$/;"	f
 readSyncBulkPayload	replication.c	/^void readSyncBulkPayload(connection *conn) {$/;"	f
 read_handler	connection.h	/^    ConnectionCallbackFunc read_handler;$/;"	m	struct:connection
 read_limit	rio.h	/^            size_t read_limit;  \/* don't allow to buffer\/read more than that *\/$/;"	m	struct:_rio::__anon3::__anon6
+read_memcpy_count	networking.c	/^long long read_memcpy_count=0;$/;"	v
 read_reploff	server.h	/^    long long read_reploff; \/* Read replication offset if this is a master. *\/$/;"	m	struct:client
 read_so_far	rio.h	/^            size_t read_so_far; \/* amount of data read from the rio (not buffered) *\/$/;"	m	struct:_rio::__anon3::__anon6
 reading	sentinel.c	/^    int reading, writing;$/;"	m	struct:redisAeEvents	file:
@@ -5325,8 +5326,8 @@ redisConfig	redis-benchmark.c	/^typedef struct redisConfig {$/;"	s	file:
 redisConfig	redis-benchmark.c	/^} redisConfig;$/;"	t	typeref:struct:redisConfig	file:
 redisDb	server.h	/^typedef struct redisDb {$/;"	s
 redisDb	server.h	/^} redisDb;$/;"	t	typeref:struct:redisDb
-redisDebug	server.h	2464;"	d
-redisDebugMark	server.h	2466;"	d
+redisDebug	server.h	2486;"	d
+redisDebugMark	server.h	2488;"	d
 redisFork	server.c	/^int redisFork() {$/;"	f
 redisFunctionSym	server.h	/^struct redisFunctionSym {$/;"	s
 redisGetKeysProc	server.h	/^typedef int *redisGetKeysProc(struct redisCommand *cmd, robj **argv, int argc, int *numkeys);$/;"	t
@@ -5422,6 +5423,7 @@ repl_backlog	server.h	/^    char *repl_backlog;             \/* Replication back
 repl_backlog	server.h	/^    size_t repl_backlog;$/;"	m	struct:redisMemOverhead
 repl_backlog_histlen	server.h	/^    long long repl_backlog_histlen; \/* Backlog actual data length *\/$/;"	m	struct:redisServer
 repl_backlog_idx	server.h	/^    long long repl_backlog_idx;     \/* Backlog circular buffer current offset,$/;"	m	struct:redisServer
+repl_backlog_int	server.h	/^    int repl_backlog_int;$/;"	m	struct:redisServer
 repl_backlog_key	server.h	/^    key_t repl_backlog_key;$/;"	m	struct:redisServer
 repl_backlog_off	server.h	/^    long long repl_backlog_off;     \/* Replication "master offset" of first$/;"	m	struct:redisServer
 repl_backlog_size	server.h	/^    long long repl_backlog_size;    \/* Backlog circular buffer size *\/$/;"	m	struct:redisServer
@@ -5623,7 +5625,7 @@ rpushxCommand	t_list.c	/^void rpushxCommand(client *c) {$/;"	f
 rss_extra	server.h	/^    float rss_extra;$/;"	m	struct:redisMemOverhead
 rss_extra_bytes	server.h	/^    size_t rss_extra_bytes;$/;"	m	struct:redisMemOverhead
 rt	rax.h	/^    rax *rt;                \/* Radix tree we are iterating. *\/$/;"	m	struct:raxIterator
-run_with_period	server.h	451;"	d
+run_with_period	server.h	460;"	d
 runid	sentinel.c	/^    char *runid;    \/* Run ID of this instance, or unique ID if is a Sentinel.*\/$/;"	m	struct:sentinelRedisInstance	file:
 runid	sentinel.c	/^    char *runid;$/;"	m	struct:sentinelLeader	file:
 runid	server.h	/^    char runid[CONFIG_RUN_ID_SIZE+1];  \/* ID always different at every exec. *\/$/;"	m	struct:redisServer
@@ -5681,7 +5683,7 @@ sds	sds.h	/^typedef char *sds;$/;"	t
 sdsAllocPtr	sds.c	/^void *sdsAllocPtr(sds s) {$/;"	f
 sdsAllocSize	sds.c	/^size_t sdsAllocSize(sds s) {$/;"	f
 sdsCatColorizedLdbReply	redis-cli.c	/^sds sdsCatColorizedLdbReply(sds o, char *s, size_t len) {$/;"	f
-sdsEncodedObject	server.h	1808;"	d
+sdsEncodedObject	server.h	1830;"	d
 sdsHdrSize	sds.c	/^static inline int sdsHdrSize(char type) {$/;"	f	file:
 sdsIncrLen	sds.c	/^void sdsIncrLen(sds s, ssize_t incr) {$/;"	f
 sdsMakeRoomFor	sds.c	/^sds sdsMakeRoomFor(sds s, size_t addlen) {$/;"	f
@@ -5857,15 +5859,15 @@ serveClientsBlockedOnListKey	blocked.c	/^void serveClientsBlockedOnListKey(robj 
 serveClientsBlockedOnSortedSetKey	blocked.c	/^void serveClientsBlockedOnSortedSetKey(robj *o, readyList *rl) {$/;"	f
 serveClientsBlockedOnStreamKey	blocked.c	/^void serveClientsBlockedOnStreamKey(robj *o, readyList *rl) {$/;"	f
 server	server.c	/^struct redisServer server; \/* Server global state *\/$/;"	v	typeref:struct:redisServer
-serverAssert	server.h	455;"	d
-serverAssertWithInfo	server.h	454;"	d
+serverAssert	server.h	464;"	d
+serverAssertWithInfo	server.h	463;"	d
 serverCron	server.c	/^int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) {$/;"	f
 serverLog	server.c	/^void serverLog(int level, const char *fmt, ...) {$/;"	f
 serverLogFromHandler	server.c	/^void serverLogFromHandler(int level, const char *msg) {$/;"	f
 serverLogHexDump	debug.c	/^void serverLogHexDump(int level, char *descr, void *value, size_t len) {$/;"	f
 serverLogObjectDebugInfo	debug.c	/^void serverLogObjectDebugInfo(const robj *o) {$/;"	f
 serverLogRaw	server.c	/^void serverLogRaw(int level, const char *msg) {$/;"	f
-serverPanic	server.h	456;"	d
+serverPanic	server.h	465;"	d
 server_cpulist	server.h	/^    char *server_cpulist; \/* cpu affinity list of redis server main\/io thread. *\/$/;"	m	struct:redisServer
 session_cache_size	server.h	/^    int session_cache_size;$/;"	m	struct:redisTLSContextConfig
 session_cache_timeout	server.h	/^    int session_cache_timeout;$/;"	m	struct:redisTLSContextConfig
@@ -6078,6 +6080,7 @@ staglen	redis-benchmark.c	/^    size_t staglen;         \/* Number of pointers i
 stagptr	redis-benchmark.c	/^    char **stagptr;         \/* Pointers to slot hashtags (cluster mode only) *\/$/;"	m	struct:_client	file:
 standardConfig	config.c	/^typedef struct standardConfig {$/;"	s	file:
 standardConfig	config.c	/^} standardConfig;$/;"	t	typeref:struct:standardConfig	file:
+start	networking.c	/^ustime_t start, duration;$/;"	v
 start	redis-benchmark.c	/^    long long start;        \/* Start time of a request *\/$/;"	m	struct:_client	file:
 start	redis-benchmark.c	/^    long long start;$/;"	m	struct:config	file:
 startAppendOnly	aof.c	/^int startAppendOnly(void) {$/;"	f
@@ -6311,6 +6314,7 @@ tlsfd	server.h	/^    int tlsfd[CONFIG_BINDADDR_MAX]; \/* TLS socket file descrip
 tlsfd_count	server.h	/^    int tlsfd_count;            \/* Used slots in tlsfd[] *\/$/;"	m	struct:redisServer
 to	redis-cli.c	/^    char *to;$/;"	m	struct:clusterManagerCommand	file:
 todo_before_sleep	cluster.h	/^    int todo_before_sleep; \/* Things to do in clusterBeforeSleep(). *\/$/;"	m	struct:clusterState
+total	replication.c	/^long total=0;$/;"	v
 total_allocated	server.h	/^    size_t total_allocated;$/;"	m	struct:redisMemOverhead
 total_frag	server.h	/^    float total_frag;$/;"	m	struct:redisMemOverhead
 total_frag_bytes	server.h	/^    ssize_t total_frag_bytes;$/;"	m	struct:redisMemOverhead
@@ -6479,6 +6483,7 @@ value	quicklist.h	/^    unsigned char *value;$/;"	m	struct:quicklistEntry
 value	server.h	/^    void *value;$/;"	m	struct:moduleValue
 value	sparkline.h	/^    double value;$/;"	m	struct:sample
 value_buf	stream.h	/^    unsigned char value_buf[LP_INTBUF_SIZE];$/;"	m	struct:streamIterator
+value_count	db.c	/^long value_count=0;$/;"	v
 vecswap	pqsort.c	86;"	d	file:
 vectors_sip64	siphash.c	/^const uint8_t vectors_sip64[64][8] = {$/;"	v
 ver	cluster.h	/^    uint16_t ver;       \/* Protocol version, currently set to 1. *\/$/;"	m	struct:__anon53
@@ -6530,6 +6535,7 @@ writeConn	redis-cli.c	/^static ssize_t writeConn(redisContext *c, const char *bu
 writeHandler	redis-benchmark.c	/^static void writeHandler(aeEventLoop *el, int fd, void *privdata, int mask) {$/;"	f	file:
 writeToClient	networking.c	/^int writeToClient(client *c, int handler_installed) {$/;"	f
 write_handler	connection.h	/^    ConnectionCallbackFunc write_handler;$/;"	m	struct:connection
+write_memcpy_count	replication.c	/^long long write_memcpy_count=0;$/;"	v
 writing	sentinel.c	/^    int reading, writing;$/;"	m	struct:redisAeEvents	file:
 written	redis-benchmark.c	/^    size_t written;         \/* Bytes of 'obuf' already written *\/$/;"	m	struct:_client	file:
 wrongtypeerr	server.h	/^    *emptyarray, *wrongtypeerr, *nokeyerr, *syntaxerr, *sameobjecterr,$/;"	m	struct:sharedObjectsStruct

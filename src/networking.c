@@ -34,6 +34,13 @@
 #include <sys/uio.h>
 #include <math.h>
 #include <ctype.h>
+/*time 측정*/
+
+#include <unistd.h>
+#include <sys/time.h>
+ustime_t start, duration;
+struct timeval w_tv, w_tz;
+long long nvalue_count=0;
 
 static void setProtocolError(const char *errstr, client *c);
 int postponeClientRead(client *c);
@@ -85,6 +92,20 @@ void linkClient(client *c) {
     uint64_t id = htonu64(c->id);
     raxInsert(server.clients_index,(unsigned char*)&id,sizeof(id),c,NULL);
 }
+#ifdef PQC
+void priQueueClient(client *c){
+    
+//    listAddNodeHead(server.clients,c);
+
+    listAddNodeTail(server.clients,c);
+    /* Note that we remember the linked list node where the client is stored,
+     * this way removing the client in unlinkClient() will not require
+     * a linear scan, but just a constant time operation. */
+    c->client_list_node = listLast(server.clients);
+    uint64_t id = htonu64(c->id);
+    raxInsert(server.clients_index,(unsigned char*)&id,sizeof(id),c,NULL);
+}
+#endif
 
 client *createClient(connection *conn) {
     client *c = zmalloc(sizeof(client));
@@ -1256,7 +1277,7 @@ void freeClientAsync(client *c) {
     pthread_mutex_unlock(&async_free_queue_mutex);
 }
 
-/* Free the clietns marked as CLOSE_ASAP, return the number of clients
+/* Free the clients marked as CLOSE_ASAP, return the number of clients
  * freed. */
 int freeClientsInAsyncFreeQueue(void) {
     int freed = 0;
@@ -1294,6 +1315,12 @@ client *lookupClientByID(uint64_t id) {
  * This function is called by threads, but always with handler_installed
  * set to 0. So when handler_installed is set to 0 the function must be
  * thread safe. */
+long long write_count=0;
+struct timeval p_tv; 
+long send_count=0;
+long long past_value_count=0;
+float total_rate=0;
+float bps=0;
 int writeToClient(client *c, int handler_installed) {
     /* Update total number of writes on server */
     server.stat_total_writes_processed++;
@@ -1304,7 +1331,23 @@ int writeToClient(client *c, int handler_installed) {
 
     while(clientHasPendingReplies(c)) {
         if (c->bufpos > 0) {
+            gettimeofday(&w_tv, NULL);
+     //       serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
+            serverLog(LL_NOTICE, "## send data length = %ld", c->bufpos-c->sentlen);
             nwritten = connWrite(c->conn,c->buf+c->sentlen,c->bufpos-c->sentlen);
+            
+            if(c->conn->fd ==7){
+                if(past_value_count < nvalue_count && nvalue_count >2){
+                    past_value_count = nvalue_count;
+                    bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+                    send_count++;
+                    total_rate=bps/send_count;
+                    serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                }
+            }
+            p_tv.tv_usec=w_tv.tv_usec;
+           // gettimeofday(&w_tv, NULL);
+           // serverLog(LL_NOTICE, "## pending Client write fin time = %lu", w_tv.tv_usec);
             if (nwritten <= 0) break;
             c->sentlen += nwritten;
             totwritten += nwritten;
@@ -1325,7 +1368,25 @@ int writeToClient(client *c, int handler_installed) {
                 continue;
             }
 
+            gettimeofday(&w_tv, NULL);
+    //        serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
+            serverLog(LL_NOTICE, "## send data length = %lu", c->bufpos-c->sentlen);
             nwritten = connWrite(c->conn, o->buf + c->sentlen, objlen - c->sentlen);
+ 
+            if(c->conn->fd ==7){
+                if(past_value_count < nvalue_count && nvalue_count >2){
+                    past_value_count = nvalue_count;
+                    bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+                    send_count++;
+                    total_rate=bps/send_count;
+                    serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                }
+            }
+            p_tv.tv_usec=w_tv.tv_usec;
+
+//            gettimeofday(&w_tv, NULL);
+  //          serverLog(LL_NOTICE, "## pending Client write fin time = %lu", w_tv.tv_usec);
+
             if (nwritten <= 0) break;
             c->sentlen += nwritten;
             totwritten += nwritten;
@@ -1390,6 +1451,8 @@ int writeToClient(client *c, int handler_installed) {
             return C_ERR;
         }
     }
+    write_count++;
+  //  serverLog(LL_NOTICE,"write count = %llu", write_count); 
     return C_OK;
 }
 
@@ -1807,6 +1870,7 @@ int processCommandAndResetClient(client *c) {
     int deadclient = 0;
     server.current_client = c;
     if (processCommand(c) == C_OK) {
+    if (!strcasecmp(c->argv[0]->ptr,"SET")) nvalue_count++;
         commandProcessed(c);
     }
     if (server.current_client == NULL) deadclient = 1;
@@ -1856,6 +1920,7 @@ void processInputBuffer(client *c) {
             }
         }
 
+        //start=server.ustime;
         if (c->reqtype == PROTO_REQ_INLINE) {
             if (processInlineBuffer(c) != C_OK) break;
             /* If the Gopher mode and we got zero or one argument, process
@@ -1874,6 +1939,9 @@ void processInputBuffer(client *c) {
         } else {
             serverPanic("Unknown request type");
         }
+    
+      // duration=ustime()-start;
+      // serverLog(LL_NOTICE, "ready command = %llu", duration);
 
         /* Multibulk processing could see a <= 0 length. */
         if (c->argc == 0) {
@@ -1886,7 +1954,8 @@ void processInputBuffer(client *c) {
                 c->flags |= CLIENT_PENDING_COMMAND;
                 break;
             }
-
+ 
+          //  start=server.ustime;
             /* We are finally ready to execute the command. */
             if (processCommandAndResetClient(c) == C_ERR) {
                 /* If the client is no longer valid, we avoid exiting this
@@ -1894,6 +1963,8 @@ void processInputBuffer(client *c) {
                  * ASAP in that case. */
                 return;
             }
+            //duration=ustime()-start;
+           // serverLog(LL_NOTICE, "exec시간 : %llu", duration); 
         }
     }
 
@@ -1903,12 +1974,19 @@ void processInputBuffer(client *c) {
         c->qb_pos = 0;
     }
 }
+long long read_memcpy_count=0;
+struct timeval r_tv, pr_tv;
+long read_count=0;
+long long rpast_value_count=0;
+float rtotal_rate=0;
+float rbps=0;
 
 void readQueryFromClient(connection *conn) {
+
     client *c = connGetPrivateData(conn);
     int nread, readlen;
     size_t qblen;
-
+    
     /* Check if we want to read from the client later when exiting from
      * the event loop. This is the case if threaded I/O is enabled. */
     if (postponeClientRead(c)) return;
@@ -1917,6 +1995,8 @@ void readQueryFromClient(connection *conn) {
     server.stat_total_reads_processed++;
 
     readlen = PROTO_IOBUF_LEN;
+ //   readlen=500;
+    //readlen=1;
     /* If this is a multi bulk request, and we are processing a bulk reply
      * that is large enough, try to maximize the probability that the query
      * buffer contains exactly the SDS string representing the object, even
@@ -1936,7 +2016,27 @@ void readQueryFromClient(connection *conn) {
     qblen = sdslen(c->querybuf);
     if (c->querybuf_peak < qblen) c->querybuf_peak = qblen;
     c->querybuf = sdsMakeRoomFor(c->querybuf, readlen);
+    start=server.ustime;
     nread = connRead(c->conn, c->querybuf+qblen, readlen);
+    serverLog(LL_NOTICE, "read size = %d", nread);
+    duration=ustime()-start;
+    gettimeofday(&r_tv, NULL);
+
+    if(c->conn->fd ==7){
+        if(past_value_count < nvalue_count && nvalue_count >2){
+            rpast_value_count = nvalue_count;
+            rbps=rbps + (float)((nread)/(r_tv.tv_usec-pr_tv.tv_usec));
+            read_count++;
+            rtotal_rate=rbps/read_count;
+            serverLog(LL_NOTICE, "read bps = %.3lf KB/ms", rtotal_rate);
+        }
+    }
+    pr_tv.tv_usec=r_tv.tv_usec;
+
+   // serverLog(LL_NOTICE, "read size =  %d", nread);
+    read_memcpy_count++;
+    if(read_memcpy_count > 100000)serverLog(LL_NOTICE, "read_memcpy_count = %llu", read_memcpy_count);
+    
     if (nread == -1) {
         if (connGetState(conn) == CONN_STATE_CONNECTED) {
             return;
@@ -2930,6 +3030,7 @@ void *IOThreadMain(void *myid) {
     redis_set_thread_title(thdname);
     redisSetCpuAffinity(server.server_cpulist);
 
+// serverLog(LL_NOTICE, "########Start IO THREAD ########");
     while(1) {
         /* Wait for start */
         for (int j = 0; j < 1000000; j++) {

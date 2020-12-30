@@ -1,6 +1,6 @@
 num=0
-conf="master.conf slave_1.conf slave_2.conf"
-node_number="8000 8001 8002 8100"
+conf="master.conf slave_1.conf"
+node_number="8000 8001"
 
 if [[ $# -lt 1 ]]; then
     echo "./$0 clockdown | standard"
@@ -38,12 +38,14 @@ fi
 if [[ $1 == "standard" ]]; then
     for nd_n in $node_number; do
         pid=`ps -ef | grep "redis" | grep "$nd_n" | awk '{print $2}'`
+        if [[ $nd_n == "81" ]] ; then
+            master_pid=$pid
+        fi
         taskset -cp $num $pid
         cpupower -c $num frequency-set -u 2500MHz
         num=$((num+1))
     done
 fi
         
-
 
 

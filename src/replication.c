@@ -39,7 +39,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 
-#ifdef JINSU
+#ifdef SHM
 #include <string.h>
 #endif
 void replicationDiscardCachedMaster(void);
@@ -114,7 +114,7 @@ int bg_unlink(const char *filename) {
 
 void createReplicationBacklog(void) {
 
-#ifdef JINSU
+#ifdef SHM
 
     serverAssert(server.repl_backlog == NULL);
     server.repl_backlog_int = shmget(server.repl_backlog_key, server.repl_backlog_size, 0666|IPC_CREAT);
@@ -153,7 +153,7 @@ void resizeReplicationBacklog(long long newsize) {
          * The reason is that copying a few gigabytes adds latency and even
          * worse often we need to alloc additional space before freeing the
          * old buffer. */
-#ifdef JINSU
+#ifdef SHM
         shmdt(server.repl_backlog);
         server.repl_backlog_int=shmget(server.repl_backlog_key, server.repl_backlog_size, 0666|IPC_CREAT);
         server.shared_memory= shmat(server.repl_backlog_int, (void*)0, 0);
@@ -169,11 +169,12 @@ void resizeReplicationBacklog(long long newsize) {
         /* Next byte we have is... the next since the buffer is empty. */
         server.repl_backlog_off = server.master_repl_offset+1;
     }
+    serverLog(LL_NOTICE, "resize repl_backlog ...");
 }
 
 void freeReplicationBacklog(void) {
     serverAssert(listLength(server.slaves) == 0);
-#ifdef JINSU
+#ifdef SHM
     shmdt(server.shared_memory);
 #else
     zfree(server.repl_backlog);
@@ -225,6 +226,7 @@ void feedReplicationBacklogWithObject(robj *o) {
         p = o->ptr;
     }
     feedReplicationBacklog(p,len);
+ //   serverLog(LL_NOTICE, "write backlog ... ");
 }
 
 /* Propagate write commands to slaves, and populate the replication backlog
@@ -232,6 +234,8 @@ void feedReplicationBacklogWithObject(robj *o) {
  * the commands received by our clients in order to create the replication
  * stream. Instead if the instance is a slave and has sub-slaves attached,
  * we use replicationFeedSlavesFromMaster() */
+long long write_memcpy_count=0;
+ustime_t start, duration;
 void replicationFeedSlaves(list *slaves, int dictid, robj **argv, int argc) {
     listNode *ln;
     listIter li;
@@ -331,6 +335,8 @@ void replicationFeedSlaves(list *slaves, int dictid, robj **argv, int argc) {
          * static buffer if any (from j to argc). */
         for (j = 0; j < argc; j++)
             addReplyBulk(slave,argv[j]);
+       // write_memcpy_count++;
+       // serverLog(LL_NOTICE, "write_memcpy_count= %llu", write_memcpy_count);
     }
 }
 
@@ -2340,6 +2346,7 @@ void syncWithMaster(connection *conn) {
     }
 
     psync_result = slaveTryPartialResynchronization(conn,1);
+    serverLog(LL_NOTICE," -------try to partial sync-------");
     if (psync_result == PSYNC_WAIT_REPLY) return; /* Try again later... */
 
     /* If the master is in an transient error, we should try to PSYNC
@@ -2505,7 +2512,8 @@ void replicationSetMaster(char *ip, int port) {
     server.masterhost = sdsnew(ip);
     server.masterport = port;
     
-#ifdef JINSU
+#ifdef SHM
+    /*master와 연결될때 backlog를 만듬*/
     createReplicationBacklog();
     
 #endif
@@ -2592,26 +2600,31 @@ void replicationUnsetMaster(void) {
     if (server.aof_enabled && server.aof_state == AOF_OFF) restartAOFAfterSYNC();
 }
 
+/*SHM*/
+#define OBJ_SET_KEEPTTL (1<<4)
+long total=0;
+
 /* This function is called when the slave lose the connection with the
  * master into an unexpected way. */
 void replicationHandleMasterDisconnection(void) {
     /* Fire the master link modules event. */
-#ifdef JINSU
+#ifdef SHM
     char buf[server.repl_backlog_size];
     robj *key=NULL, *value=NULL;
     char *ptr;
     int count;
+    int flags=0;
 #endif
 
     if (server.repl_state == REPL_STATE_CONNECTED){
-#ifdef JINSU
+#ifdef SHM
         if (server.repl_backlog) {
             
             memcpy(buf, server.repl_backlog, server.repl_backlog_size); 
             ptr = strtok(buf, "\r\n");
             int count = 0;
             while(ptr != NULL){
-             //   serverLog(LL_NOTICE, "%s", ptr);
+                serverLog(LL_NOTICE, "%s", ptr);
                 if(ptr[0] == '*'){
                     count = 0;
                 }
@@ -2622,20 +2635,24 @@ void replicationHandleMasterDisconnection(void) {
                 if(count == 6){
                     value=createStringObject(ptr, strlen(ptr));
                    
+                    /*
                     if(lookupKeyWrite(server.db+0, key) == NULL)
                         dbAdd(server.db+0, key, value);
                     else 
                         dbOverwrite(server.db+0, key, value);
                     incrRefCount(value);
+                    */
+                    genericSetKey(NULL, server.db+0, key, value, flags & OBJ_SET_KEEPTTL, 1);
                     serverLog(LL_NOTICE, "replica backup to master's backlog" );
+                    total++;
 
                //     signalModifedKey(server,server.db+0, key);
                //     serverLog(LL_NOTICE, "value=%s", ptr);
                 }
                 count++;
-
                 ptr=strtok(NULL, "\r\n");
             }
+            serverLog(LL_NOTICE, "number of data savings = %lu, repl_backlog_size = %llu", total, server.repl_backlog_size);
 
         }
            
@@ -3181,6 +3198,7 @@ long long replicationGetSlaveOffset(void) {
 
 /* Replication cron function, called 1 time per second. */
 void replicationCron(void) {
+//    serverLog(LL_NOTICE, "@@@ Replication Cron @@@@");
     static long long replication_cron_loops = 0;
 
     /* Non blocking connection timeout? */
@@ -3217,6 +3235,7 @@ void replicationCron(void) {
             serverLog(LL_NOTICE,"MASTER <-> REPLICA sync started");
         }
     }
+//serverLog(LL_NOTICE, "######server.repl_state = %d", server.repl_state);
 
     /* Send ACK to master from time to time.
      * Note that we do not send periodic acks to masters that don't

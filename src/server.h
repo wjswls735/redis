@@ -84,11 +84,18 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "crc64.h"
 
 
-#define JINSU
+/*DVFS*/
+//#define DVFS
+#ifdef DVFS
+#include <linux/cpufreq.h>
 
+#endif
 
 /*shared memory*/
-#ifdef JINSU
+
+//#define SHM
+
+#ifdef SHM
 #include <sys/types.h>
 #include <sys/shm.h>
 #endif
@@ -1291,7 +1298,7 @@ struct redisServer {
     long long second_replid_offset; /* Accept offsets up to this for replid2. */
     int slaveseldb;                 /* Last SELECTed DB in replication output */
     int repl_ping_slave_period;     /* Master pings the slave every N seconds */
-#ifdef JINSU
+#ifdef SHM
     int* buf_psync_offset;
     int repl_backlog_int;
     void *shared_memory;
@@ -1472,6 +1479,12 @@ struct redisServer {
     char *bio_cpulist; /* cpu affinity list of bio thread. */
     char *aof_rewrite_cpulist; /* cpu affinity list of aof rewrite process. */
     char *bgsave_cpulist; /* cpu affinity list of bgsave process. */
+
+    /*DVFS*/
+
+#ifdef DVFS
+    struct cpufreq_policy *policy;
+#endif
 };
 
 typedef struct pubsubPattern {
@@ -1706,6 +1719,11 @@ int clientHasPendingReplies(client *c);
 void unlinkClient(client *c);
 int writeToClient(client *c, int handler_installed);
 void linkClient(client *c);
+#ifdef PQC 
+//prioirity Queue
+void priQueueClient(client *c);
+#endif
+
 void protectClient(client *c);
 void unprotectClient(client *c);
 void initThreadedIO(void);

@@ -217,6 +217,11 @@ typedef struct sentinelRedisInstance {
     int slave_master_port;      /* Master port as reported by INFO */
     int slave_master_link_status; /* Master link status as reported by INFO */
     unsigned long long slave_repl_offset; /* Slave replication offset. */
+#ifdef SHM
+    unsigned long long max_slave_repl_offset; /* If replcia used shared memory, 
+                                               * replica can read master's backlog buffer*/ 
+    int had_shm;
+#endif
     /* Failover */
     char *leader;       /* If this is a master instance, this is the runid of
                            the Sentinel that should perform the failover. If
@@ -4130,6 +4135,7 @@ int sentinelStartFailoverIfNeeded(sentinelRedisInstance *master) {
 /* Helper for sentinelSelectSlave(). This is used by qsort() in order to
  * sort suitable slaves in a "better first" order, to take the first of
  * the list. */
+/* SHM을 사용해서 우선순위를 높게 주기위해서는 여기서 바꿔야함*/
 int compareSlavesForPromotion(const void *a, const void *b) {
     sentinelRedisInstance **sa = (sentinelRedisInstance **)a,
                           **sb = (sentinelRedisInstance **)b;
@@ -4137,6 +4143,10 @@ int compareSlavesForPromotion(const void *a, const void *b) {
 
     if ((*sa)->slave_priority != (*sb)->slave_priority)
         return (*sa)->slave_priority - (*sb)->slave_priority;
+
+#ifdef SHM
+
+#endif
 
     /* If priority is the same, select the slave with greater replication
      * offset (processed more data from the master). */
