@@ -59,6 +59,10 @@
         #endif
     #endif
 #endif
+#ifdef DVFS
+extern pthread_mutex_t m;
+extern pthread_cond_t nc;
+#endif
 
 aeEventLoop *aeCreateEventLoop(int setsize) {
     aeEventLoop *eventLoop;
@@ -439,10 +443,15 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
             tvp = &tv;
         }
 
-        if (eventLoop->beforesleep != NULL && flags & AE_CALL_BEFORE_SLEEP)
+        if (eventLoop->beforesleep != NULL && flags & AE_CALL_BEFORE_SLEEP)   
+        {
             eventLoop->beforesleep(eventLoop);
-
-        /* Call the multiplexing API, will return only on timeout or when
+#ifdef DVFS
+            if(server.masterhost!=NULL)
+                pthread_cond_signal(&nc);
+#endif
+        }
+       /* Call the multiplexing API, will return only on timeout or when
          * some event fires. */
         numevents = aeApiPoll(eventLoop, tvp);
 
@@ -545,7 +554,6 @@ void aeMain(aeEventLoop *eventLoop) {
 char *aeGetApiName(void) {
     return aeApiName();
 }
-
 void aeSetBeforeSleepProc(aeEventLoop *eventLoop, aeBeforeSleepProc *beforesleep) {
     eventLoop->beforesleep = beforesleep;
 }

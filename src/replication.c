@@ -2598,6 +2598,25 @@ void replicationUnsetMaster(void) {
     /* Restart the AOF subsystem in case we shut it down during a sync when
      * we were still a slave. */
     if (server.aof_enabled && server.aof_state == AOF_OFF) restartAOFAfterSYNC();
+
+#ifdef DVFS
+
+    int cpufd;
+    cpufd = open("/sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq", O_WRONLY);
+                
+    char freq[8]="2200000";
+
+    ssize_t w_s = write(cpufd, freq, 8);
+    
+    if(w_s <= 0){
+        serverLog(LL_NOTICE, "cpu freq config write Error = %ld, errno = %d, cpufd = %d", w_s, errno, cpufd);
+    }    
+    
+    close(cpufd);
+
+#endif
+
+
 }
 
 /*SHM*/

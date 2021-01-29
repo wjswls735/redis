@@ -1,0 +1,2896 @@
+lolwut6.c:174:    if (c->argc > 1 &&
+lolwut6.c:175:        getLongFromObjectOrReply(c,c->argv[1],&cols,NULL) != C_OK)
+lolwut6.c:178:    if (c->argc > 2 &&
+lolwut6.c:179:        getLongFromObjectOrReply(c,c->argv[2],&rows,NULL) != C_OK)
+tracking.c:70:    if (c->flags & CLIENT_TRACKING_BCAST) {
+tracking.c:72:        raxStart(&ri,c->client_tracking_prefixes);
+tracking.c:88:        raxFree(c->client_tracking_prefixes);
+tracking.c:89:        c->client_tracking_prefixes = NULL;
+tracking.c:93:    if (c->flags & CLIENT_TRACKING) {
+tracking.c:95:        c->flags &= ~(CLIENT_TRACKING|CLIENT_TRACKING_BROKEN_REDIR|
+tracking.c:115:        if (c->client_tracking_prefixes == NULL)
+tracking.c:116:            c->client_tracking_prefixes = raxNew();
+tracking.c:117:        raxInsert(c->client_tracking_prefixes,
+tracking.c:130:    if (!(c->flags & CLIENT_TRACKING)) server.tracking_clients++;
+tracking.c:131:    c->flags |= CLIENT_TRACKING;
+tracking.c:132:    c->flags &= ~(CLIENT_TRACKING_BROKEN_REDIR|CLIENT_TRACKING_BCAST|
+tracking.c:135:    c->client_tracking_redirection = redirect_to;
+tracking.c:147:        c->flags |= CLIENT_TRACKING_BCAST;
+tracking.c:156:    c->flags |= options & (CLIENT_TRACKING_OPTIN|CLIENT_TRACKING_OPTOUT|
+tracking.c:169:    uint64_t optin = c->flags & CLIENT_TRACKING_OPTIN;
+tracking.c:170:    uint64_t optout = c->flags & CLIENT_TRACKING_OPTOUT;
+tracking.c:171:    uint64_t caching_given = c->flags & CLIENT_TRACKING_CACHING;
+tracking.c:175:    int *keys = getKeysFromCommand(c->cmd,c->argv,c->argc,&numkeys);
+tracking.c:180:        sds sdskey = c->argv[idx]->ptr;
+tracking.c:188:        if (raxTryInsert(ids,(unsigned char*)&c->id,sizeof(c->id),NULL,NULL))
+tracking.c:208:    if (c->client_tracking_redirection) {
+tracking.c:209:        client *redir = lookupClientByID(c->client_tracking_redirection);
+tracking.c:211:            c->flags |= CLIENT_TRACKING_BROKEN_REDIR;
+tracking.c:215:            if (c->resp > 2) {
+tracking.c:218:                addReplyLongLong(c,c->client_tracking_redirection);
+tracking.c:230:    if (c->resp > 2) {
+tracking.c:233:    } else if (using_redirection && c->flags & CLIENT_PUBSUB) {
+tracking.c:367:            if (c->flags & CLIENT_TRACKING) {
+tracking.c:368:                sendTrackingMessage(c,shared.null[c->resp]->ptr,sdslen(shared.null[c->resp]->ptr),1);
+tracking.c:503:                if (c->flags & CLIENT_TRACKING_NOLOOP) {
+Binary file redis-benchmark.o matches
+help.h:1067:    "LCS algo-specific-argument [algo-specific-argument ...]",
+multi.c:36:    c->mstate.commands = NULL;
+multi.c:37:    c->mstate.count = 0;
+multi.c:38:    c->mstate.cmd_flags = 0;
+multi.c:39:    c->mstate.cmd_inv_flags = 0;
+multi.c:46:    for (j = 0; j < c->mstate.count; j++) {
+multi.c:48:        multiCmd *mc = c->mstate.commands+j;
+multi.c:50:        for (i = 0; i < mc->argc; i++)
+multi.c:51:            decrRefCount(mc->argv[i]);
+multi.c:52:        zfree(mc->argv);
+multi.c:54:    zfree(c->mstate.commands);
+multi.c:66:    if (c->flags & CLIENT_DIRTY_EXEC)
+multi.c:69:    c->mstate.commands = zrealloc(c->mstate.commands,
+multi.c:70:            sizeof(multiCmd)*(c->mstate.count+1));
+multi.c:71:    mc = c->mstate.commands+c->mstate.count;
+multi.c:72:    mc->cmd = c->cmd;
+multi.c:73:    mc->argc = c->argc;
+multi.c:74:    mc->argv = zmalloc(sizeof(robj*)*c->argc);
+multi.c:75:    memcpy(mc->argv,c->argv,sizeof(robj*)*c->argc);
+multi.c:76:    for (j = 0; j < c->argc; j++)
+multi.c:77:        incrRefCount(mc->argv[j]);
+multi.c:78:    c->mstate.count++;
+multi.c:79:    c->mstate.cmd_flags |= c->cmd->flags;
+multi.c:80:    c->mstate.cmd_inv_flags |= ~c->cmd->flags;
+multi.c:86:    c->flags &= ~(CLIENT_MULTI|CLIENT_DIRTY_CAS|CLIENT_DIRTY_EXEC);
+multi.c:93:    if (c->flags & CLIENT_MULTI)
+multi.c:94:        c->flags |= CLIENT_DIRTY_EXEC;
+multi.c:98:    if (c->flags & CLIENT_MULTI) {
+multi.c:102:    c->flags |= CLIENT_MULTI;
+multi.c:107:    if (!(c->flags & CLIENT_MULTI)) {
+multi.c:118:    propagate(server.multiCommand,c->db->id,&shared.multi,1,
+multi.c:123:    propagate(server.execCommand,c->db->id,&shared.exec,1,
+multi.c:141:        replicationFeedMonitors(c,server.monitors,c->db->id,c->argv,c->argc);
+multi.c:152:    if (!(c->flags & CLIENT_MULTI)) {
+multi.c:163:    if (c->flags & (CLIENT_DIRTY_CAS|CLIENT_DIRTY_EXEC)) {
+multi.c:164:        addReply(c, c->flags & CLIENT_DIRTY_EXEC ? shared.execaborterr :
+multi.c:165:                                                   shared.nullarray[c->resp]);
+multi.c:172:    orig_argv = c->argv;
+multi.c:173:    orig_argc = c->argc;
+multi.c:174:    orig_cmd = c->cmd;
+multi.c:175:    addReplyArrayLen(c,c->mstate.count);
+multi.c:176:    for (j = 0; j < c->mstate.count; j++) {
+multi.c:177:        c->argc = c->mstate.commands[j].argc;
+multi.c:178:        c->argv = c->mstate.commands[j].argv;
+multi.c:179:        c->cmd = c->mstate.commands[j].cmd;
+multi.c:188:            !(c->cmd->flags & (CMD_READONLY|CMD_ADMIN)))
+multi.c:211:        c->mstate.commands[j].argc = c->argc;
+multi.c:212:        c->mstate.commands[j].argv = c->argv;
+multi.c:213:        c->mstate.commands[j].cmd = c->cmd;
+multi.c:215:    c->argv = orig_argv;
+multi.c:216:    c->argc = orig_argc;
+multi.c:217:    c->cmd = orig_cmd;
+multi.c:243:        replicationFeedMonitors(c,server.monitors,c->db->id,c->argv,c->argc);
+multi.c:271:    listRewind(c->watched_keys,&li);
+multi.c:274:        if (wk->db == c->db && equalStringObjects(key,wk->key))
+multi.c:278:    clients = dictFetchValue(c->db->watched_keys,key);
+multi.c:281:        dictAdd(c->db->watched_keys,key,clients);
+multi.c:288:    wk->db = c->db;
+multi.c:290:    listAddNodeTail(c->watched_keys,wk);
+multi.c:299:    if (listLength(c->watched_keys) == 0) return;
+multi.c:300:    listRewind(c->watched_keys,&li);
+multi.c:315:        listDelNode(c->watched_keys,ln);
+multi.c:338:        c->flags |= CLIENT_DIRTY_CAS;
+multi.c:354:        listRewind(c->watched_keys,&li2);
+multi.c:363:                    c->flags |= CLIENT_DIRTY_CAS;
+multi.c:372:    if (c->flags & CLIENT_MULTI) {
+multi.c:376:    for (j = 1; j < c->argc; j++)
+multi.c:377:        watchForKey(c,c->argv[j]);
+multi.c:383:    c->flags &= (~CLIENT_DIRTY_CAS);
+Binary file config.o matches
+Binary file defrag.o matches
+Binary file sparkline.o matches
+t_hash.c:452:    robj *o = lookupKeyWrite(c->db,key);
+t_hash.c:455:        dbAdd(c->db,key,o);
+t_hash.c:516:    if ((o = hashTypeLookupWriteOrCreate(c,c->argv[1])) == NULL) return;
+t_hash.c:517:    hashTypeTryConversion(o,c->argv,2,3);
+t_hash.c:519:    if (hashTypeExists(o, c->argv[2]->ptr)) {
+t_hash.c:522:        hashTypeSet(o,c->argv[2]->ptr,c->argv[3]->ptr,HASH_SET_COPY);
+t_hash.c:524:        signalModifiedKey(c,c->db,c->argv[1]);
+t_hash.c:525:        notifyKeyspaceEvent(NOTIFY_HASH,"hset",c->argv[1],c->db->id);
+t_hash.c:534:    if ((c->argc % 2) == 1) {
+t_hash.c:539:    if ((o = hashTypeLookupWriteOrCreate(c,c->argv[1])) == NULL) return;
+t_hash.c:540:    hashTypeTryConversion(o,c->argv,2,c->argc-1);
+t_hash.c:542:    for (i = 2; i < c->argc; i += 2)
+t_hash.c:543:        created += !hashTypeSet(o,c->argv[i]->ptr,c->argv[i+1]->ptr,HASH_SET_COPY);
+t_hash.c:546:    char *cmdname = c->argv[0]->ptr;
+t_hash.c:554:    signalModifiedKey(c,c->db,c->argv[1]);
+t_hash.c:555:    notifyKeyspaceEvent(NOTIFY_HASH,"hset",c->argv[1],c->db->id);
+t_hash.c:566:    if (getLongLongFromObjectOrReply(c,c->argv[3],&incr,NULL) != C_OK) return;
+t_hash.c:567:    if ((o = hashTypeLookupWriteOrCreate(c,c->argv[1])) == NULL) return;
+t_hash.c:568:    if (hashTypeGetValue(o,c->argv[2]->ptr,&vstr,&vlen,&value) == C_OK) {
+t_hash.c:587:    hashTypeSet(o,c->argv[2]->ptr,new,HASH_SET_TAKE_VALUE);
+t_hash.c:589:    signalModifiedKey(c,c->db,c->argv[1]);
+t_hash.c:590:    notifyKeyspaceEvent(NOTIFY_HASH,"hincrby",c->argv[1],c->db->id);
+t_hash.c:602:    if (getLongDoubleFromObjectOrReply(c,c->argv[3],&incr,NULL) != C_OK) return;
+t_hash.c:603:    if ((o = hashTypeLookupWriteOrCreate(c,c->argv[1])) == NULL) return;
+t_hash.c:604:    if (hashTypeGetValue(o,c->argv[2]->ptr,&vstr,&vlen,&ll) == C_OK) {
+t_hash.c:626:    hashTypeSet(o,c->argv[2]->ptr,new,HASH_SET_TAKE_VALUE);
+t_hash.c:628:    signalModifiedKey(c,c->db,c->argv[1]);
+t_hash.c:629:    notifyKeyspaceEvent(NOTIFY_HASH,"hincrbyfloat",c->argv[1],c->db->id);
+t_hash.c:682:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.null[c->resp])) == NULL ||
+t_hash.c:685:    addHashFieldToReply(c, o, c->argv[2]->ptr);
+t_hash.c:694:    o = lookupKeyRead(c->db, c->argv[1]);
+t_hash.c:700:    addReplyArrayLen(c, c->argc-2);
+t_hash.c:701:    for (i = 2; i < c->argc; i++) {
+t_hash.c:702:        addHashFieldToReply(c, o, c->argv[i]->ptr);
+t_hash.c:710:    if ((o = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_hash.c:713:    for (j = 2; j < c->argc; j++) {
+t_hash.c:714:        if (hashTypeDelete(o,c->argv[j]->ptr)) {
+t_hash.c:717:                dbDelete(c->db,c->argv[1]);
+t_hash.c:724:        signalModifiedKey(c,c->db,c->argv[1]);
+t_hash.c:725:        notifyKeyspaceEvent(NOTIFY_HASH,"hdel",c->argv[1],c->db->id);
+t_hash.c:727:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],
+t_hash.c:728:                                c->db->id);
+t_hash.c:737:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_hash.c:746:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_hash.c:748:    addReplyLongLong(c,hashTypeGetValueLength(o,c->argv[2]->ptr));
+t_hash.c:775:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptymap[c->resp]))
+t_hash.c:820:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_hash.c:823:    addReply(c, hashTypeExists(o,c->argv[2]->ptr) ? shared.cone : shared.czero);
+t_hash.c:830:    if (parseScanCursorOrReply(c,c->argv[2],&cursor) == C_ERR) return;
+t_hash.c:831:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptyscan)) == NULL ||
+server.c:1534:    size_t querybuf_size = sdsAllocSize(c->querybuf);
+server.c:1535:    time_t idletime = server.unixtime - c->lastinteraction;
+server.c:1541:         ((querybuf_size/(c->querybuf_peak+1)) > 2 ||
+server.c:1546:        if (sdsavail(c->querybuf) > 1024*4) {
+server.c:1547:            c->querybuf = sdsRemoveFreeSpace(c->querybuf);
+server.c:1552:    c->querybuf_peak = 0;
+server.c:1559:    if (c->flags & CLIENT_MASTER) {
+server.c:1563:        size_t pending_querybuf_size = sdsAllocSize(c->pending_querybuf);
+server.c:1565:           sdslen(c->pending_querybuf) < (pending_querybuf_size/2))
+server.c:1567:            c->pending_querybuf = sdsRemoveFreeSpace(c->pending_querybuf);
+server.c:1590:    size_t in_usage = sdsAllocSize(c->querybuf);
+server.c:1625:    mem += sdsAllocSize(c->querybuf);
+server.c:1629:    server.stat_clients_type_memory[c->client_cron_last_memory_type] -=
+server.c:1630:        c->client_cron_last_memory_usage;
+server.c:1633:    c->client_cron_last_memory_usage = mem;
+server.c:1634:    c->client_cron_last_memory_type = type;
+server.c:3000:            c->flags |= CMD_WRITE|CMD_CATEGORY_WRITE;
+server.c:3002:            c->flags |= CMD_READONLY|CMD_CATEGORY_READ;
+server.c:3004:            c->flags |= CMD_DENYOOM;
+server.c:3006:            c->flags |= CMD_ADMIN|CMD_CATEGORY_ADMIN|CMD_CATEGORY_DANGEROUS;
+server.c:3008:            c->flags |= CMD_PUBSUB|CMD_CATEGORY_PUBSUB;
+server.c:3010:            c->flags |= CMD_NOSCRIPT;
+server.c:3012:            c->flags |= CMD_RANDOM;
+server.c:3014:            c->flags |= CMD_SORT_FOR_SCRIPT;
+server.c:3016:            c->flags |= CMD_LOADING;
+server.c:3018:            c->flags |= CMD_STALE;
+server.c:3020:            c->flags |= CMD_SKIP_MONITOR;
+server.c:3022:            c->flags |= CMD_SKIP_SLOWLOG;
+server.c:3024:            c->flags |= CMD_ASKING;
+server.c:3026:            c->flags |= CMD_FAST | CMD_CATEGORY_FAST;
+server.c:3028:            c->flags |= CMD_NO_AUTH;
+server.c:3035:                c->flags |= catflag;
+server.c:3043:    if (!(c->flags & CMD_CATEGORY_FAST)) c->flags |= CMD_CATEGORY_SLOW;
+server.c:3061:        if (populateCommandTableParseFlags(c,c->sflags) == C_ERR)
+server.c:3064:        c->id = ACLGetCommandID(c->name); /* Assign the ID used for ACL. */
+server.c:3065:        retval1 = dictAdd(server.commands, sdsnew(c->name), c);
+server.c:3068:        retval2 = dictAdd(server.orig_commands, sdsnew(c->name), c);
+server.c:3081:        c->microseconds = 0;
+server.c:3082:        c->calls = 0;
+server.c:3211:    if (flags & PROPAGATE_REPL) c->flags |= CLIENT_FORCE_REPL;
+server.c:3212:    if (flags & PROPAGATE_AOF) c->flags |= CLIENT_FORCE_AOF;
+server.c:3219:    c->flags |= CLIENT_PREVENT_PROP;
+server.c:3224:    c->flags |= CLIENT_PREVENT_AOF_PROP;
+server.c:3229:    c->flags |= CLIENT_PREVENT_REPL_PROP;
+server.c:3272:    int client_old_flags = c->flags;
+server.c:3273:    struct redisCommand *real_cmd = c->cmd;
+server.c:3281:        !(c->cmd->flags & (CMD_SKIP_MONITOR|CMD_ADMIN)))
+server.c:3283:        replicationFeedMonitors(c,server.monitors,c->db->id,c->argv,c->argc);
+server.c:3288:    c->flags &= ~(CLIENT_FORCE_AOF|CLIENT_FORCE_REPL|CLIENT_PREVENT_PROP);
+server.c:3296:    c->cmd->proc(c); /*insert data to DB*/
+server.c:3305:    if (server.loading && c->flags & CLIENT_LUA)
+server.c:3311:    if (c->flags & CLIENT_LUA && server.lua_caller) {
+server.c:3312:        if (c->flags & CLIENT_FORCE_REPL)
+server.c:3314:        if (c->flags & CLIENT_FORCE_AOF)
+server.c:3320:    if (flags & CMD_CALL_SLOWLOG && !(c->cmd->flags & CMD_SKIP_SLOWLOG)) {
+server.c:3321:        char *latency_event = (c->cmd->flags & CMD_FAST) ?
+server.c:3324:        slowlogPushEntryIfNeeded(c,c->argv,c->argc,duration);
+server.c:3337:        (c->flags & CLIENT_PREVENT_PROP) != CLIENT_PREVENT_PROP)
+server.c:3347:        if (c->flags & CLIENT_FORCE_REPL) propagate_flags |= PROPAGATE_REPL;
+server.c:3348:        if (c->flags & CLIENT_FORCE_AOF) propagate_flags |= PROPAGATE_AOF;
+server.c:3353:        if (c->flags & CLIENT_PREVENT_REPL_PROP ||
+server.c:3356:        if (c->flags & CLIENT_PREVENT_AOF_PROP ||
+server.c:3363:        if (propagate_flags != PROPAGATE_NONE && !(c->cmd->flags & CMD_MODULE))
+server.c:3364:            propagate(c->cmd,c->db->id,c->argv,c->argc,propagate_flags);
+server.c:3369:    c->flags &= ~(CLIENT_FORCE_AOF|CLIENT_FORCE_REPL|CLIENT_PREVENT_PROP);
+server.c:3370:    c->flags |= client_old_flags &
+server.c:3389:                !(c->cmd->flags & CMD_MODULE) &&
+server.c:3390:                !(c->flags & CLIENT_MULTI) &&
+server.c:3417:    if (c->cmd->flags & CMD_READONLY) {
+server.c:3418:        client *caller = (c->flags & CLIENT_LUA && server.lua_caller) ?
+server.c:3437:    if (c->cmd && c->cmd->proc == execCommand) {
+server.c:3451:    if (c->cmd && c->cmd->proc == execCommand) {
+server.c:3481:    if (!strcasecmp(c->argv[0]->ptr,"quit")) {
+server.c:3483:        c->flags |= CLIENT_CLOSE_AFTER_REPLY;
+server.c:3489:    c->cmd = c->lastcmd = lookupCommand(c->argv[0]->ptr);
+server.c:3490:    if (!c->cmd) {
+server.c:3493:        for (i=1; i < c->argc && sdslen(args) < 128; i++)
+server.c:3494:            args = sdscatprintf(args, "`%.*s`, ", 128-(int)sdslen(args), (char*)c->argv[i]->ptr);
+server.c:3496:            (char*)c->argv[0]->ptr, args);
+server.c:3499:    } else if ((c->cmd->arity > 0 && c->cmd->arity != c->argc) ||
+server.c:3500:               (c->argc < -c->cmd->arity)) {
+server.c:3502:            c->cmd->name);
+server.c:3506:    int is_write_command = (c->cmd->flags & CMD_WRITE) ||
+server.c:3507:                           (c->cmd->proc == execCommand && (c->mstate.cmd_flags & CMD_WRITE));
+server.c:3508:    int is_denyoom_command = (c->cmd->flags & CMD_DENYOOM) ||
+server.c:3509:                             (c->cmd->proc == execCommand && (c->mstate.cmd_flags & CMD_DENYOOM));
+server.c:3510:    int is_denystale_command = !(c->cmd->flags & CMD_STALE) ||
+server.c:3511:                               (c->cmd->proc == execCommand && (c->mstate.cmd_inv_flags & CMD_STALE));
+server.c:3512:    int is_denyloading_command = !(c->cmd->flags & CMD_LOADING) ||
+server.c:3513:                                 (c->cmd->proc == execCommand && (c->mstate.cmd_inv_flags & CMD_LOADING));
+server.c:3519:                        !c->authenticated;
+server.c:3523:        if (!(c->cmd->flags & CMD_NO_AUTH)) {
+server.c:3538:                "the '%s' command or its subcommand", c->cmd->name);
+server.c:3551:        !(c->flags & CLIENT_MASTER) &&
+server.c:3552:        !(c->flags & CLIENT_LUA &&
+server.c:3554:        !(!cmdHasMovableKeys(c->cmd) && c->cmd->firstkey == 0 &&
+server.c:3555:          c->cmd->proc != execCommand))
+server.c:3559:        clusterNode *n = getNodeByQuery(c,c->cmd,c->argv,c->argc,
+server.c:3562:            if (c->cmd->proc == execCommand) {
+server.c:3589:             (c->flags & CLIENT_MULTI &&
+server.c:3590:              c->cmd->proc != discardCommand)))
+server.c:3599:        if (c->cmd->proc == evalCommand || c->cmd->proc == evalShaCommand) {
+server.c:3613:        (is_write_command ||c->cmd->proc == pingCommand))
+server.c:3639:        !(c->flags & CLIENT_MASTER) &&
+server.c:3648:    if ((c->flags & CLIENT_PUBSUB && c->resp == 2) &&
+server.c:3649:        c->cmd->proc != pingCommand &&
+server.c:3650:        c->cmd->proc != subscribeCommand &&
+server.c:3651:        c->cmd->proc != unsubscribeCommand &&
+server.c:3652:        c->cmd->proc != psubscribeCommand &&
+server.c:3653:        c->cmd->proc != punsubscribeCommand) {
+server.c:3657:            c->cmd->name);
+server.c:3686:          c->cmd->proc != authCommand &&
+server.c:3687:          c->cmd->proc != helloCommand &&
+server.c:3688:          c->cmd->proc != replconfCommand &&
+server.c:3689:          c->cmd->proc != multiCommand &&
+server.c:3690:          c->cmd->proc != discardCommand &&
+server.c:3691:          c->cmd->proc != watchCommand &&
+server.c:3692:          c->cmd->proc != unwatchCommand &&
+server.c:3693:        !(c->cmd->proc == shutdownCommand &&
+server.c:3694:          c->argc == 2 &&
+server.c:3695:          tolower(((char*)c->argv[1]->ptr)[0]) == 'n') &&
+server.c:3696:        !(c->cmd->proc == scriptCommand &&
+server.c:3697:          c->argc == 2 &&
+server.c:3698:          tolower(((char*)c->argv[1]->ptr)[0]) == 'k'))
+server.c:3705:    if (c->flags & CLIENT_MULTI &&
+server.c:3706:        c->cmd->proc != execCommand && c->cmd->proc != discardCommand &&
+server.c:3707:        c->cmd->proc != multiCommand && c->cmd->proc != watchCommand)
+server.c:3713:        c->woff = server.master_repl_offset;
+server.c:3865:    if (c->argc > 2) {
+server.c:3867:            c->cmd->name);
+server.c:3871:    if (c->flags & CLIENT_PUBSUB && c->resp == 2) {
+server.c:3874:        if (c->argc == 1)
+server.c:3877:            addReplyBulk(c,c->argv[1]);
+server.c:3879:        if (c->argc == 1)
+server.c:3882:            addReplyBulk(c,c->argv[1]);
+server.c:3887:    addReplyBulk(c,c->argv[1]);
+server.c:3956:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+server.c:3965:    } else if (c->argc == 1) {
+server.c:3972:    } else if (!strcasecmp(c->argv[1]->ptr, "info")) {
+server.c:3974:        addReplyArrayLen(c, c->argc-2);
+server.c:3975:        for (i = 2; i < c->argc; i++) {
+server.c:3976:            addReplyCommand(c, dictFetchValue(server.commands, c->argv[i]->ptr));
+server.c:3978:    } else if (!strcasecmp(c->argv[1]->ptr, "count") && c->argc == 2) {
+server.c:3980:    } else if (!strcasecmp(c->argv[1]->ptr,"getkeys") && c->argc >= 3) {
+server.c:3981:        struct redisCommand *cmd = lookupCommand(c->argv[2]->ptr);
+server.c:3990:        } else if ((cmd->arity > 0 && cmd->arity != c->argc-2) ||
+server.c:3991:                   ((c->argc-2) < -cmd->arity))
+server.c:3997:        keys = getKeysFromCommand(cmd,c->argv+2,c->argc-2,&numkeys);
+server.c:4002:            for (j = 0; j < numkeys; j++) addReplyBulk(c,c->argv[keys[j]+2]);
+server.c:4600:            if (!c->calls) continue;
+server.c:4603:                c->name, c->calls, c->microseconds,
+server.c:4604:                (c->calls == 0) ? 0 : ((float)c->microseconds/c->calls));
+server.c:4649:    char *section = c->argc == 2 ? c->argv[1]->ptr : "default";
+server.c:4651:    if (c->argc > 2) {
+server.c:4662:    if (c->flags & CLIENT_SLAVE) return;
+server.c:4664:    c->flags |= (CLIENT_SLAVE|CLIENT_MONITOR);
+t_set.c:268:    set = lookupKeyWrite(c->db,c->argv[1]);
+t_set.c:270:        set = setTypeCreate(c->argv[2]->ptr);
+t_set.c:271:        dbAdd(c->db,c->argv[1],set);
+t_set.c:279:    for (j = 2; j < c->argc; j++) {
+t_set.c:280:        if (setTypeAdd(set,c->argv[j]->ptr)) added++;
+t_set.c:283:        signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:284:        notifyKeyspaceEvent(NOTIFY_SET,"sadd",c->argv[1],c->db->id);
+t_set.c:294:    if ((set = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_set.c:297:    for (j = 2; j < c->argc; j++) {
+t_set.c:298:        if (setTypeRemove(set,c->argv[j]->ptr)) {
+t_set.c:301:                dbDelete(c->db,c->argv[1]);
+t_set.c:308:        signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:309:        notifyKeyspaceEvent(NOTIFY_SET,"srem",c->argv[1],c->db->id);
+t_set.c:311:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],
+t_set.c:312:                                c->db->id);
+t_set.c:320:    srcset = lookupKeyWrite(c->db,c->argv[1]);
+t_set.c:321:    dstset = lookupKeyWrite(c->db,c->argv[2]);
+t_set.c:322:    ele = c->argv[3];
+t_set.c:347:    notifyKeyspaceEvent(NOTIFY_SET,"srem",c->argv[1],c->db->id);
+t_set.c:351:        dbDelete(c->db,c->argv[1]);
+t_set.c:352:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],c->db->id);
+t_set.c:358:        dbAdd(c->db,c->argv[2],dstset);
+t_set.c:361:    signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:362:    signalModifiedKey(c,c->db,c->argv[2]);
+t_set.c:368:        notifyKeyspaceEvent(NOTIFY_SET,"sadd",c->argv[2],c->db->id);
+t_set.c:376:    if ((set = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_set.c:379:    if (setTypeIsMember(set,c->argv[2]->ptr))
+t_set.c:388:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_set.c:408:    if (getLongFromObjectOrReply(c,c->argv[2],&l,NULL) != C_OK) return;
+t_set.c:418:    if ((set = lookupKeyWriteOrReply(c,c->argv[1],shared.emptyset[c->resp]))
+t_set.c:424:        addReply(c,shared.emptyset[c->resp]);
+t_set.c:431:    notifyKeyspaceEvent(NOTIFY_SET,"spop",c->argv[1],c->db->id);
+t_set.c:439:        sunionDiffGenericCommand(c,c->argv+1,1,NULL,SET_OP_UNION);
+t_set.c:442:        dbDelete(c->db,c->argv[1]);
+t_set.c:443:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],c->db->id);
+t_set.c:446:        rewriteClientCommandVector(c,2,shared.del,c->argv[1]);
+t_set.c:447:        signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:457:    propargv[1] = c->argv[1];
+t_set.c:490:            alsoPropagate(server.sremCommand,c->db->id,propargv,3,
+t_set.c:533:            alsoPropagate(server.sremCommand,c->db->id,propargv,3,
+t_set.c:540:        dbOverwrite(c->db,c->argv[1],newset);
+t_set.c:549:    signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:559:    if (c->argc == 3) {
+t_set.c:562:    } else if (c->argc > 3) {
+t_set.c:569:    if ((set = lookupKeyWriteOrReply(c,c->argv[1],shared.null[c->resp]))
+t_set.c:584:    notifyKeyspaceEvent(NOTIFY_SET,"spop",c->argv[1],c->db->id);
+t_set.c:588:    rewriteClientCommandVector(c,3,aux,c->argv[1],ele);
+t_set.c:597:        dbDelete(c->db,c->argv[1]);
+t_set.c:598:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],c->db->id);
+t_set.c:602:    signalModifiedKey(c,c->db,c->argv[1]);
+t_set.c:625:    if (getLongFromObjectOrReply(c,c->argv[2],&l,NULL) != C_OK) return;
+t_set.c:635:    if ((set = lookupKeyReadOrReply(c,c->argv[1],shared.emptyset[c->resp]))
+t_set.c:641:        addReply(c,shared.emptyset[c->resp]);
+t_set.c:666:        sunionDiffGenericCommand(c,c->argv+1,1,NULL,SET_OP_UNION);
+t_set.c:755:    if (c->argc == 3) {
+t_set.c:758:    } else if (c->argc > 3) {
+t_set.c:763:    if ((set = lookupKeyReadOrReply(c,c->argv[1],shared.null[c->resp]))
+t_set.c:805:            lookupKeyWrite(c->db,setkeys[j]) :
+t_set.c:806:            lookupKeyRead(c->db,setkeys[j]);
+t_set.c:810:                if (dbDelete(c->db,dstkey)) {
+t_set.c:811:                    signalModifiedKey(c,c->db,dstkey);
+t_set.c:816:                addReply(c,shared.emptyset[c->resp]);
+t_set.c:899:            setKey(c,c->db,dstkey,dstset);
+t_set.c:902:                dstkey,c->db->id);
+t_set.c:906:            if (dbDelete(c->db,dstkey)) {
+t_set.c:908:                signalModifiedKey(c,c->db,dstkey);
+t_set.c:909:                notifyKeyspaceEvent(NOTIFY_GENERIC,"del",dstkey,c->db->id);
+t_set.c:920:    sinterGenericCommand(c,c->argv+1,c->argc-1,NULL);
+t_set.c:924:    sinterGenericCommand(c,c->argv+2,c->argc-2,c->argv[1]);
+t_set.c:942:            lookupKeyWrite(c->db,setkeys[j]) :
+t_set.c:943:            lookupKeyRead(c->db,setkeys[j]);
+t_set.c:1073:            setKey(c,c->db,dstkey,dstset);
+t_set.c:1077:                dstkey,c->db->id);
+t_set.c:1081:            if (dbDelete(c->db,dstkey)) {
+t_set.c:1083:                signalModifiedKey(c,c->db,dstkey);
+t_set.c:1084:                notifyKeyspaceEvent(NOTIFY_GENERIC,"del",dstkey,c->db->id);
+t_set.c:1093:    sunionDiffGenericCommand(c,c->argv+1,c->argc-1,NULL,SET_OP_UNION);
+t_set.c:1097:    sunionDiffGenericCommand(c,c->argv+2,c->argc-2,c->argv[1],SET_OP_UNION);
+t_set.c:1101:    sunionDiffGenericCommand(c,c->argv+1,c->argc-1,NULL,SET_OP_DIFF);
+t_set.c:1105:    sunionDiffGenericCommand(c,c->argv+2,c->argc-2,c->argv[1],SET_OP_DIFF);
+t_set.c:1112:    if (parseScanCursorOrReply(c,c->argv[2],&cursor) == C_ERR) return;
+t_set.c:1113:    if ((set = lookupKeyReadOrReply(c,c->argv[1],shared.emptyscan)) == NULL ||
+Binary file redis-benchmark matches
+Binary file redis-server matches
+sds.c:347:            assert((incr >= 0 && sh->alloc-sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+sds.c:353:            assert((incr >= 0 && sh->alloc-sh->len >= incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+sds.c:359:            assert((incr >= 0 && sh->alloc-sh->len >= (unsigned int)incr) || (incr < 0 && sh->len >= (unsigned int)(-incr)));
+sds.c:365:            assert((incr >= 0 && sh->alloc-sh->len >= (uint64_t)incr) || (incr < 0 && sh->len >= (uint64_t)(-incr)));
+sds.c:1100:        if (j != argc-1) join = sdscat(join,sep);
+sds.c:1112:        if (j != argc-1) join = sdscatlen(join,sep,seplen);
+Binary file redis-sentinel matches
+rdb.c:1485:            size_t len = sdslen(dec->ptr);
+rdb.c:1486:            quicklistPushTail(o->ptr, dec->ptr, len);
+rdb.c:2601:    if (c->argc > 1) {
+rdb.c:2602:        if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"schedule")) {
+rax.h:110:     * [header iscompr=0][abc][a-ptr][b-ptr][c-ptr](value-ptr?)
+scripting.c:351:                                               shared.null[c->resp]);
+scripting.c:563:    c->argv = argv;
+scripting.c:564:    c->argc = argc;
+scripting.c:565:    c->user = server.lua_caller->user;
+scripting.c:569:    argv = c->argv;
+scripting.c:570:    argc = c->argc;
+scripting.c:575:        for (j = 0; j < c->argc; j++) {
+scripting.c:578:                    c->argc-j-1);
+scripting.c:582:                cmdlog = sdscatsds(cmdlog,c->argv[j]->ptr);
+scripting.c:600:    c->cmd = c->lastcmd = cmd;
+scripting.c:678:        c->flags &= ~(CLIENT_READONLY|CLIENT_ASKING);
+scripting.c:679:        c->flags |= server.lua_caller->flags & (CLIENT_READONLY|CLIENT_ASKING);
+scripting.c:680:        if (getNodeByQuery(c,c->cmd,c->argv,c->argc,NULL,&error_code) !=
+scripting.c:714:        c->flags |= CLIENT_MULTI;
+scripting.c:731:    if (listLength(c->reply) == 0 && c->bufpos < PROTO_REPLY_CHUNK_BYTES) {
+scripting.c:735:        c->buf[c->bufpos] = '\0';
+scripting.c:736:        reply = c->buf;
+scripting.c:737:        c->bufpos = 0;
+scripting.c:739:        reply = sdsnewlen(c->buf,c->bufpos);
+scripting.c:740:        c->bufpos = 0;
+scripting.c:741:        while(listLength(c->reply)) {
+scripting.c:742:            clientReplyBlock *o = listNodeValue(listFirst(c->reply));
+scripting.c:745:            listDelNode(c->reply,listFirst(c->reply));
+scripting.c:762:    if (reply != c->buf) sdsfree(reply);
+scripting.c:763:    c->reply_bytes = 0;
+scripting.c:768:    for (j = 0; j < c->argc; j++) {
+scripting.c:769:        robj *o = c->argv[j];
+scripting.c:789:    if (c->argv != argv) {
+scripting.c:790:        zfree(c->argv);
+scripting.c:795:    c->user = NULL;
+scripting.c:911:    while(argc--) {
+scripting.c:1484:    if (getLongLongFromObjectOrReply(c,c->argv[2],&numkeys,NULL) != C_OK)
+scripting.c:1486:    if (numkeys > (c->argc - 3)) {
+scripting.c:1500:        sha1hex(funcname+2,c->argv[1]->ptr,sdslen(c->argv[1]->ptr));
+scripting.c:1504:        char *sha = c->argv[1]->ptr;
+scripting.c:1530:        if (luaCreateFunction(c,lua,c->argv[1]) == NULL) {
+scripting.c:1543:    luaSetGlobalArray(lua,"KEYS",c->argv+3,numkeys);
+scripting.c:1544:    luaSetGlobalArray(lua,"ARGV",c->argv+3+numkeys,c->argc-3-numkeys);
+scripting.c:1635:        if (!replicationScriptCacheExists(c->argv[1]->ptr)) {
+scripting.c:1639:            robj *script = dictFetchValue(server.lua_scripts,c->argv[1]->ptr);
+scripting.c:1641:            replicationScriptCacheAdd(c->argv[1]->ptr);
+scripting.c:1664:    if (!(c->flags & CLIENT_LUA_DEBUG))
+scripting.c:1671:    if (sdslen(c->argv[1]->ptr) != 40) {
+scripting.c:1679:    if (!(c->flags & CLIENT_LUA_DEBUG))
+scripting.c:1688:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+scripting.c:1698:    } else if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"flush")) {
+scripting.c:1703:    } else if (c->argc >= 2 && !strcasecmp(c->argv[1]->ptr,"exists")) {
+scripting.c:1706:        addReplyArrayLen(c, c->argc-2);
+scripting.c:1707:        for (j = 2; j < c->argc; j++) {
+scripting.c:1708:            if (dictFind(server.lua_scripts,c->argv[j]->ptr))
+scripting.c:1713:    } else if (c->argc == 3 && !strcasecmp(c->argv[1]->ptr,"load")) {
+scripting.c:1714:        sds sha = luaCreateFunction(c,server.lua,c->argv[2]);
+scripting.c:1718:    } else if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"kill")) {
+scripting.c:1729:    } else if (c->argc == 3 && !strcasecmp(c->argv[1]->ptr,"debug")) {
+scripting.c:1734:        if (!strcasecmp(c->argv[2]->ptr,"no")) {
+scripting.c:1737:        } else if (!strcasecmp(c->argv[2]->ptr,"yes")) {
+scripting.c:1740:        } else if (!strcasecmp(c->argv[2]->ptr,"sync")) {
+scripting.c:1743:            c->flags |= CLIENT_LUA_DEBUG_SYNC;
+scripting.c:1779:    c->flags |= CLIENT_LUA_DEBUG;
+scripting.c:1781:    ldb.conn = c->conn;
+scripting.c:1795:    c->flags &= ~(CLIENT_LUA_DEBUG|CLIENT_LUA_DEBUG_SYNC);
+scripting.c:1857:    ldb.forked = (c->flags & CLIENT_LUA_DEBUG_SYNC) == 0;
+scripting.c:1894:    sds srcstring = sdsdup(c->argv[1]->ptr);
+scripting.c:1930:    c->flags |= CLIENT_CLOSE_AFTER_REPLY;
+scripting.c:2467:    sds code = sdsjoinsds(argv+1,argc-1," ",1);
+scripting.c:2509:    lua_pcall(lua,argc-1,1,0);  /* Stack: redis, result */
+atomicvar.h:83:#define REDIS_ATOMIC_API "atomic-builtin"
+atomicvar.h:99:#define REDIS_ATOMIC_API "sync-builtin"
+object.c:1215:    if ((de = dictFind(c->db->dict,key->ptr)) == NULL) return NULL;
+object.c:1231:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+object.c:1240:    } else if (!strcasecmp(c->argv[1]->ptr,"refcount") && c->argc == 3) {
+object.c:1241:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.null[c->resp]))
+object.c:1244:    } else if (!strcasecmp(c->argv[1]->ptr,"encoding") && c->argc == 3) {
+object.c:1245:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.null[c->resp]))
+object.c:1248:    } else if (!strcasecmp(c->argv[1]->ptr,"idletime") && c->argc == 3) {
+object.c:1249:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.null[c->resp]))
+object.c:1256:    } else if (!strcasecmp(c->argv[1]->ptr,"freq") && c->argc == 3) {
+object.c:1257:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.null[c->resp]))
+object.c:1278:    if (!strcasecmp(c->argv[1]->ptr,"help") && c->argc == 2) {
+object.c:1288:    } else if (!strcasecmp(c->argv[1]->ptr,"usage") && c->argc >= 3) {
+object.c:1291:        for (int j = 3; j < c->argc; j++) {
+object.c:1292:            if (!strcasecmp(c->argv[j]->ptr,"samples") &&
+object.c:1293:                j+1 < c->argc)
+object.c:1295:                if (getLongLongFromObjectOrReply(c,c->argv[j+1],&samples,NULL)
+object.c:1308:        if ((de = dictFind(c->db->dict,c->argv[2]->ptr)) == NULL) {
+object.c:1316:    } else if (!strcasecmp(c->argv[1]->ptr,"stats") && c->argc == 2) {
+object.c:1410:    } else if (!strcasecmp(c->argv[1]->ptr,"malloc-stats") && c->argc == 2) {
+object.c:1419:    } else if (!strcasecmp(c->argv[1]->ptr,"doctor") && c->argc == 2) {
+object.c:1423:    } else if (!strcasecmp(c->argv[1]->ptr,"purge") && c->argc == 2) {
+object.c:1429:        addReplyErrorFormat(c, "Unknown subcommand or wrong number of arguments for '%s'. Try MEMORY HELP", (char*)c->argv[1]->ptr);
+debug.c:371:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+debug.c:407:    } else if (!strcasecmp(c->argv[1]->ptr,"segfault")) {
+debug.c:409:    } else if (!strcasecmp(c->argv[1]->ptr,"panic")) {
+debug.c:411:    } else if (!strcasecmp(c->argv[1]->ptr,"restart") ||
+debug.c:412:               !strcasecmp(c->argv[1]->ptr,"crash-and-recover"))
+debug.c:415:        if (c->argc >= 3) {
+debug.c:416:            if (getLongLongFromObjectOrReply(c, c->argv[2], &delay, NULL)
+debug.c:420:        int flags = !strcasecmp(c->argv[1]->ptr,"restart") ?
+debug.c:425:    } else if (!strcasecmp(c->argv[1]->ptr,"oom")) {
+debug.c:429:    } else if (!strcasecmp(c->argv[1]->ptr,"assert")) {
+debug.c:430:        serverAssertWithInfo(c,c->argv[0],1 == 2);
+debug.c:431:    } else if (!strcasecmp(c->argv[1]->ptr,"log") && c->argc == 3) {
+debug.c:432:        serverLog(LL_WARNING, "DEBUG LOG: %s", (char*)c->argv[2]->ptr);
+debug.c:434:    } else if (!strcasecmp(c->argv[1]->ptr,"leak") && c->argc == 3) {
+debug.c:435:        sdsdup(c->argv[2]->ptr);
+debug.c:437:    } else if (!strcasecmp(c->argv[1]->ptr,"reload")) {
+debug.c:443:        for (int j = 2; j < c->argc; j++) {
+debug.c:444:            char *opt = c->argv[j]->ptr;
+debug.c:483:    } else if (!strcasecmp(c->argv[1]->ptr,"loadaof")) {
+debug.c:496:    } else if (!strcasecmp(c->argv[1]->ptr,"object") && c->argc == 3) {
+debug.c:501:        if ((de = dictFind(c->db->dict,c->argv[2]->ptr)) == NULL) {
+debug.c:546:            strenc, rdbSavedObjectLen(val, c->argv[2]),
+debug.c:548:    } else if (!strcasecmp(c->argv[1]->ptr,"sdslen") && c->argc == 3) {
+debug.c:553:        if ((de = dictFind(c->db->dict,c->argv[2]->ptr)) == NULL) {
+debug.c:573:    } else if (!strcasecmp(c->argv[1]->ptr,"ziplist") && c->argc == 3) {
+debug.c:576:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.nokeyerr))
+debug.c:585:    } else if (!strcasecmp(c->argv[1]->ptr,"populate") &&
+debug.c:586:               c->argc >= 3 && c->argc <= 5) {
+debug.c:591:        if (getLongFromObjectOrReply(c, c->argv[2], &keys, NULL) != C_OK)
+debug.c:593:        dictExpand(c->db->dict,keys);
+debug.c:595:        if ( c->argc == 5 && getLongFromObjectOrReply(c, c->argv[4], &valsize, NULL) != C_OK ) 
+debug.c:599:                (c->argc == 3) ? "key" : (char*)c->argv[3]->ptr, j);
+debug.c:601:            if (lookupKeyWrite(c->db,key) != NULL) {
+debug.c:613:            dbAdd(c->db,key,val);
+debug.c:614:            signalModifiedKey(c,c->db,key);
+debug.c:618:    } else if (!strcasecmp(c->argv[1]->ptr,"digest") && c->argc == 2) {
+debug.c:627:    } else if (!strcasecmp(c->argv[1]->ptr,"digest-value") && c->argc >= 2) {
+debug.c:629:        addReplyArrayLen(c,c->argc-2);
+debug.c:630:        for (int j = 2; j < c->argc; j++) {
+debug.c:633:            robj *o = lookupKeyReadWithFlags(c->db,c->argv[j],LOOKUP_NOTOUCH);
+debug.c:634:            if (o) xorObjectDigest(c->db,c->argv[j],digest,o);
+debug.c:641:    } else if (!strcasecmp(c->argv[1]->ptr,"protocol") && c->argc == 3) {
+debug.c:644:        char *name = c->argv[2]->ptr;
+debug.c:693:    } else if (!strcasecmp(c->argv[1]->ptr,"sleep") && c->argc == 3) {
+debug.c:694:        double dtime = strtod(c->argv[2]->ptr,NULL);
+debug.c:702:    } else if (!strcasecmp(c->argv[1]->ptr,"set-active-expire") &&
+debug.c:703:               c->argc == 3)
+debug.c:705:        server.active_expire_enabled = atoi(c->argv[2]->ptr);
+debug.c:707:    } else if (!strcasecmp(c->argv[1]->ptr,"aof-flush-sleep") &&
+debug.c:708:               c->argc == 3)
+debug.c:710:        server.aof_flush_sleep = atoi(c->argv[2]->ptr);
+debug.c:712:    } else if (!strcasecmp(c->argv[1]->ptr,"lua-always-replicate-commands") &&
+debug.c:713:               c->argc == 3)
+debug.c:715:        server.lua_always_replicate_commands = atoi(c->argv[2]->ptr);
+debug.c:717:    } else if (!strcasecmp(c->argv[1]->ptr,"error") && c->argc == 3) {
+debug.c:720:        errstr = sdscatsds(errstr,c->argv[2]->ptr);
+debug.c:724:    } else if (!strcasecmp(c->argv[1]->ptr,"structsize") && c->argc == 2) {
+debug.c:735:    } else if (!strcasecmp(c->argv[1]->ptr,"htstats") && c->argc == 3) {
+debug.c:740:        if (getLongFromObjectOrReply(c, c->argv[2], &dbid, NULL) != C_OK) {
+debug.c:760:    } else if (!strcasecmp(c->argv[1]->ptr,"htstats-key") && c->argc == 3) {
+debug.c:764:        if ((o = objectCommandLookupOrReply(c,c->argv[2],shared.nokeyerr))
+debug.c:788:    } else if (!strcasecmp(c->argv[1]->ptr,"change-repl-id") && c->argc == 2) {
+debug.c:793:    } else if (!strcasecmp(c->argv[1]->ptr,"stringmatch-test") && c->argc == 2)
+debug.c:798:    } else if(!strcasecmp(c->argv[1]->ptr,"mallctl") && c->argc >= 3) {
+debug.c:799:        mallctl_int(c, c->argv+2, c->argc-2);
+debug.c:801:    } else if(!strcasecmp(c->argv[1]->ptr,"mallctl-str") && c->argc >= 3) {
+debug.c:802:        mallctl_string(c, c->argv+2, c->argc-2);
+debug.c:832:    serverLog(LL_WARNING,"client->flags = %llu", (unsigned long long) c->flags);
+debug.c:833:    serverLog(LL_WARNING,"client->conn = %s", connGetInfo(c->conn, conninfo, sizeof(conninfo)));
+debug.c:834:    serverLog(LL_WARNING,"client->argc = %d", c->argc);
+debug.c:835:    for (j=0; j < c->argc; j++) {
+debug.c:839:        if (c->argv[j]->type == OBJ_STRING && sdsEncodedObject(c->argv[j])) {
+debug.c:840:            arg = (char*) c->argv[j]->ptr;
+debug.c:843:                c->argv[j]->type, c->argv[j]->encoding);
+debug.c:847:            j, arg, c->argv[j]->refcount);
+debug.c:920:    return (void*) uc->uc_mcontext->__ss.__rip;
+debug.c:922:    return (void*) uc->uc_mcontext->__ss.__eip;
+debug.c:924:    return (void*) uc->uc_mcontext->__ss.__srr0;
+debug.c:929:    return (void*) uc->uc_mcontext->__ss.__rip;
+debug.c:931:    return (void*) uc->uc_mcontext->__ss.__eip;
+debug.c:934:    return (void*) arm_thread_state64_get_pc(uc->uc_mcontext->__ss);
+debug.c:939:    return (void*) uc->uc_mcontext.gregs[14]; /* Linux 32 */
+debug.c:941:    return (void*) uc->uc_mcontext.gregs[16]; /* Linux 64 */
+debug.c:943:    return (void*) uc->uc_mcontext.sc_ip;
+debug.c:945:    return (void*) uc->uc_mcontext.arm_pc;
+debug.c:947:    return (void*) uc->uc_mcontext.pc;
+debug.c:952:    return (void*) uc->uc_mcontext.mc_eip;
+debug.c:954:    return (void*) uc->uc_mcontext.mc_rip;
+debug.c:959:    return (void*) uc->sc_eip;
+debug.c:961:    return (void*) uc->sc_rip;
+debug.c:964:    return (void*) uc->uc_mcontext.mc_rip;
+debug.c:997:        (unsigned long) uc->uc_mcontext->__ss.__rax,
+debug.c:998:        (unsigned long) uc->uc_mcontext->__ss.__rbx,
+debug.c:999:        (unsigned long) uc->uc_mcontext->__ss.__rcx,
+debug.c:1000:        (unsigned long) uc->uc_mcontext->__ss.__rdx,
+debug.c:1001:        (unsigned long) uc->uc_mcontext->__ss.__rdi,
+debug.c:1002:        (unsigned long) uc->uc_mcontext->__ss.__rsi,
+debug.c:1003:        (unsigned long) uc->uc_mcontext->__ss.__rbp,
+debug.c:1004:        (unsigned long) uc->uc_mcontext->__ss.__rsp,
+debug.c:1005:        (unsigned long) uc->uc_mcontext->__ss.__r8,
+debug.c:1006:        (unsigned long) uc->uc_mcontext->__ss.__r9,
+debug.c:1007:        (unsigned long) uc->uc_mcontext->__ss.__r10,
+debug.c:1008:        (unsigned long) uc->uc_mcontext->__ss.__r11,
+debug.c:1009:        (unsigned long) uc->uc_mcontext->__ss.__r12,
+debug.c:1010:        (unsigned long) uc->uc_mcontext->__ss.__r13,
+debug.c:1011:        (unsigned long) uc->uc_mcontext->__ss.__r14,
+debug.c:1012:        (unsigned long) uc->uc_mcontext->__ss.__r15,
+debug.c:1013:        (unsigned long) uc->uc_mcontext->__ss.__rip,
+debug.c:1014:        (unsigned long) uc->uc_mcontext->__ss.__rflags,
+debug.c:1015:        (unsigned long) uc->uc_mcontext->__ss.__cs,
+debug.c:1016:        (unsigned long) uc->uc_mcontext->__ss.__fs,
+debug.c:1017:        (unsigned long) uc->uc_mcontext->__ss.__gs
+debug.c:1019:    logStackContent((void**)uc->uc_mcontext->__ss.__rsp);
+debug.c:1028:        (unsigned long) uc->uc_mcontext->__ss.__eax,
+debug.c:1029:        (unsigned long) uc->uc_mcontext->__ss.__ebx,
+debug.c:1030:        (unsigned long) uc->uc_mcontext->__ss.__ecx,
+debug.c:1031:        (unsigned long) uc->uc_mcontext->__ss.__edx,
+debug.c:1032:        (unsigned long) uc->uc_mcontext->__ss.__edi,
+debug.c:1033:        (unsigned long) uc->uc_mcontext->__ss.__esi,
+debug.c:1034:        (unsigned long) uc->uc_mcontext->__ss.__ebp,
+debug.c:1035:        (unsigned long) uc->uc_mcontext->__ss.__esp,
+debug.c:1036:        (unsigned long) uc->uc_mcontext->__ss.__ss,
+debug.c:1037:        (unsigned long) uc->uc_mcontext->__ss.__eflags,
+debug.c:1038:        (unsigned long) uc->uc_mcontext->__ss.__eip,
+debug.c:1039:        (unsigned long) uc->uc_mcontext->__ss.__cs,
+debug.c:1040:        (unsigned long) uc->uc_mcontext->__ss.__ds,
+debug.c:1041:        (unsigned long) uc->uc_mcontext->__ss.__es,
+debug.c:1042:        (unsigned long) uc->uc_mcontext->__ss.__fs,
+debug.c:1043:        (unsigned long) uc->uc_mcontext->__ss.__gs
+debug.c:1045:    logStackContent((void**)uc->uc_mcontext->__ss.__esp);
+debug.c:1059:        (unsigned long) uc->uc_mcontext->__ss.__x[0],
+debug.c:1060:        (unsigned long) uc->uc_mcontext->__ss.__x[1],
+debug.c:1061:        (unsigned long) uc->uc_mcontext->__ss.__x[2],
+debug.c:1062:        (unsigned long) uc->uc_mcontext->__ss.__x[3],
+debug.c:1063:        (unsigned long) uc->uc_mcontext->__ss.__x[4],
+debug.c:1064:        (unsigned long) uc->uc_mcontext->__ss.__x[5],
+debug.c:1065:        (unsigned long) uc->uc_mcontext->__ss.__x[6],
+debug.c:1066:        (unsigned long) uc->uc_mcontext->__ss.__x[7],
+debug.c:1067:        (unsigned long) uc->uc_mcontext->__ss.__x[8],
+debug.c:1068:        (unsigned long) uc->uc_mcontext->__ss.__x[9],
+debug.c:1069:        (unsigned long) uc->uc_mcontext->__ss.__x[10],
+debug.c:1070:        (unsigned long) uc->uc_mcontext->__ss.__x[11],
+debug.c:1071:        (unsigned long) uc->uc_mcontext->__ss.__x[12],
+debug.c:1072:        (unsigned long) uc->uc_mcontext->__ss.__x[13],
+debug.c:1073:        (unsigned long) uc->uc_mcontext->__ss.__x[14],
+debug.c:1074:        (unsigned long) uc->uc_mcontext->__ss.__x[15],
+debug.c:1075:        (unsigned long) uc->uc_mcontext->__ss.__x[16],
+debug.c:1076:        (unsigned long) uc->uc_mcontext->__ss.__x[17],
+debug.c:1077:        (unsigned long) uc->uc_mcontext->__ss.__x[18],
+debug.c:1078:        (unsigned long) uc->uc_mcontext->__ss.__x[19],
+debug.c:1079:        (unsigned long) uc->uc_mcontext->__ss.__x[20],
+debug.c:1080:        (unsigned long) uc->uc_mcontext->__ss.__x[21],
+debug.c:1081:        (unsigned long) uc->uc_mcontext->__ss.__x[22],
+debug.c:1082:        (unsigned long) uc->uc_mcontext->__ss.__x[23],
+debug.c:1083:        (unsigned long) uc->uc_mcontext->__ss.__x[24],
+debug.c:1084:        (unsigned long) uc->uc_mcontext->__ss.__x[25],
+debug.c:1085:        (unsigned long) uc->uc_mcontext->__ss.__x[26],
+debug.c:1086:        (unsigned long) uc->uc_mcontext->__ss.__x[27],
+debug.c:1087:        (unsigned long) uc->uc_mcontext->__ss.__x[28],
+debug.c:1088:        (unsigned long) arm_thread_state64_get_fp(uc->uc_mcontext->__ss),
+debug.c:1089:        (unsigned long) arm_thread_state64_get_lr(uc->uc_mcontext->__ss),
+debug.c:1090:        (unsigned long) arm_thread_state64_get_sp(uc->uc_mcontext->__ss),
+debug.c:1091:        (unsigned long) arm_thread_state64_get_pc(uc->uc_mcontext->__ss),
+debug.c:1092:        (unsigned long) uc->uc_mcontext->__ss.__cpsr
+debug.c:1094:    logStackContent((void**) arm_thread_state64_get_sp(uc->uc_mcontext->__ss));
+debug.c:1106:        (unsigned long) uc->uc_mcontext.gregs[11],
+debug.c:1107:        (unsigned long) uc->uc_mcontext.gregs[8],
+debug.c:1108:        (unsigned long) uc->uc_mcontext.gregs[10],
+debug.c:1109:        (unsigned long) uc->uc_mcontext.gregs[9],
+debug.c:1110:        (unsigned long) uc->uc_mcontext.gregs[4],
+debug.c:1111:        (unsigned long) uc->uc_mcontext.gregs[5],
+debug.c:1112:        (unsigned long) uc->uc_mcontext.gregs[6],
+debug.c:1113:        (unsigned long) uc->uc_mcontext.gregs[7],
+debug.c:1114:        (unsigned long) uc->uc_mcontext.gregs[18],
+debug.c:1115:        (unsigned long) uc->uc_mcontext.gregs[17],
+debug.c:1116:        (unsigned long) uc->uc_mcontext.gregs[14],
+debug.c:1117:        (unsigned long) uc->uc_mcontext.gregs[15],
+debug.c:1118:        (unsigned long) uc->uc_mcontext.gregs[3],
+debug.c:1119:        (unsigned long) uc->uc_mcontext.gregs[2],
+debug.c:1120:        (unsigned long) uc->uc_mcontext.gregs[1],
+debug.c:1121:        (unsigned long) uc->uc_mcontext.gregs[0]
+debug.c:1123:    logStackContent((void**)uc->uc_mcontext.gregs[7]);
+debug.c:1133:        (unsigned long) uc->uc_mcontext.gregs[13],
+debug.c:1134:        (unsigned long) uc->uc_mcontext.gregs[11],
+debug.c:1135:        (unsigned long) uc->uc_mcontext.gregs[14],
+debug.c:1136:        (unsigned long) uc->uc_mcontext.gregs[12],
+debug.c:1137:        (unsigned long) uc->uc_mcontext.gregs[8],
+debug.c:1138:        (unsigned long) uc->uc_mcontext.gregs[9],
+debug.c:1139:        (unsigned long) uc->uc_mcontext.gregs[10],
+debug.c:1140:        (unsigned long) uc->uc_mcontext.gregs[15],
+debug.c:1141:        (unsigned long) uc->uc_mcontext.gregs[0],
+debug.c:1142:        (unsigned long) uc->uc_mcontext.gregs[1],
+debug.c:1143:        (unsigned long) uc->uc_mcontext.gregs[2],
+debug.c:1144:        (unsigned long) uc->uc_mcontext.gregs[3],
+debug.c:1145:        (unsigned long) uc->uc_mcontext.gregs[4],
+debug.c:1146:        (unsigned long) uc->uc_mcontext.gregs[5],
+debug.c:1147:        (unsigned long) uc->uc_mcontext.gregs[6],
+debug.c:1148:        (unsigned long) uc->uc_mcontext.gregs[7],
+debug.c:1149:        (unsigned long) uc->uc_mcontext.gregs[16],
+debug.c:1150:        (unsigned long) uc->uc_mcontext.gregs[17],
+debug.c:1151:        (unsigned long) uc->uc_mcontext.gregs[18]
+debug.c:1153:    logStackContent((void**)uc->uc_mcontext.gregs[15]);
+debug.c:1162:	      (unsigned long) uc->uc_mcontext.regs[18],
+debug.c:1163:	      (unsigned long) uc->uc_mcontext.regs[19],
+debug.c:1164:	      (unsigned long) uc->uc_mcontext.regs[20],
+debug.c:1165:	      (unsigned long) uc->uc_mcontext.regs[21],
+debug.c:1166:	      (unsigned long) uc->uc_mcontext.regs[22],
+debug.c:1167:	      (unsigned long) uc->uc_mcontext.regs[23],
+debug.c:1168:	      (unsigned long) uc->uc_mcontext.regs[24],
+debug.c:1169:	      (unsigned long) uc->uc_mcontext.regs[25],
+debug.c:1170:	      (unsigned long) uc->uc_mcontext.regs[26],
+debug.c:1171:	      (unsigned long) uc->uc_mcontext.regs[27],
+debug.c:1172:	      (unsigned long) uc->uc_mcontext.regs[28],
+debug.c:1173:	      (unsigned long) uc->uc_mcontext.regs[29],
+debug.c:1174:	      (unsigned long) uc->uc_mcontext.regs[30],
+debug.c:1175:	      (unsigned long) uc->uc_mcontext.pc,
+debug.c:1176:	      (unsigned long) uc->uc_mcontext.sp,
+debug.c:1177:	      (unsigned long) uc->uc_mcontext.pstate,
+debug.c:1178:	      (unsigned long) uc->uc_mcontext.fault_address
+debug.c:1180:	      logStackContent((void**)uc->uc_mcontext.sp);
+debug.c:1189:	      (unsigned long) uc->uc_mcontext.arm_r10,
+debug.c:1190:	      (unsigned long) uc->uc_mcontext.arm_r9,
+debug.c:1191:	      (unsigned long) uc->uc_mcontext.arm_r8,
+debug.c:1192:	      (unsigned long) uc->uc_mcontext.arm_r7,
+debug.c:1193:	      (unsigned long) uc->uc_mcontext.arm_r6,
+debug.c:1194:	      (unsigned long) uc->uc_mcontext.arm_r5,
+debug.c:1195:	      (unsigned long) uc->uc_mcontext.arm_r4,
+debug.c:1196:	      (unsigned long) uc->uc_mcontext.arm_r3,
+debug.c:1197:	      (unsigned long) uc->uc_mcontext.arm_r2,
+debug.c:1198:	      (unsigned long) uc->uc_mcontext.arm_r1,
+debug.c:1199:	      (unsigned long) uc->uc_mcontext.arm_r0,
+debug.c:1200:	      (unsigned long) uc->uc_mcontext.error_code,
+debug.c:1201:	      (unsigned long) uc->uc_mcontext.arm_fp,
+debug.c:1202:	      (unsigned long) uc->uc_mcontext.arm_ip,
+debug.c:1203:	      (unsigned long) uc->uc_mcontext.arm_pc,
+debug.c:1204:	      (unsigned long) uc->uc_mcontext.arm_sp,
+debug.c:1205:	      (unsigned long) uc->uc_mcontext.arm_cpsr,
+debug.c:1206:	      (unsigned long) uc->uc_mcontext.fault_address
+debug.c:1208:	      logStackContent((void**)uc->uc_mcontext.arm_sp);
+debug.c:1219:        (unsigned long) uc->uc_mcontext.mc_rax,
+debug.c:1220:        (unsigned long) uc->uc_mcontext.mc_rbx,
+debug.c:1221:        (unsigned long) uc->uc_mcontext.mc_rcx,
+debug.c:1222:        (unsigned long) uc->uc_mcontext.mc_rdx,
+debug.c:1223:        (unsigned long) uc->uc_mcontext.mc_rdi,
+debug.c:1224:        (unsigned long) uc->uc_mcontext.mc_rsi,
+debug.c:1225:        (unsigned long) uc->uc_mcontext.mc_rbp,
+debug.c:1226:        (unsigned long) uc->uc_mcontext.mc_rsp,
+debug.c:1227:        (unsigned long) uc->uc_mcontext.mc_r8,
+debug.c:1228:        (unsigned long) uc->uc_mcontext.mc_r9,
+debug.c:1229:        (unsigned long) uc->uc_mcontext.mc_r10,
+debug.c:1230:        (unsigned long) uc->uc_mcontext.mc_r11,
+debug.c:1231:        (unsigned long) uc->uc_mcontext.mc_r12,
+debug.c:1232:        (unsigned long) uc->uc_mcontext.mc_r13,
+debug.c:1233:        (unsigned long) uc->uc_mcontext.mc_r14,
+debug.c:1234:        (unsigned long) uc->uc_mcontext.mc_r15,
+debug.c:1235:        (unsigned long) uc->uc_mcontext.mc_rip,
+debug.c:1236:        (unsigned long) uc->uc_mcontext.mc_rflags,
+debug.c:1237:        (unsigned long) uc->uc_mcontext.mc_cs
+debug.c:1239:    logStackContent((void**)uc->uc_mcontext.mc_rsp);
+debug.c:1247:        (unsigned long) uc->uc_mcontext.mc_eax,
+debug.c:1248:        (unsigned long) uc->uc_mcontext.mc_ebx,
+debug.c:1249:        (unsigned long) uc->uc_mcontext.mc_ebx,
+debug.c:1250:        (unsigned long) uc->uc_mcontext.mc_edx,
+debug.c:1251:        (unsigned long) uc->uc_mcontext.mc_edi,
+debug.c:1252:        (unsigned long) uc->uc_mcontext.mc_esi,
+debug.c:1253:        (unsigned long) uc->uc_mcontext.mc_ebp,
+debug.c:1254:        (unsigned long) uc->uc_mcontext.mc_esp,
+debug.c:1255:        (unsigned long) uc->uc_mcontext.mc_ss,
+debug.c:1256:        (unsigned long) uc->uc_mcontext.mc_eflags,
+debug.c:1257:        (unsigned long) uc->uc_mcontext.mc_eip,
+debug.c:1258:        (unsigned long) uc->uc_mcontext.mc_cs,
+debug.c:1259:        (unsigned long) uc->uc_mcontext.mc_es,
+debug.c:1260:        (unsigned long) uc->uc_mcontext.mc_fs,
+debug.c:1261:        (unsigned long) uc->uc_mcontext.mc_gs
+debug.c:1263:    logStackContent((void**)uc->uc_mcontext.mc_esp);
+debug.c:1274:        (unsigned long) uc->sc_rax,
+debug.c:1275:        (unsigned long) uc->sc_rbx,
+debug.c:1276:        (unsigned long) uc->sc_rcx,
+debug.c:1277:        (unsigned long) uc->sc_rdx,
+debug.c:1278:        (unsigned long) uc->sc_rdi,
+debug.c:1279:        (unsigned long) uc->sc_rsi,
+debug.c:1280:        (unsigned long) uc->sc_rbp,
+debug.c:1281:        (unsigned long) uc->sc_rsp,
+debug.c:1282:        (unsigned long) uc->sc_r8,
+debug.c:1283:        (unsigned long) uc->sc_r9,
+debug.c:1284:        (unsigned long) uc->sc_r10,
+debug.c:1285:        (unsigned long) uc->sc_r11,
+debug.c:1286:        (unsigned long) uc->sc_r12,
+debug.c:1287:        (unsigned long) uc->sc_r13,
+debug.c:1288:        (unsigned long) uc->sc_r14,
+debug.c:1289:        (unsigned long) uc->sc_r15,
+debug.c:1290:        (unsigned long) uc->sc_rip,
+debug.c:1291:        (unsigned long) uc->sc_rflags,
+debug.c:1292:        (unsigned long) uc->sc_cs
+debug.c:1294:    logStackContent((void**)uc->sc_rsp);
+debug.c:1302:        (unsigned long) uc->sc_eax,
+debug.c:1303:        (unsigned long) uc->sc_ebx,
+debug.c:1304:        (unsigned long) uc->sc_ebx,
+debug.c:1305:        (unsigned long) uc->sc_edx,
+debug.c:1306:        (unsigned long) uc->sc_edi,
+debug.c:1307:        (unsigned long) uc->sc_esi,
+debug.c:1308:        (unsigned long) uc->sc_ebp,
+debug.c:1309:        (unsigned long) uc->sc_esp,
+debug.c:1310:        (unsigned long) uc->sc_ss,
+debug.c:1311:        (unsigned long) uc->sc_eflags,
+debug.c:1312:        (unsigned long) uc->sc_eip,
+debug.c:1313:        (unsigned long) uc->sc_cs,
+debug.c:1314:        (unsigned long) uc->sc_es,
+debug.c:1315:        (unsigned long) uc->sc_fs,
+debug.c:1316:        (unsigned long) uc->sc_gs
+debug.c:1318:    logStackContent((void**)uc->sc_esp);
+debug.c:1328:        (unsigned long) uc->uc_mcontext.mc_rax,
+debug.c:1329:        (unsigned long) uc->uc_mcontext.mc_rbx,
+debug.c:1330:        (unsigned long) uc->uc_mcontext.mc_rcx,
+debug.c:1331:        (unsigned long) uc->uc_mcontext.mc_rdx,
+debug.c:1332:        (unsigned long) uc->uc_mcontext.mc_rdi,
+debug.c:1333:        (unsigned long) uc->uc_mcontext.mc_rsi,
+debug.c:1334:        (unsigned long) uc->uc_mcontext.mc_rbp,
+debug.c:1335:        (unsigned long) uc->uc_mcontext.mc_rsp,
+debug.c:1336:        (unsigned long) uc->uc_mcontext.mc_r8,
+debug.c:1337:        (unsigned long) uc->uc_mcontext.mc_r9,
+debug.c:1338:        (unsigned long) uc->uc_mcontext.mc_r10,
+debug.c:1339:        (unsigned long) uc->uc_mcontext.mc_r11,
+debug.c:1340:        (unsigned long) uc->uc_mcontext.mc_r12,
+debug.c:1341:        (unsigned long) uc->uc_mcontext.mc_r13,
+debug.c:1342:        (unsigned long) uc->uc_mcontext.mc_r14,
+debug.c:1343:        (unsigned long) uc->uc_mcontext.mc_r15,
+debug.c:1344:        (unsigned long) uc->uc_mcontext.mc_rip,
+debug.c:1345:        (unsigned long) uc->uc_mcontext.mc_rflags,
+debug.c:1346:        (unsigned long) uc->uc_mcontext.mc_cs
+debug.c:1348:    logStackContent((void**)uc->uc_mcontext.mc_rsp);
+debug.c:1416:    for (j = 0; j < cc->argc; j++) {
+debug.c:1419:        decoded = getDecodedObject(cc->argv[j]);
+debug.c:1426:    if (cc->argc >= 1) {
+debug.c:1430:        key = getDecodedObject(cc->argv[1]);
+debug.c:1431:        de = dictFind(cc->db->dict, key->ptr);
+Binary file object.o matches
+Binary file server.o matches
+tags:5485:repl_transfer_last_fsync_off	server.h	/^    off_t repl_transfer_last_fsync_off; \/* Offset when we fsync-ed last time. *\/$/;"	m	struct:redisServer
+Binary file rio.o matches
+server.h:1065:                                   the actual 'hz' field value if dynamic-hz
+server.h:1342:    off_t repl_transfer_last_fsync_off; /* Offset when we fsync-ed last time. */
+Binary file networking.o matches
+acl.c:291:        if (c->user == u) {
+acl.c:298:            c->user = DefaultUser;
+acl.c:299:            c->authenticated = 0;
+acl.c:312:    dst->passwords = listDup(src->passwords);
+acl.c:313:    dst->patterns = listDup(src->patterns);
+acl.c:314:    memcpy(dst->allowed_commands,src->allowed_commands,
+acl.c:316:    dst->flags = src->flags;
+acl.c:319:    if (src->allowed_subcommands) {
+acl.c:321:            if (src->allowed_subcommands[j]) {
+acl.c:322:                for (int i = 0; src->allowed_subcommands[j][i]; i++)
+acl.c:325:                        src->allowed_subcommands[j][i]);
+acl.c:998:        c->authenticated = 1;
+acl.c:999:        c->user = ACLGetUserByName(username->ptr,sdslen(username->ptr));
+acl.c:1052: * referenced by c->cmd, and can be executed by this client according to the
+acl.c:1053: * ACLs associated to the client user c->user.
+acl.c:1061:    user *u = c->user;
+acl.c:1062:    uint64_t id = c->cmd->id;
+acl.c:1069:        c->cmd->proc != authCommand)
+acl.c:1075:            if (c->argc < 2 ||
+acl.c:1086:                if (!strcasecmp(c->argv[1]->ptr,
+acl.c:1096:    if (!(c->user->flags & USER_FLAG_ALLKEYS) &&
+acl.c:1097:        (c->cmd->getkeys_proc || c->cmd->firstkey))
+acl.c:1100:        int *keyidx = getKeysFromCommand(c->cmd,c->argv,c->argc,&numkeys);
+acl.c:1112:                if (stringmatchlen(pattern,plen,c->argv[idx]->ptr,
+acl.c:1113:                                   sdslen(c->argv[idx]->ptr),0))
+acl.c:1178:    copy[argc-1] = NULL;
+acl.c:1558:    le->username = sdsdup(reason == ACL_DENIED_AUTH ? username : c->user->name);
+acl.c:1562:    case ACL_DENIED_CMD: le->object = sdsnew(c->cmd->name); break;
+acl.c:1563:    case ACL_DENIED_KEY: le->object = sdsnew(c->argv[keypos]->ptr); break;
+acl.c:1564:    case ACL_DENIED_AUTH: le->object = sdsnew(c->argv[0]->ptr); break;
+acl.c:1572:    if (c->flags & CLIENT_MULTI) {
+acl.c:1574:    } else if (c->flags & CLIENT_LUA) {
+acl.c:1642:    char *sub = c->argv[1]->ptr;
+acl.c:1643:    if (!strcasecmp(sub,"setuser") && c->argc >= 3) {
+acl.c:1644:        sds username = c->argv[2]->ptr;
+acl.c:1660:        for (int j = 3; j < c->argc; j++) {
+acl.c:1661:            if (ACLSetUser(tempu,c->argv[j]->ptr,sdslen(c->argv[j]->ptr)) != C_OK) {
+acl.c:1665:                    (char*)c->argv[j]->ptr, errmsg);
+acl.c:1678:    } else if (!strcasecmp(sub,"deluser") && c->argc >= 3) {
+acl.c:1680:        for (int j = 2; j < c->argc; j++) {
+acl.c:1681:            sds username = c->argv[j]->ptr;
+acl.c:1688:        for (int j = 2; j < c->argc; j++) {
+acl.c:1689:            sds username = c->argv[j]->ptr;
+acl.c:1700:    } else if (!strcasecmp(sub,"getuser") && c->argc == 3) {
+acl.c:1701:        user *u = ACLGetUserByName(c->argv[2]->ptr,sdslen(c->argv[2]->ptr));
+acl.c:1753:               c->argc == 2)
+acl.c:1776:    } else if (!strcasecmp(sub,"whoami") && c->argc == 2) {
+acl.c:1777:        if (c->user != NULL) {
+acl.c:1778:            addReplyBulkCBuffer(c,c->user->name,sdslen(c->user->name));
+acl.c:1787:    } else if (!strcasecmp(sub,"load") && c->argc == 2) {
+acl.c:1795:    } else if (!strcasecmp(sub,"save") && c->argc == 2) {
+acl.c:1803:    } else if (!strcasecmp(sub,"cat") && c->argc == 2) {
+acl.c:1809:    } else if (!strcasecmp(sub,"cat") && c->argc == 3) {
+acl.c:1810:        uint64_t cflag = ACLGetCommandCategoryFlagByName(c->argv[2]->ptr);
+acl.c:1812:            addReplyErrorFormat(c, "Unknown category '%s'", (char*)c->argv[2]->ptr);
+acl.c:1829:    } else if (!strcasecmp(sub,"genpass") && (c->argc == 2 || c->argc == 3)) {
+acl.c:1834:        if (c->argc == 3 && getLongFromObjectOrReply(c,c->argv[2],&bits,NULL)
+acl.c:1848:    } else if (!strcasecmp(sub,"log") && (c->argc == 2 || c->argc ==3)) {
+acl.c:1854:        if (c->argc == 3) {
+acl.c:1855:            if (!strcasecmp(c->argv[2]->ptr,"reset")) {
+acl.c:1861:            } else if (getLongFromObjectOrReply(c,c->argv[2],&count,NULL)
+acl.c:1914:    } else if (c->argc == 2 && !strcasecmp(sub,"help")) {
+acl.c:1955:    if (c->argc > 3) {
+acl.c:1963:    if (c->argc == 2) {
+acl.c:1974:        password = c->argv[1];
+acl.c:1976:        username = c->argv[1];
+acl.c:1977:        password = c->argv[2];
+acl.c:1988:    if (c->argc == 2) decrRefCount(username);
+cluster.c:4312:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+cluster.c:4340:    } else if (!strcasecmp(c->argv[1]->ptr,"meet") && (c->argc == 4 || c->argc == 5)) {
+cluster.c:4344:        if (getLongLongFromObject(c->argv[3], &port) != C_OK) {
+cluster.c:4346:                                (char*)c->argv[3]->ptr);
+cluster.c:4350:        if (c->argc == 5) {
+cluster.c:4351:            if (getLongLongFromObject(c->argv[4], &cport) != C_OK) {
+cluster.c:4353:                                    (char*)c->argv[4]->ptr);
+cluster.c:4360:        if (clusterStartHandshake(c->argv[2]->ptr,port,cport) == 0 &&
+cluster.c:4364:                            (char*)c->argv[2]->ptr, (char*)c->argv[3]->ptr);
+cluster.c:4368:    } else if (!strcasecmp(c->argv[1]->ptr,"nodes") && c->argc == 2) {
+cluster.c:4373:    } else if (!strcasecmp(c->argv[1]->ptr,"myid") && c->argc == 2) {
+cluster.c:4376:    } else if (!strcasecmp(c->argv[1]->ptr,"slots") && c->argc == 2) {
+cluster.c:4379:    } else if (!strcasecmp(c->argv[1]->ptr,"flushslots") && c->argc == 2) {
+cluster.c:4388:    } else if ((!strcasecmp(c->argv[1]->ptr,"addslots") ||
+cluster.c:4389:               !strcasecmp(c->argv[1]->ptr,"delslots")) && c->argc >= 3)
+cluster.c:4395:        int del = !strcasecmp(c->argv[1]->ptr,"delslots");
+cluster.c:4400:        for (j = 2; j < c->argc; j++) {
+cluster.c:4401:            if ((slot = getSlotOrReply(c,c->argv[j])) == -1) {
+cluster.c:4438:    } else if (!strcasecmp(c->argv[1]->ptr,"setslot") && c->argc >= 4) {
+cluster.c:4451:        if ((slot = getSlotOrReply(c,c->argv[2])) == -1) return;
+cluster.c:4453:        if (!strcasecmp(c->argv[3]->ptr,"migrating") && c->argc == 5) {
+cluster.c:4458:            if ((n = clusterLookupNode(c->argv[4]->ptr)) == NULL) {
+cluster.c:4460:                    (char*)c->argv[4]->ptr);
+cluster.c:4464:        } else if (!strcasecmp(c->argv[3]->ptr,"importing") && c->argc == 5) {
+cluster.c:4470:            if ((n = clusterLookupNode(c->argv[4]->ptr)) == NULL) {
+cluster.c:4472:                    (char*)c->argv[4]->ptr);
+cluster.c:4476:        } else if (!strcasecmp(c->argv[3]->ptr,"stable") && c->argc == 4) {
+cluster.c:4480:        } else if (!strcasecmp(c->argv[3]->ptr,"node") && c->argc == 5) {
+cluster.c:4482:            clusterNode *n = clusterLookupNode(c->argv[4]->ptr);
+cluster.c:4486:                    (char*)c->argv[4]->ptr);
+cluster.c:4538:    } else if (!strcasecmp(c->argv[1]->ptr,"bumpepoch") && c->argc == 2) {
+cluster.c:4545:    } else if (!strcasecmp(c->argv[1]->ptr,"info") && c->argc == 2) {
+cluster.c:4619:    } else if (!strcasecmp(c->argv[1]->ptr,"saveconfig") && c->argc == 2) {
+cluster.c:4627:    } else if (!strcasecmp(c->argv[1]->ptr,"keyslot") && c->argc == 3) {
+cluster.c:4629:        sds key = c->argv[2]->ptr;
+cluster.c:4632:    } else if (!strcasecmp(c->argv[1]->ptr,"countkeysinslot") && c->argc == 3) {
+cluster.c:4636:        if (getLongLongFromObjectOrReply(c,c->argv[2],&slot,NULL) != C_OK)
+cluster.c:4643:    } else if (!strcasecmp(c->argv[1]->ptr,"getkeysinslot") && c->argc == 4) {
+cluster.c:4649:        if (getLongLongFromObjectOrReply(c,c->argv[2],&slot,NULL) != C_OK)
+cluster.c:4651:        if (getLongLongFromObjectOrReply(c,c->argv[3],&maxkeys,NULL)
+cluster.c:4672:    } else if (!strcasecmp(c->argv[1]->ptr,"forget") && c->argc == 3) {
+cluster.c:4674:        clusterNode *n = clusterLookupNode(c->argv[2]->ptr);
+cluster.c:4677:            addReplyErrorFormat(c,"Unknown node %s", (char*)c->argv[2]->ptr);
+cluster.c:4691:    } else if (!strcasecmp(c->argv[1]->ptr,"replicate") && c->argc == 3) {
+cluster.c:4693:        clusterNode *n = clusterLookupNode(c->argv[2]->ptr);
+cluster.c:4697:            addReplyErrorFormat(c,"Unknown node %s", (char*)c->argv[2]->ptr);
+cluster.c:4728:    } else if ((!strcasecmp(c->argv[1]->ptr,"slaves") ||
+cluster.c:4729:                !strcasecmp(c->argv[1]->ptr,"replicas")) && c->argc == 3) {
+cluster.c:4731:        clusterNode *n = clusterLookupNode(c->argv[2]->ptr);
+cluster.c:4736:            addReplyErrorFormat(c,"Unknown node %s", (char*)c->argv[2]->ptr);
+cluster.c:4751:    } else if (!strcasecmp(c->argv[1]->ptr,"count-failure-reports") &&
+cluster.c:4752:               c->argc == 3)
+cluster.c:4755:        clusterNode *n = clusterLookupNode(c->argv[2]->ptr);
+cluster.c:4758:            addReplyErrorFormat(c,"Unknown node %s", (char*)c->argv[2]->ptr);
+cluster.c:4763:    } else if (!strcasecmp(c->argv[1]->ptr,"failover") &&
+cluster.c:4764:               (c->argc == 2 || c->argc == 3))
+cluster.c:4769:        if (c->argc == 3) {
+cluster.c:4770:            if (!strcasecmp(c->argv[2]->ptr,"force")) {
+cluster.c:4772:            } else if (!strcasecmp(c->argv[2]->ptr,"takeover")) {
+cluster.c:4818:    } else if (!strcasecmp(c->argv[1]->ptr,"set-config-epoch") && c->argc == 3)
+cluster.c:4829:        if (getLongLongFromObjectOrReply(c,c->argv[2],&epoch,NULL) != C_OK)
+cluster.c:4854:    } else if (!strcasecmp(c->argv[1]->ptr,"reset") &&
+cluster.c:4855:               (c->argc == 2 || c->argc == 3))
+cluster.c:4861:        if (c->argc == 3) {
+cluster.c:4862:            if (!strcasecmp(c->argv[2]->ptr,"hard")) {
+cluster.c:4864:            } else if (!strcasecmp(c->argv[2]->ptr,"soft")) {
+cluster.c:4874:        if (nodeIsMaster(myself) && dictSize(c->db->dict) != 0) {
+cluster.c:4953:    if ((o = lookupKeyRead(c->db,c->argv[1])) == NULL) {
+cluster.c:4959:    createDumpPayload(&payload,o,c->argv[1]);
+cluster.c:4974:    for (j = 4; j < c->argc; j++) {
+cluster.c:4975:        int additional = c->argc-j-1;
+cluster.c:4976:        if (!strcasecmp(c->argv[j]->ptr,"replace")) {
+cluster.c:4978:        } else if (!strcasecmp(c->argv[j]->ptr,"absttl")) {
+cluster.c:4980:        } else if (!strcasecmp(c->argv[j]->ptr,"idletime") && additional >= 1 &&
+cluster.c:4983:            if (getLongLongFromObjectOrReply(c,c->argv[j+1],&lru_idle,NULL)
+cluster.c:4991:        } else if (!strcasecmp(c->argv[j]->ptr,"freq") && additional >= 1 &&
+cluster.c:4994:            if (getLongLongFromObjectOrReply(c,c->argv[j+1],&lfu_freq,NULL)
+cluster.c:5008:    robj *key = c->argv[1];
+cluster.c:5009:    if (!replace && lookupKeyWrite(c->db,key) != NULL) {
+cluster.c:5015:    if (getLongLongFromObjectOrReply(c,c->argv[2],&ttl,NULL) != C_OK) {
+cluster.c:5023:    if (verifyDumpPayload(c->argv[3]->ptr,sdslen(c->argv[3]->ptr)) == C_ERR)
+cluster.c:5029:    rioInitWithBuffer(&payload,c->argv[3]->ptr);
+cluster.c:5040:        deleted = dbDelete(c->db,key);
+cluster.c:5046:            signalModifiedKey(c,c->db,key);
+cluster.c:5047:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",key,c->db->id);
+cluster.c:5056:    dbAdd(c->db,key,obj);
+cluster.c:5058:        setExpire(c,c->db,key,ttl);
+cluster.c:5061:    signalModifiedKey(c,c->db,key);
+cluster.c:5062:    notifyKeyspaceEvent(NOTIFY_GENERIC,"restore",key,c->db->id);
+cluster.c:5121:    if (connBlockingConnect(conn, c->argv[1]->ptr, atoi(c->argv[2]->ptr), timeout)
+cluster.c:5204:    for (j = 6; j < c->argc; j++) {
+cluster.c:5205:        int moreargs = (c->argc-1) - j;
+cluster.c:5206:        if (!strcasecmp(c->argv[j]->ptr,"copy")) {
+cluster.c:5208:        } else if (!strcasecmp(c->argv[j]->ptr,"replace")) {
+cluster.c:5210:        } else if (!strcasecmp(c->argv[j]->ptr,"auth")) {
+cluster.c:5216:            password = c->argv[j]->ptr;
+cluster.c:5217:        } else if (!strcasecmp(c->argv[j]->ptr,"auth2")) {
+cluster.c:5222:            username = c->argv[++j]->ptr;
+cluster.c:5223:            password = c->argv[++j]->ptr;
+cluster.c:5224:        } else if (!strcasecmp(c->argv[j]->ptr,"keys")) {
+cluster.c:5225:            if (sdslen(c->argv[3]->ptr) != 0) {
+cluster.c:5232:            num_keys = c->argc - j - 1;
+cluster.c:5241:    if (getLongFromObjectOrReply(c,c->argv[5],&timeout,NULL) != C_OK ||
+cluster.c:5242:        getLongFromObjectOrReply(c,c->argv[4],&dbid,NULL) != C_OK)
+cluster.c:5258:        if ((ov[oi] = lookupKeyRead(c->db,c->argv[first_key+j])) != NULL) {
+cluster.c:5259:            kv[oi] = c->argv[first_key+j];
+cluster.c:5274:    cs = migrateGetSocket(c,c->argv[1],c->argv[2],timeout);
+cluster.c:5311:        long long expireat = getExpire(c->db,kv[j]);
+cluster.c:5421:                dbDelete(c->db,kv[j]);
+cluster.c:5422:                signalModifiedKey(c,c->db,kv[j]);
+cluster.c:5423:                notifyKeyspaceEvent(NOTIFY_GENERIC,"del",kv[j],c->db->id);
+cluster.c:5445:    if (socket_error) migrateCloseSocket(c->argv[1],c->argv[2]);
+cluster.c:5501:    if (!argv_rewritten) migrateCloseSocket(c->argv[1],c->argv[2]);
+cluster.c:5534:    c->flags |= CLIENT_ASKING;
+cluster.c:5546:    c->flags |= CLIENT_READONLY;
+cluster.c:5552:    c->flags &= ~CLIENT_READONLY;
+cluster.c:5612:        if (!(c->flags & CLIENT_MULTI)) return myself;
+cluster.c:5613:        ms = &c->mstate;
+cluster.c:5749:        (c->flags & CLIENT_ASKING || cmd->flags & CMD_ASKING))
+cluster.c:5762:    if (c->flags & CLIENT_READONLY &&
+cluster.c:5822:    if (c->flags & CLIENT_BLOCKED &&
+cluster.c:5823:        (c->btype == BLOCKED_LIST ||
+cluster.c:5824:         c->btype == BLOCKED_ZSET ||
+cluster.c:5825:         c->btype == BLOCKED_STREAM))
+cluster.c:5840:        di = dictGetIterator(c->bpop.keys);
+Binary file blocked.o matches
+db.c:164:    robj *o = lookupKeyRead(c->db, key);
+db.c:171:    robj *o = lookupKeyWrite(c->db, key);
+db.c:261:    if(server.read_tv.tv_usec-past_tv.tv_usec != 0){
+db.c:262:        rbps=rbps + (float)((server.readbuf_size)/(server.read_tv.tv_usec-past_tv.tv_usec));
+db.c:471:    c->db = &server.db[id];
+db.c:519:    if (c->argc > 1) {
+db.c:520:        if (c->argc > 2 || strcasecmp(c->argv[1]->ptr,"async")) {
+db.c:561:    server.dirty += emptyDb(c->db->id,flags,NULL);
+db.c:586:    for (j = 1; j < c->argc; j++) {
+db.c:587:        expireIfNeeded(c->db,c->argv[j]);
+db.c:588:        int deleted  = lazy ? dbAsyncDelete(c->db,c->argv[j]) :
+db.c:589:                              dbSyncDelete(c->db,c->argv[j]);
+db.c:591:            signalModifiedKey(c,c->db,c->argv[j]);
+db.c:593:                "del",c->argv[j],c->db->id);
+db.c:615:    for (j = 1; j < c->argc; j++) {
+db.c:616:        if (lookupKeyRead(c->db,c->argv[j])) count++;
+db.c:624:    if (getLongFromObjectOrReply(c, c->argv[1], &id,
+db.c:642:    if ((key = dbRandomKey(c->db)) == NULL) {
+db.c:654:    sds pattern = c->argv[1]->ptr;
+db.c:659:    di = dictGetSafeIterator(c->db->dict);
+db.c:667:            if (!keyIsExpired(c->db,keyobj)) {
+db.c:758:    while (i < c->argc) {
+db.c:759:        j = c->argc - i;
+db.c:760:        if (!strcasecmp(c->argv[i]->ptr, "count") && j >= 2) {
+db.c:761:            if (getLongFromObjectOrReply(c, c->argv[i+1], &count, NULL)
+db.c:773:        } else if (!strcasecmp(c->argv[i]->ptr, "match") && j >= 2) {
+db.c:774:            pat = c->argv[i+1]->ptr;
+db.c:782:        } else if (!strcasecmp(c->argv[i]->ptr, "type") && o == NULL && j >= 2) {
+db.c:784:            typename = c->argv[i+1]->ptr;
+db.c:803:        ht = c->db->dict;
+db.c:882:            robj* typecheck = lookupKeyReadWithFlags(c->db, kobj, LOOKUP_NOTOUCH);
+db.c:888:        if (!filter && o == NULL && expireIfNeeded(c->db, kobj)) filter = 1;
+db.c:931:    if (parseScanCursorOrReply(c,c->argv[1],&cursor) == C_ERR) return;
+db.c:936:    addReplyLongLong(c,dictSize(c->db->dict));
+db.c:967:    o = lookupKeyReadWithFlags(c->db,c->argv[1],LOOKUP_NOTOUCH);
+db.c:974:    if (c->argc > 2) {
+db.c:977:    } else if (c->argc == 2) {
+db.c:978:        if (!strcasecmp(c->argv[1]->ptr,"nosave")) {
+db.c:980:        } else if (!strcasecmp(c->argv[1]->ptr,"save")) {
+db.c:998:    if (sdscmp(c->argv[1]->ptr,c->argv[2]->ptr) == 0) samekey = 1;
+db.c:1000:    if ((o = lookupKeyWriteOrReply(c,c->argv[1],shared.nokeyerr)) == NULL)
+db.c:1009:    expire = getExpire(c->db,c->argv[1]);
+db.c:1010:    if (lookupKeyWrite(c->db,c->argv[2]) != NULL) {
+db.c:1018:        dbDelete(c->db,c->argv[2]);
+db.c:1020:    dbAdd(c->db,c->argv[2],o);
+db.c:1021:    if (expire != -1) setExpire(c,c->db,c->argv[2],expire);
+db.c:1022:    dbDelete(c->db,c->argv[1]);
+db.c:1023:    signalModifiedKey(c,c->db,c->argv[1]);
+db.c:1024:    signalModifiedKey(c,c->db,c->argv[2]);
+db.c:1026:        c->argv[1],c->db->id);
+db.c:1028:        c->argv[2],c->db->id);
+db.c:1053:    src = c->db;
+db.c:1054:    srcid = c->db->id;
+db.c:1056:    if (getLongLongFromObject(c->argv[2],&dbid) == C_ERR ||
+db.c:1063:    dst = c->db;
+db.c:1074:    o = lookupKeyWrite(c->db,c->argv[1]);
+db.c:1079:    expire = getExpire(c->db,c->argv[1]);
+db.c:1082:    if (lookupKeyWrite(dst,c->argv[1]) != NULL) {
+db.c:1086:    dbAdd(dst,c->argv[1],o);
+db.c:1087:    if (expire != -1) setExpire(c,dst,c->argv[1],expire);
+db.c:1091:    dbDelete(src,c->argv[1]);
+db.c:1092:    signalModifiedKey(c,src,c->argv[1]);
+db.c:1093:    signalModifiedKey(c,dst,c->argv[1]);
+db.c:1095:                "move_from",c->argv[1],src->id);
+db.c:1097:                "move_to",c->argv[1],dst->id);
+db.c:1123: * structure c->db points to a given DB, so we need to be smarter and
+db.c:1174:    if (getLongFromObjectOrReply(c, c->argv[1], &id1,
+db.c:1178:    if (getLongFromObjectOrReply(c, c->argv[2], &id2,
+db.c:1217:    if (c && writable_slave && !(c->flags & CLIENT_MASTER))
+db.c:1423:    if (num < 1 || num > (argc-3)) {
+db.c:1454:    if (num <= 0 || num > (argc-3)) {
+db.c:1535:                num = argc-first;
+db.c:1601:        int moreargs = (argc-1) - i;
+db.c:1674:    for (i = streams_pos+1; i < argc-num; i++) keys[i-streams_pos-1] = i;
+sentinel.c:350:    redisContext *c = &(ac->c);
+sentinel.c:354:    if (ac->ev.data != NULL)
+sentinel.c:361:    e->fd = c->fd;
+sentinel.c:365:    ac->ev.addRead = redisAeAddRead;
+sentinel.c:366:    ac->ev.delRead = redisAeDelRead;
+sentinel.c:367:    ac->ev.addWrite = redisAeAddWrite;
+sentinel.c:368:    ac->ev.delWrite = redisAeDelWrite;
+sentinel.c:369:    ac->ev.cleanup = redisAeCleanup;
+sentinel.c:370:    ac->ev.data = e;
+sentinel.c:582:    sa->ip = sdsnew(src->ip);
+sentinel.c:583:    sa->port = src->port;
+sentinel.c:1003:    c->data = NULL;
+sentinel.c:1028:            redisCallbackList *callbacks = &link->cc->replies;
+sentinel.c:1140:    instanceLink *link = c->data;
+sentinel.c:2065:        if (!link->cc->err && server.tls_replication &&
+sentinel.c:2069:        } else if (link->cc->err) {
+sentinel.c:2071:                link->cc->errstr);
+sentinel.c:2076:            link->cc->data = link;
+sentinel.c:2092:        if (!link->pc->err && server.tls_replication &&
+sentinel.c:2095:        } else if (link->pc->err) {
+sentinel.c:2097:                link->pc->errstr);
+sentinel.c:2103:            link->pc->data = link;
+sentinel.c:2400:    instanceLink *link = c->data;
+sentinel.c:2414:    instanceLink *link = c->data;
+sentinel.c:2423:    instanceLink *link = c->data;
+sentinel.c:2465:    instanceLink *link = c->data;
+sentinel.c:2642:        if (anetSockName(ri->link->cc->c.fd,ip,sizeof(ip),NULL) == -1)
+sentinel.c:3052:    if (!strcasecmp(c->argv[1]->ptr,"masters")) {
+sentinel.c:3054:        if (c->argc != 2) goto numargserr;
+sentinel.c:3056:    } else if (!strcasecmp(c->argv[1]->ptr,"master")) {
+sentinel.c:3060:        if (c->argc != 3) goto numargserr;
+sentinel.c:3061:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2]))
+sentinel.c:3064:    } else if (!strcasecmp(c->argv[1]->ptr,"slaves") ||
+sentinel.c:3065:               !strcasecmp(c->argv[1]->ptr,"replicas"))
+sentinel.c:3070:        if (c->argc != 3) goto numargserr;
+sentinel.c:3071:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2])) == NULL)
+sentinel.c:3074:    } else if (!strcasecmp(c->argv[1]->ptr,"sentinels")) {
+sentinel.c:3078:        if (c->argc != 3) goto numargserr;
+sentinel.c:3079:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2])) == NULL)
+sentinel.c:3082:    } else if (!strcasecmp(c->argv[1]->ptr,"is-master-down-by-addr")) {
+sentinel.c:3107:        if (c->argc != 6) goto numargserr;
+sentinel.c:3108:        if (getLongFromObjectOrReply(c,c->argv[3],&port,NULL) != C_OK ||
+sentinel.c:3109:            getLongLongFromObjectOrReply(c,c->argv[4],&req_epoch,NULL)
+sentinel.c:3113:            c->argv[2]->ptr,port,NULL);
+sentinel.c:3123:        if (ri && ri->flags & SRI_MASTER && strcasecmp(c->argv[5]->ptr,"*")) {
+sentinel.c:3125:                                            c->argv[5]->ptr,
+sentinel.c:3136:    } else if (!strcasecmp(c->argv[1]->ptr,"reset")) {
+sentinel.c:3138:        if (c->argc != 3) goto numargserr;
+sentinel.c:3139:        addReplyLongLong(c,sentinelResetMastersByPattern(c->argv[2]->ptr,SENTINEL_GENERATE_EVENT));
+sentinel.c:3140:    } else if (!strcasecmp(c->argv[1]->ptr,"get-master-addr-by-name")) {
+sentinel.c:3144:        if (c->argc != 3) goto numargserr;
+sentinel.c:3145:        ri = sentinelGetMasterByName(c->argv[2]->ptr);
+sentinel.c:3155:    } else if (!strcasecmp(c->argv[1]->ptr,"failover")) {
+sentinel.c:3159:        if (c->argc != 3) goto numargserr;
+sentinel.c:3160:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2])) == NULL)
+sentinel.c:3175:    } else if (!strcasecmp(c->argv[1]->ptr,"pending-scripts")) {
+sentinel.c:3178:        if (c->argc != 2) goto numargserr;
+sentinel.c:3180:    } else if (!strcasecmp(c->argv[1]->ptr,"monitor")) {
+sentinel.c:3186:        if (c->argc != 6) goto numargserr;
+sentinel.c:3187:        if (getLongFromObjectOrReply(c,c->argv[5],&quorum,"Invalid quorum")
+sentinel.c:3189:        if (getLongFromObjectOrReply(c,c->argv[4],&port,"Invalid port")
+sentinel.c:3200:        if (anetResolveIP(NULL,c->argv[3]->ptr,ip,sizeof(ip)) == ANET_ERR) {
+sentinel.c:3206:        ri = createSentinelRedisInstance(c->argv[2]->ptr,SRI_MASTER,
+sentinel.c:3207:                c->argv[3]->ptr,port,quorum,NULL);
+sentinel.c:3225:    } else if (!strcasecmp(c->argv[1]->ptr,"flushconfig")) {
+sentinel.c:3226:        if (c->argc != 2) goto numargserr;
+sentinel.c:3230:    } else if (!strcasecmp(c->argv[1]->ptr,"remove")) {
+sentinel.c:3234:        if (c->argc != 3) goto numargserr;
+sentinel.c:3235:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2]))
+sentinel.c:3238:        dictDelete(sentinel.masters,c->argv[2]->ptr);
+sentinel.c:3241:    } else if (!strcasecmp(c->argv[1]->ptr,"ckquorum")) {
+sentinel.c:3246:        if (c->argc != 3) goto numargserr;
+sentinel.c:3247:        if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2]))
+sentinel.c:3268:    } else if (!strcasecmp(c->argv[1]->ptr,"set")) {
+sentinel.c:3269:        if (c->argc < 3) goto numargserr;
+sentinel.c:3271:    } else if (!strcasecmp(c->argv[1]->ptr,"info-cache")) {
+sentinel.c:3273:        if (c->argc < 2) goto numargserr;
+sentinel.c:3282:        if (c->argc > 2) {
+sentinel.c:3285:            for (int i = 2; i < c->argc; i++) {
+sentinel.c:3287:                ri = sentinelGetMasterByName(c->argv[i]->ptr);
+sentinel.c:3333:    } else if (!strcasecmp(c->argv[1]->ptr,"simulate-failure")) {
+sentinel.c:3338:        for (j = 2; j < c->argc; j++) {
+sentinel.c:3339:            if (!strcasecmp(c->argv[j]->ptr,"crash-after-election")) {
+sentinel.c:3345:            } else if (!strcasecmp(c->argv[j]->ptr,"crash-after-promotion")) {
+sentinel.c:3350:            } else if (!strcasecmp(c->argv[j]->ptr,"help")) {
+sentinel.c:3362:                               (char*)c->argv[1]->ptr);
+sentinel.c:3368:                          (char*)c->argv[1]->ptr);
+sentinel.c:3383:    if (c->argc > 2) {
+sentinel.c:3389:    char *section = c->argc == 2 ? c->argv[1]->ptr : NULL;
+sentinel.c:3471:    if ((ri = sentinelGetMasterByNameOrReplyError(c,c->argv[2]))
+sentinel.c:3475:    for (j = 3; j < c->argc; j++) {
+sentinel.c:3476:        int moreargs = (c->argc-1) - j;
+sentinel.c:3477:        option = c->argv[j]->ptr;
+sentinel.c:3483:            robj *o = c->argv[++j];
+sentinel.c:3493:            robj *o = c->argv[++j];
+sentinel.c:3502:            robj *o = c->argv[++j];
+sentinel.c:3511:            char *value = c->argv[++j]->ptr;
+sentinel.c:3531:            char *value = c->argv[++j]->ptr;
+sentinel.c:3552:            char *value = c->argv[++j]->ptr;
+sentinel.c:3558:            char *value = c->argv[++j]->ptr;
+sentinel.c:3564:            robj *o = c->argv[++j];
+sentinel.c:3573:            sds oldname = c->argv[++j]->ptr;
+sentinel.c:3574:            sds newname = c->argv[++j]->ptr;
+sentinel.c:3603:            sentinelEvent(LL_WARNING,"+set",ri,"%@ %s %s",c->argv[old_j]->ptr,
+sentinel.c:3604:                                                          c->argv[old_j+1]->ptr);
+sentinel.c:3607:            sentinelEvent(LL_WARNING,"+set",ri,"%@ %s %s %s",c->argv[old_j]->ptr,
+sentinel.c:3608:                                                             c->argv[old_j+1]->ptr,
+sentinel.c:3609:                                                             c->argv[old_j+2]->ptr);
+sentinel.c:3612:            sentinelEvent(LL_WARNING,"+set",ri,"%@ %s",c->argv[old_j]->ptr);
+sentinel.c:3624:        (char*)c->argv[badarg]->ptr,option);
+sentinel.c:3634:    if (strcmp(c->argv[1]->ptr,SENTINEL_HELLO_CHANNEL)) {
+sentinel.c:3638:    sentinelProcessHelloMessage(c->argv[2]->ptr,sdslen(c->argv[2]->ptr));
+sentinel.c:3756:    instanceLink *link = c->data;
+hyperloglog.c:1182:    robj *o = lookupKeyWrite(c->db,c->argv[1]);
+hyperloglog.c:1191:        dbAdd(c->db,c->argv[1],o);
+hyperloglog.c:1195:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+hyperloglog.c:1198:    for (j = 2; j < c->argc; j++) {
+hyperloglog.c:1199:        int retval = hllAdd(o, (unsigned char*)c->argv[j]->ptr,
+hyperloglog.c:1200:                               sdslen(c->argv[j]->ptr));
+hyperloglog.c:1212:        signalModifiedKey(c,c->db,c->argv[1]);
+hyperloglog.c:1213:        notifyKeyspaceEvent(NOTIFY_STRING,"pfadd",c->argv[1],c->db->id);
+hyperloglog.c:1230:    if (c->argc > 2) {
+hyperloglog.c:1239:        for (j = 1; j < c->argc; j++) {
+hyperloglog.c:1241:            robj *o = lookupKeyRead(c->db,c->argv[j]);
+hyperloglog.c:1262:    o = lookupKeyWrite(c->db,c->argv[1]);
+hyperloglog.c:1269:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+hyperloglog.c:1303:            signalModifiedKey(c,c->db,c->argv[1]);
+hyperloglog.c:1321:    for (j = 1; j < c->argc; j++) {
+hyperloglog.c:1323:        robj *o = lookupKeyRead(c->db,c->argv[j]);
+hyperloglog.c:1341:    robj *o = lookupKeyWrite(c->db,c->argv[1]);
+hyperloglog.c:1347:        dbAdd(c->db,c->argv[1],o);
+hyperloglog.c:1352:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+hyperloglog.c:1376:    signalModifiedKey(c,c->db,c->argv[1]);
+hyperloglog.c:1379:    notifyKeyspaceEvent(NOTIFY_STRING,"pfadd",c->argv[1],c->db->id);
+hyperloglog.c:1495:    char *cmd = c->argv[1]->ptr;
+hyperloglog.c:1500:    o = lookupKeyWrite(c->db,c->argv[2]);
+hyperloglog.c:1506:    o = dbUnshareStringValue(c->db,c->argv[2],o);
+hyperloglog.c:1511:        if (c->argc != 3) goto arityerr;
+hyperloglog.c:1532:        if (c->argc != 3) goto arityerr;
+hyperloglog.c:1569:        if (c->argc != 3) goto arityerr;
+hyperloglog.c:1576:        if (c->argc != 3) goto arityerr;
+Binary file redis-cli.o matches
+latency.c:340:        if (!strcasecmp(event,"aof-fsync-always")) {
+latency.c:421:            "  4) Check with 'redis-cli --intrinsic-latency 100' what is the intrinsic latency in your system.\n"
+latency.c:443:            report = sdscat(report,"- Assuming from the point of view of data safety this is viable in your environment, you could try to enable the 'no-appendfsync-on-rewrite' option, so that fsync will not be performed while there is a child rewriting the AOF file or producing an RDB file (the moment where there is high disk contention).\n");
+latency.c:582:    if (!strcasecmp(c->argv[1]->ptr,"history") && c->argc == 3) {
+latency.c:584:        ts = dictFetchValue(server.latency_events,c->argv[2]->ptr);
+latency.c:590:    } else if (!strcasecmp(c->argv[1]->ptr,"graph") && c->argc == 3) {
+latency.c:596:        de = dictFind(server.latency_events,c->argv[2]->ptr);
+latency.c:604:    } else if (!strcasecmp(c->argv[1]->ptr,"latest") && c->argc == 2) {
+latency.c:607:    } else if (!strcasecmp(c->argv[1]->ptr,"doctor") && c->argc == 2) {
+latency.c:613:    } else if (!strcasecmp(c->argv[1]->ptr,"reset") && c->argc >= 2) {
+latency.c:615:        if (c->argc == 2) {
+latency.c:620:            for (j = 2; j < c->argc; j++)
+latency.c:621:                resets += latencyResetEvent(c->argv[j]->ptr);
+latency.c:624:    } else if (!strcasecmp(c->argv[1]->ptr,"help") && c->argc == 2) {
+latency.c:635:        "No samples available for event '%s'", (char*) c->argv[2]->ptr);
+defrag.c:755:    sds newsds = activeDefragSds(c->name);
+defrag.c:757:        (*defragged)++, c->name = newsds;
+defrag.c:758:    if (c->pel) {
+defrag.c:760:        *defragged += defragRadixTree(&c->pel, 0, defragStreamConsumerPendingEntry, &pel_ctx);
+expire.c:500:    robj *key = c->argv[1], *param = c->argv[2];
+expire.c:510:    if (lookupKeyWrite(c->db,key) == NULL) {
+expire.c:518:        int deleted = server.lazyfree_lazy_expire ? dbAsyncDelete(c->db,key) :
+expire.c:519:                                                    dbSyncDelete(c->db,key);
+expire.c:526:        signalModifiedKey(c,c->db,key);
+expire.c:527:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",key,c->db->id);
+expire.c:531:        setExpire(c,c->db,key,when);
+expire.c:533:        signalModifiedKey(c,c->db,key);
+expire.c:534:        notifyKeyspaceEvent(NOTIFY_GENERIC,"expire",key,c->db->id);
+expire.c:565:    if (lookupKeyReadWithFlags(c->db,c->argv[1],LOOKUP_NOTOUCH) == NULL) {
+expire.c:571:    expire = getExpire(c->db,c->argv[1]);
+expire.c:595:    if (lookupKeyWrite(c->db,c->argv[1])) {
+expire.c:596:        if (removeExpire(c->db,c->argv[1])) {
+expire.c:597:            notifyKeyspaceEvent(NOTIFY_GENERIC,"persist",c->argv[1],c->db->id);
+expire.c:611:    for (int j = 1; j < c->argc; j++)
+expire.c:612:        if (lookupKeyRead(c->db,c->argv[j]) != NULL) touched++;
+gopher.c:52:    robj *keyname = c->argc == 0 ? createStringObject("/",1) : c->argv[0];
+gopher.c:53:    robj *o = lookupKeyRead(c->db,keyname);
+gopher.c:73:    if (c->argc == 0) decrRefCount(keyname);
+sort.c:211:    while(j < c->argc) {
+sort.c:212:        int leftargs = c->argc-j-1;
+sort.c:213:        if (!strcasecmp(c->argv[j]->ptr,"asc")) {
+sort.c:215:        } else if (!strcasecmp(c->argv[j]->ptr,"desc")) {
+sort.c:217:        } else if (!strcasecmp(c->argv[j]->ptr,"alpha")) {
+sort.c:219:        } else if (!strcasecmp(c->argv[j]->ptr,"limit") && leftargs >= 2) {
+sort.c:220:            if ((getLongFromObjectOrReply(c, c->argv[j+1], &limit_start, NULL)
+sort.c:222:                (getLongFromObjectOrReply(c, c->argv[j+2], &limit_count, NULL)
+sort.c:229:        } else if (!strcasecmp(c->argv[j]->ptr,"store") && leftargs >= 1) {
+sort.c:230:            storekey = c->argv[j+1];
+sort.c:232:        } else if (!strcasecmp(c->argv[j]->ptr,"by") && leftargs >= 1) {
+sort.c:233:            sortby = c->argv[j+1];
+sort.c:236:            if (strchr(c->argv[j+1]->ptr,'*') == NULL) {
+sort.c:248:        } else if (!strcasecmp(c->argv[j]->ptr,"get") && leftargs >= 1) {
+sort.c:255:                SORT_OP_GET,c->argv[j+1]));
+sort.c:274:        sortval = lookupKeyRead(c->db,c->argv[1]);
+sort.c:276:        sortval = lookupKeyWrite(c->db,c->argv[1]);
+sort.c:303:        (storekey || c->flags & CLIENT_LUA))
+sort.c:462:                byval = lookupKeyByPattern(c->db,sortby,vector[j].obj,storekey!=NULL);
+sort.c:524:                robj *val = lookupKeyByPattern(c->db,sop->pattern,
+sort.c:554:                    robj *val = lookupKeyByPattern(c->db,sop->pattern,
+sort.c:573:            setKey(c,c->db,storekey,sobj);
+sort.c:575:                                c->db->id);
+sort.c:577:        } else if (dbDelete(c->db,storekey)) {
+sort.c:578:            signalModifiedKey(c,c->db,storekey);
+sort.c:579:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",storekey,c->db->id);
+aof.c:497:    /* Don't fsync if no-appendfsync-on-rewrite is set to yes and there are
+aof.c:509:        latencyAddSampleIfNeeded("aof-fsync-always",latency);
+aof.c:665:    c->id = CLIENT_ID_AOF; /* So modules can identify it's the AOF client. */
+aof.c:666:    c->conn = NULL;
+aof.c:667:    c->name = NULL;
+aof.c:668:    c->querybuf = sdsempty();
+aof.c:669:    c->querybuf_peak = 0;
+aof.c:670:    c->argc = 0;
+aof.c:671:    c->argv = NULL;
+aof.c:672:    c->bufpos = 0;
+aof.c:673:    c->flags = 0;
+aof.c:674:    c->btype = BLOCKED_NONE;
+aof.c:677:    c->replstate = SLAVE_STATE_WAIT_BGSAVE_START;
+aof.c:678:    c->reply = listCreate();
+aof.c:679:    c->reply_bytes = 0;
+aof.c:680:    c->obuf_soft_limit_reached_time = 0;
+aof.c:681:    c->watched_keys = listCreate();
+aof.c:682:    c->peerid = NULL;
+aof.c:683:    c->resp = 2;
+aof.c:684:    c->user = NULL;
+aof.c:685:    listSetFreeMethod(c->reply,freeClientReplyValue);
+aof.c:686:    listSetDupMethod(c->reply,dupClientReplyValue);
+aof.c:694:    for (j = 0; j < c->argc; j++)
+aof.c:695:        decrRefCount(c->argv[j]);
+aof.c:696:    zfree(c->argv);
+aof.c:700:    sdsfree(c->querybuf);
+aof.c:701:    listRelease(c->reply);
+aof.c:702:    listRelease(c->watched_keys);
+lolwut.c:58:    if (c->argc >= 3 && !strcasecmp(c->argv[1]->ptr,"version")) {
+lolwut.c:60:        if (getLongFromObjectOrReply(c,c->argv[2],&ver,NULL) != C_OK) return;
+lolwut.c:67:        c->argv += 2;
+lolwut.c:68:        c->argc -= 2;
+lolwut.c:82:        c->argv -= 2;
+lolwut.c:83:        c->argc += 2;
+Binary file cluster.o matches
+Binary file t_hash.o matches
+Binary file scripting.o matches
+t_string.c:75:            addReplyErrorFormat(c,"invalid expire time in %s",c->cmd->name);
+t_string.c:81:    if ((flags & OBJ_SET_NX && lookupKeyWrite(c->db,key) != NULL) ||
+t_string.c:82:        (flags & OBJ_SET_XX && lookupKeyWrite(c->db,key) == NULL))
+t_string.c:84:        addReply(c, abort_reply ? abort_reply : shared.null[c->resp]);
+t_string.c:87:    genericSetKey(c,c->db,key,val,flags & OBJ_SET_KEEPTTL,1);
+t_string.c:89:    if (expire) setExpire(c,c->db,key,mstime()+milliseconds);
+t_string.c:90:    notifyKeyspaceEvent(NOTIFY_STRING,"set",key,c->db->id);
+t_string.c:92:        "expire",key,c->db->id);
+t_string.c:103:    for (j = 3; j < c->argc; j++) {
+t_string.c:104:        char *a = c->argv[j]->ptr;
+t_string.c:105:        robj *next = (j == c->argc-1) ? NULL : c->argv[j+1];
+t_string.c:117:        } else if (!strcasecmp(c->argv[j]->ptr,"KEEPTTL") &&
+t_string.c:145:    c->argv[2] = tryObjectEncoding(c->argv[2]);
+t_string.c:146:    setGenericCommand(c,flags,c->argv[1],c->argv[2],expire,unit,NULL,NULL);
+t_string.c:150:    c->argv[2] = tryObjectEncoding(c->argv[2]);
+t_string.c:151:    setGenericCommand(c,OBJ_SET_NX,c->argv[1],c->argv[2],NULL,0,shared.cone,shared.czero);
+t_string.c:155:    c->argv[3] = tryObjectEncoding(c->argv[3]);
+t_string.c:156:    setGenericCommand(c,OBJ_SET_NO_FLAGS,c->argv[1],c->argv[3],c->argv[2],UNIT_SECONDS,NULL,NULL);
+t_string.c:160:    c->argv[3] = tryObjectEncoding(c->argv[3]);
+t_string.c:161:    setGenericCommand(c,OBJ_SET_NO_FLAGS,c->argv[1],c->argv[3],c->argv[2],UNIT_MILLISECONDS,NULL,NULL);
+t_string.c:167:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.null[c->resp])) == NULL)
+t_string.c:185:    c->argv[2] = tryObjectEncoding(c->argv[2]);
+t_string.c:186:    setKey(c,c->db,c->argv[1],c->argv[2]);
+t_string.c:187:    notifyKeyspaceEvent(NOTIFY_STRING,"set",c->argv[1],c->db->id);
+t_string.c:194:    sds value = c->argv[3]->ptr;
+t_string.c:196:    if (getLongFromObjectOrReply(c,c->argv[2],&offset,NULL) != C_OK)
+t_string.c:204:    o = lookupKeyWrite(c->db,c->argv[1]);
+t_string.c:217:        dbAdd(c->db,c->argv[1],o);
+t_string.c:237:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+t_string.c:243:        signalModifiedKey(c,c->db,c->argv[1]);
+t_string.c:245:            "setrange",c->argv[1],c->db->id);
+t_string.c:257:    if (getLongLongFromObjectOrReply(c,c->argv[2],&start,NULL) != C_OK)
+t_string.c:259:    if (getLongLongFromObjectOrReply(c,c->argv[3],&end,NULL) != C_OK)
+t_string.c:261:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptybulk)) == NULL ||
+t_string.c:295:    addReplyArrayLen(c,c->argc-1);
+t_string.c:296:    for (j = 1; j < c->argc; j++) {
+t_string.c:297:        robj *o = lookupKeyRead(c->db,c->argv[j]);
+t_string.c:313:    if ((c->argc % 2) == 0) {
+t_string.c:321:        for (j = 1; j < c->argc; j += 2) {
+t_string.c:322:            if (lookupKeyWrite(c->db,c->argv[j]) != NULL) {
+t_string.c:329:    for (j = 1; j < c->argc; j += 2) {
+t_string.c:330:        c->argv[j+1] = tryObjectEncoding(c->argv[j+1]);
+t_string.c:331:        setKey(c,c->db,c->argv[j],c->argv[j+1]);
+t_string.c:332:        notifyKeyspaceEvent(NOTIFY_STRING,"set",c->argv[j],c->db->id);
+t_string.c:334:    server.dirty += (c->argc-1)/2;
+t_string.c:350:    o = lookupKeyWrite(c->db,c->argv[1]);
+t_string.c:371:            dbOverwrite(c->db,c->argv[1],new);
+t_string.c:373:            dbAdd(c->db,c->argv[1],new);
+t_string.c:376:    signalModifiedKey(c,c->db,c->argv[1]);
+t_string.c:377:    notifyKeyspaceEvent(NOTIFY_STRING,"incrby",c->argv[1],c->db->id);
+t_string.c:395:    if (getLongLongFromObjectOrReply(c, c->argv[2], &incr, NULL) != C_OK) return;
+t_string.c:402:    if (getLongLongFromObjectOrReply(c, c->argv[2], &incr, NULL) != C_OK) return;
+t_string.c:410:    o = lookupKeyWrite(c->db,c->argv[1]);
+t_string.c:413:        getLongDoubleFromObjectOrReply(c,c->argv[2],&incr,NULL) != C_OK)
+t_string.c:423:        dbOverwrite(c->db,c->argv[1],new);
+t_string.c:425:        dbAdd(c->db,c->argv[1],new);
+t_string.c:426:    signalModifiedKey(c,c->db,c->argv[1]);
+t_string.c:427:    notifyKeyspaceEvent(NOTIFY_STRING,"incrbyfloat",c->argv[1],c->db->id);
+t_string.c:447:    o = lookupKeyWrite(c->db,c->argv[1]);
+t_string.c:450:        c->argv[2] = tryObjectEncoding(c->argv[2]);
+t_string.c:451:        dbAdd(c->db,c->argv[1],c->argv[2]);
+t_string.c:452:        incrRefCount(c->argv[2]);
+t_string.c:453:        totlen = stringObjectLen(c->argv[2]);
+t_string.c:460:        append = c->argv[2];
+t_string.c:466:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+t_string.c:470:    signalModifiedKey(c,c->db,c->argv[1]);
+t_string.c:471:    notifyKeyspaceEvent(NOTIFY_STRING,"append",c->argv[1],c->db->id);
+t_string.c:478:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_string.c:490:    if (!strcasecmp(c->argv[1]->ptr,"lcs")) {
+t_string.c:507:    for (j = 2; j < (uint32_t)c->argc; j++) {
+t_string.c:508:        char *opt = c->argv[j]->ptr;
+t_string.c:509:        int moreargs = (c->argc-1) - j;
+t_string.c:518:            if (getLongLongFromObjectOrReply(c,c->argv[j+1],&minmatchlen,NULL)
+t_string.c:527:            a = c->argv[j+1]->ptr;
+t_string.c:528:            b = c->argv[j+2]->ptr;
+t_string.c:535:            obja = lookupKeyRead(c->db,c->argv[j+1]);
+t_string.c:536:            objb = lookupKeyRead(c->db,c->argv[j+2]);
+bitops.c:482:    robj *o = lookupKeyWrite(c->db,c->argv[1]);
+bitops.c:486:        dbAdd(c->db,c->argv[1],o);
+bitops.c:489:        o = dbUnshareStringValue(c->db,c->argv[1],o);
+bitops.c:535:    if (getBitOffsetFromArgument(c,c->argv[2],&bitoffset,0,0) != C_OK)
+bitops.c:538:    if (getLongFromObjectOrReply(c,c->argv[3],&on,err) != C_OK)
+bitops.c:559:    signalModifiedKey(c,c->db,c->argv[1]);
+bitops.c:560:    notifyKeyspaceEvent(NOTIFY_STRING,"setbit",c->argv[1],c->db->id);
+bitops.c:573:    if (getBitOffsetFromArgument(c,c->argv[2],&bitoffset,0,0) != C_OK)
+bitops.c:576:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+bitops.c:594:    char *opname = c->argv[1]->ptr;
+bitops.c:595:    robj *o, *targetkey = c->argv[2];
+bitops.c:619:    if (op == BITOP_NOT && c->argc != 4) {
+bitops.c:625:    numkeys = c->argc - 3;
+bitops.c:630:        o = lookupKeyRead(c->db,c->argv[j+3]);
+bitops.c:759:        setKey(c,c->db,targetkey,o);
+bitops.c:760:        notifyKeyspaceEvent(NOTIFY_STRING,"set",targetkey,c->db->id);
+bitops.c:763:    } else if (dbDelete(c->db,targetkey)) {
+bitops.c:764:        signalModifiedKey(c,c->db,targetkey);
+bitops.c:765:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",targetkey,c->db->id);
+bitops.c:779:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL ||
+bitops.c:784:    if (c->argc == 4) {
+bitops.c:785:        if (getLongFromObjectOrReply(c,c->argv[2],&start,NULL) != C_OK)
+bitops.c:787:        if (getLongFromObjectOrReply(c,c->argv[3],&end,NULL) != C_OK)
+bitops.c:799:    } else if (c->argc == 2) {
+bitops.c:830:    if (getLongFromObjectOrReply(c,c->argv[2],&bit,NULL) != C_OK)
+bitops.c:840:    if ((o = lookupKeyRead(c->db,c->argv[1])) == NULL) {
+bitops.c:848:    if (c->argc == 4 || c->argc == 5) {
+bitops.c:849:        if (getLongFromObjectOrReply(c,c->argv[3],&start,NULL) != C_OK)
+bitops.c:851:        if (c->argc == 5) {
+bitops.c:852:            if (getLongFromObjectOrReply(c,c->argv[4],&end,NULL) != C_OK)
+bitops.c:864:    } else if (c->argc == 3) {
+bitops.c:932:    for (j = 2; j < c->argc; j++) {
+bitops.c:933:        int remargs = c->argc-j-1; /* Remaining args other than current. */
+bitops.c:934:        char *subcmd = c->argv[j]->ptr; /* Current command name. */
+bitops.c:947:            char *owtypename = c->argv[j+1]->ptr;
+bitops.c:968:        if (getBitfieldTypeFromArgument(c,c->argv[j+1],&sign,&bits) != C_OK) {
+bitops.c:973:        if (getBitOffsetFromArgument(c,c->argv[j+2],&bitoffset,1,bits) != C_OK){
+bitops.c:983:            if (getLongLongFromObjectOrReply(c,c->argv[j+3],&i64,NULL) != C_OK){
+bitops.c:1005:        o = lookupKeyRead(c->db,c->argv[1]);
+bitops.c:1141:        signalModifiedKey(c,c->db,c->argv[1]);
+bitops.c:1142:        notifyKeyspaceEvent(NOTIFY_STRING,"setbit",c->argv[1],c->db->id);
+config.c:353:            int j, addresses = argc-1;
+config.c:502:            queueLoadModule(argv[1],&argv[2],argc-2);
+config.c:511:                err = sentinelHandleConfiguration(argv+1,argc-1);
+config.c:582:    } else if (!strcasecmp(c->argv[2]->ptr,_name)) { \
+config.c:588:    } else if (!strcasecmp(c->argv[2]->ptr,_name)) { \
+config.c:595:    } else if (!strcasecmp(c->argv[2]->ptr,_name)) { \
+config.c:601:    } else if (!strcasecmp(c->argv[2]->ptr,_name)) {
+config.c:604:    } else if (!strcasecmp(c->argv[2]->ptr,_name1) || \
+config.c:605:               !strcasecmp(c->argv[2]->ptr,_name2)) {
+config.c:614:    serverAssertWithInfo(c,c->argv[2],sdsEncodedObject(c->argv[2]));
+config.c:615:    serverAssertWithInfo(c,c->argv[3],sdsEncodedObject(c->argv[3]));
+config.c:616:    o = c->argv[3];
+config.c:620:        if(config->modifiable && (!strcasecmp(c->argv[2]->ptr,config->name) ||
+config.c:621:            (config->alias && !strcasecmp(c->argv[2]->ptr,config->alias))))
+config.c:751:            (char*)c->argv[2]->ptr);
+config.c:763:                (char*)c->argv[2]->ptr,
+config.c:768:                (char*)c->argv[2]->ptr);
+config.c:803:    robj *o = c->argv[2];
+config.c:2108:    createBoolConfig("rdb-del-sync-files", NULL, MODIFIABLE_CONFIG, server.rdb_del_sync_files, 0, NULL, NULL),
+config.c:2111:    createBoolConfig("dynamic-hz", NULL, MODIFIABLE_CONFIG, server.dynamic_hz, 1, NULL, NULL), /* Adapt hz to # of clients.*/
+config.c:2120:    createBoolConfig("no-appendfsync-on-rewrite", NULL, MODIFIABLE_CONFIG, server.aof_no_fsync_on_rewrite, 0, NULL, NULL),
+config.c:2130:    createBoolConfig("jemalloc-bg-thread", NULL, MODIFIABLE_CONFIG, server.jemalloc_bg_thread, 1, NULL, updateJemallocBgThread),
+config.c:2178:    createIntConfig("repl-diskless-sync-delay", NULL, MODIFIABLE_CONFIG, 0, INT_MAX, server.repl_diskless_sync_delay, 5, INTEGER_CONFIG, NULL, NULL),
+config.c:2259:    if (server.loading && strcasecmp(c->argv[1]->ptr,"get")) {
+config.c:2264:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+config.c:2273:    } else if (!strcasecmp(c->argv[1]->ptr,"set") && c->argc == 4) {
+config.c:2275:    } else if (!strcasecmp(c->argv[1]->ptr,"get") && c->argc == 3) {
+config.c:2277:    } else if (!strcasecmp(c->argv[1]->ptr,"resetstat") && c->argc == 2) {
+config.c:2281:    } else if (!strcasecmp(c->argv[1]->ptr,"rewrite") && c->argc == 2) {
+blocked.c:86:    c->flags |= CLIENT_BLOCKED;
+blocked.c:87:    c->btype = btype;
+blocked.c:105:        c->flags &= ~CLIENT_UNBLOCKED;
+blocked.c:111:        if (!(c->flags & CLIENT_BLOCKED)) {
+blocked.c:112:            if (c->querybuf && sdslen(c->querybuf) > 0) {
+blocked.c:138:    if (!(c->flags & CLIENT_UNBLOCKED)) {
+blocked.c:139:        c->flags |= CLIENT_UNBLOCKED;
+blocked.c:147:    if (c->btype == BLOCKED_LIST ||
+blocked.c:148:        c->btype == BLOCKED_ZSET ||
+blocked.c:149:        c->btype == BLOCKED_STREAM) {
+blocked.c:151:    } else if (c->btype == BLOCKED_WAIT) {
+blocked.c:153:    } else if (c->btype == BLOCKED_MODULE) {
+blocked.c:162:    server.blocked_clients_by_type[c->btype]--;
+blocked.c:163:    c->flags &= ~CLIENT_BLOCKED;
+blocked.c:164:    c->btype = BLOCKED_NONE;
+blocked.c:173:    if (c->btype == BLOCKED_LIST ||
+blocked.c:174:        c->btype == BLOCKED_ZSET ||
+blocked.c:175:        c->btype == BLOCKED_STREAM) {
+blocked.c:177:    } else if (c->btype == BLOCKED_WAIT) {
+blocked.c:178:        addReplyLongLong(c,replicationCountAcksByOffset(c->bpop.reploffset));
+blocked.c:179:    } else if (c->btype == BLOCKED_MODULE) {
+blocked.c:201:        if (c->flags & CLIENT_BLOCKED) {
+blocked.c:206:            c->flags |= CLIENT_CLOSE_AFTER_REPLY;
+blocked.c:561:    c->bpop.timeout = timeout;
+blocked.c:562:    c->bpop.target = target;
+blocked.c:574:        if (dictAdd(c->bpop.keys,keys[j],bki) != DICT_OK) {
+blocked.c:581:        de = dictFind(c->db->blocking_keys,keys[j]);
+blocked.c:587:            retval = dictAdd(c->db->blocking_keys,keys[j],l);
+blocked.c:606:    serverAssertWithInfo(c,NULL,dictSize(c->bpop.keys) != 0);
+blocked.c:607:    di = dictGetIterator(c->bpop.keys);
+blocked.c:614:        l = dictFetchValue(c->db->blocking_keys,key);
+blocked.c:619:            dictDelete(c->db->blocking_keys,key);
+blocked.c:624:    dictEmpty(c->bpop.keys,NULL);
+blocked.c:625:    if (c->bpop.target) {
+blocked.c:626:        decrRefCount(c->bpop.target);
+blocked.c:627:        c->bpop.target = NULL;
+blocked.c:629:    if (c->bpop.xread_group) {
+blocked.c:630:        decrRefCount(c->bpop.xread_group);
+blocked.c:631:        decrRefCount(c->bpop.xread_consumer);
+blocked.c:632:        c->bpop.xread_group = NULL;
+blocked.c:633:        c->bpop.xread_consumer = NULL;
+zmalloc.h:39:#define ZMALLOC_LIB ("tcmalloc-" __xstr(TC_VERSION_MAJOR) "." __xstr(TC_VERSION_MINOR))
+zmalloc.h:49:#define ZMALLOC_LIB ("jemalloc-" __xstr(JEMALLOC_VERSION_MAJOR) "." __xstr(JEMALLOC_VERSION_MINOR) "." __xstr(JEMALLOC_VERSION_BUGFIX))
+Binary file sds.o matches
+Binary file sha256.o matches
+Binary file t_stream.o matches
+timeout.c:38:    if (c->flags & CLIENT_BLOCKED &&
+timeout.c:39:        c->bpop.timeout != 0
+timeout.c:40:        && c->bpop.timeout < now)
+timeout.c:60:        !(c->flags & CLIENT_SLAVE) &&   /* No timeout for slaves and monitors */
+timeout.c:61:        !(c->flags & CLIENT_MASTER) &&  /* No timeout for masters */
+timeout.c:62:        !(c->flags & CLIENT_BLOCKED) && /* No timeout for BLPOP */
+timeout.c:63:        !(c->flags & CLIENT_PUBSUB) &&  /* No timeout for Pub/Sub clients */
+timeout.c:64:        (now - c->lastinteraction > server.maxidletime))
+timeout.c:69:    } else if (c->flags & CLIENT_BLOCKED) {
+timeout.c:115:    if (c->bpop.timeout == 0) return;
+timeout.c:116:    uint64_t timeout = c->bpop.timeout;
+timeout.c:120:        c->flags |= CLIENT_IN_TO_TABLE;
+timeout.c:126:    if (!(c->flags & CLIENT_IN_TO_TABLE)) return;
+timeout.c:127:    c->flags &= ~CLIENT_IN_TO_TABLE;
+timeout.c:128:    uint64_t timeout = c->bpop.timeout;
+timeout.c:148:        c->flags &= ~CLIENT_IN_TO_TABLE;
+redis-benchmark.c:61:    (c->thread_id >= 0 ? config.threads[c->thread_id]->el : config.el)
+redis-benchmark.c:344:    aeDeleteFileEvent(el,c->context->fd,AE_WRITABLE);
+redis-benchmark.c:345:    aeDeleteFileEvent(el,c->context->fd,AE_READABLE);
+redis-benchmark.c:346:    if (c->thread_id >= 0) {
+redis-benchmark.c:353:    redisFree(c->context);
+redis-benchmark.c:354:    sdsfree(c->obuf);
+redis-benchmark.c:355:    zfree(c->randptr);
+redis-benchmark.c:356:    zfree(c->stagptr);
+redis-benchmark.c:378:    aeDeleteFileEvent(el,c->context->fd,AE_WRITABLE);
+redis-benchmark.c:379:    aeDeleteFileEvent(el,c->context->fd,AE_READABLE);
+redis-benchmark.c:380:    aeCreateFileEvent(el,c->context->fd,AE_WRITABLE,writeHandler,c);
+redis-benchmark.c:381:    c->written = 0;
+redis-benchmark.c:382:    c->pending = config.pipeline;
+redis-benchmark.c:388:    for (i = 0; i < c->randlen; i++) {
+redis-benchmark.c:389:        char *p = c->randptr[i]+11;
+redis-benchmark.c:404:    assert(c->thread_id >= 0);
+redis-benchmark.c:405:    clusterNode *node = c->cluster_node;
+redis-benchmark.c:421:    for (i = 0; i < c->staglen; i++) {
+redis-benchmark.c:422:        char *p = c->stagptr[i] + 1;
+redis-benchmark.c:460:    if (c->latency < 0) c->latency = ustime()-(c->start);
+redis-benchmark.c:462:    if (redisBufferRead(c->context) != REDIS_OK) {
+redis-benchmark.c:463:        fprintf(stderr,"Error: %s\n",c->context->errstr);
+redis-benchmark.c:466:        while(c->pending) {
+redis-benchmark.c:467:            if (redisGetReply(c->context,&reply) != REDIS_OK) {
+redis-benchmark.c:468:                fprintf(stderr,"Error: %s\n",c->context->errstr);
+redis-benchmark.c:485:                        if (c->cluster_node) {
+redis-benchmark.c:487:                                   c->cluster_node->ip,
+redis-benchmark.c:488:                                   c->cluster_node->port,
+redis-benchmark.c:497:                if (is_err && c->cluster_node && c->staglen) {
+redis-benchmark.c:508:                               c->cluster_node->ip,
+redis-benchmark.c:509:                               c->cluster_node->port,
+redis-benchmark.c:519:                if (c->prefix_pending > 0) {
+redis-benchmark.c:520:                    c->prefix_pending--;
+redis-benchmark.c:521:                    c->pending--;
+redis-benchmark.c:523:                    if (c->prefixlen > 0) {
+redis-benchmark.c:525:                        sdsrange(c->obuf, c->prefixlen, -1);
+redis-benchmark.c:528:                        for (j = 0; j < c->randlen; j++)
+redis-benchmark.c:529:                            c->randptr[j] -= c->prefixlen;
+redis-benchmark.c:530:                        c->prefixlen = 0;
+redis-benchmark.c:537:                    config.latency[requests_finished] = c->latency;
+redis-benchmark.c:538:                c->pending--;
+redis-benchmark.c:539:                if (c->pending == 0) {
+redis-benchmark.c:557:    if (c->written == 0) {
+redis-benchmark.c:568:        if (config.cluster_mode && c->staglen > 0) setClusterKeyHashTag(c);
+redis-benchmark.c:569:        atomicGet(config.slots_last_update, c->slots_last_update);
+redis-benchmark.c:570:        c->start = ustime();
+redis-benchmark.c:571:        c->latency = -1;
+redis-benchmark.c:573:    if (sdslen(c->obuf) > c->written) {
+redis-benchmark.c:574:        void *ptr = c->obuf+c->written;
+redis-benchmark.c:575:        ssize_t nwritten = write(c->context->fd,ptr,sdslen(c->obuf)-c->written);
+redis-benchmark.c:582:        c->written += nwritten;
+redis-benchmark.c:583:        if (sdslen(c->obuf) == c->written) {
+redis-benchmark.c:584:            aeDeleteFileEvent(el,c->context->fd,AE_WRITABLE);
+redis-benchmark.c:585:            aeCreateFileEvent(el,c->context->fd,AE_READABLE,readHandler,c);
+redis-benchmark.c:618:    c->cluster_node = NULL;
+redis-benchmark.c:633:            c->cluster_node = node;
+redis-benchmark.c:635:        c->context = redisConnectNonBlock(ip,port);
+redis-benchmark.c:637:        c->context = redisConnectUnixNonBlock(config.hostsocket);
+redis-benchmark.c:639:    if (c->context->err) {
+redis-benchmark.c:642:            fprintf(stderr,"%s:%d: %s\n",ip,port,c->context->errstr);
+redis-benchmark.c:644:            fprintf(stderr,"%s: %s\n",config.hostsocket,c->context->errstr);
+redis-benchmark.c:647:    c->thread_id = thread_id;
+redis-benchmark.c:649:    c->context->reader->maxbuf = 0;
+redis-benchmark.c:654:    c->obuf = sdsempty();
+redis-benchmark.c:658:    c->prefix_pending = 0;
+redis-benchmark.c:667:        c->obuf = sdscatlen(c->obuf, buf, len);
+redis-benchmark.c:669:        c->prefix_pending++;
+redis-benchmark.c:675:        c->obuf = sdscatlen(c->obuf, buf, len);
+redis-benchmark.c:677:        c->prefix_pending++;
+redis-benchmark.c:685:        c->obuf = sdscatprintf(c->obuf,"*2\r\n$6\r\nSELECT\r\n$%d\r\n%s\r\n",
+redis-benchmark.c:687:        c->prefix_pending++;
+redis-benchmark.c:689:    c->prefixlen = sdslen(c->obuf);
+redis-benchmark.c:692:        c->obuf = sdscatlen(c->obuf,
+redis-benchmark.c:697:            c->obuf = sdscatlen(c->obuf,cmd,len);
+redis-benchmark.c:700:    c->written = 0;
+redis-benchmark.c:701:    c->pending = config.pipeline+c->prefix_pending;
+redis-benchmark.c:702:    c->randptr = NULL;
+redis-benchmark.c:703:    c->randlen = 0;
+redis-benchmark.c:704:    c->stagptr = NULL;
+redis-benchmark.c:705:    c->staglen = 0;
+redis-benchmark.c:710:            c->randlen = from->randlen;
+redis-benchmark.c:711:            c->randfree = 0;
+redis-benchmark.c:712:            c->randptr = zmalloc(sizeof(char*)*c->randlen);
+redis-benchmark.c:714:            for (j = 0; j < (int)c->randlen; j++) {
+redis-benchmark.c:715:                c->randptr[j] = c->obuf + (from->randptr[j]-from->obuf);
+redis-benchmark.c:717:                c->randptr[j] += c->prefixlen - from->prefixlen;
+redis-benchmark.c:720:            char *p = c->obuf;
+redis-benchmark.c:722:            c->randlen = 0;
+redis-benchmark.c:723:            c->randfree = RANDPTR_INITIAL_SIZE;
+redis-benchmark.c:724:            c->randptr = zmalloc(sizeof(char*)*c->randfree);
+redis-benchmark.c:726:                if (c->randfree == 0) {
+redis-benchmark.c:727:                    c->randptr = zrealloc(c->randptr,sizeof(char*)*c->randlen*2);
+redis-benchmark.c:728:                    c->randfree += c->randlen;
+redis-benchmark.c:730:                c->randptr[c->randlen++] = p;
+redis-benchmark.c:731:                c->randfree--;
+redis-benchmark.c:739:            c->staglen = from->staglen;
+redis-benchmark.c:740:            c->stagfree = 0;
+redis-benchmark.c:741:            c->stagptr = zmalloc(sizeof(char*)*c->staglen);
+redis-benchmark.c:743:            for (j = 0; j < (int)c->staglen; j++) {
+redis-benchmark.c:744:                c->stagptr[j] = c->obuf + (from->stagptr[j]-from->obuf);
+redis-benchmark.c:746:                c->stagptr[j] += c->prefixlen - from->prefixlen;
+redis-benchmark.c:749:            char *p = c->obuf;
+redis-benchmark.c:751:            c->staglen = 0;
+redis-benchmark.c:752:            c->stagfree = RANDPTR_INITIAL_SIZE;
+redis-benchmark.c:753:            c->stagptr = zmalloc(sizeof(char*)*c->stagfree);
+redis-benchmark.c:755:                if (c->stagfree == 0) {
+redis-benchmark.c:756:                    c->stagptr = zrealloc(c->stagptr,
+redis-benchmark.c:757:                                          sizeof(char*) * c->staglen*2);
+redis-benchmark.c:758:                    c->stagfree += c->staglen;
+redis-benchmark.c:760:                c->stagptr[c->staglen++] = p;
+redis-benchmark.c:761:                c->stagfree--;
+redis-benchmark.c:773:        aeCreateFileEvent(el,c->context->fd,AE_WRITABLE,writeHandler,c);
+redis-benchmark.c:776:    atomicGet(config.slots_last_update, c->slots_last_update);
+redis-benchmark.c:1191:    if (c->slots_last_update < last_update) {
+redis-benchmark.c:1192:        c->slots_last_update = last_update;
+redis-benchmark.c:1210:    /* printf("[%d] fetchClusterSlotsConfiguration\n", c->thread_id); */
+redis-benchmark.c:1315:        lastarg = (i == (argc-1));
+replication.c:68:    if (c->slave_ip[0] != '\0' ||
+replication.c:69:        connPeerToString(c->conn,ip,sizeof(ip),NULL) != -1)
+replication.c:71:        /* Note that the 'ip' buffer is always larger than 'c->slave_ip' */
+replication.c:72:        if (c->slave_ip[0] != '\0') memcpy(ip,c->slave_ip,sizeof(c->slave_ip));
+replication.c:74:        if (c->slave_listening_port)
+replication.c:75:            anetFormatAddr(buf,sizeof(buf),ip,c->slave_listening_port);
+replication.c:80:            (unsigned long long) c->id);
+replication.c:415:    if (c->flags & CLIENT_LUA) {
+replication.c:417:    } else if (c->flags & CLIENT_UNIX_SOCKET) {
+replication.c:430:        if (j != argc-1)
+replication.c:551:    char *master_replid = c->argv[1]->ptr;
+replication.c:558:    if (getLongLongFromObjectOrReply(c,c->argv[2],&psync_offset,NULL) !=
+replication.c:610:    c->flags |= CLIENT_SLAVE;
+replication.c:611:    c->replstate = SLAVE_STATE_ONLINE;
+replication.c:612:    c->repl_ack_time = server.unixtime;
+replication.c:613:    c->repl_put_online_on_ack = 0;
+replication.c:618:    if (c->slave_capa & SLAVE_CAPA_PSYNC2) {
+replication.c:623:    if (connWrite(c->conn,buf,buflen) != buflen) {
+replication.c:746:    if (c->flags & CLIENT_SLAVE) return;
+replication.c:776:    if (!strcasecmp(c->argv[0]->ptr,"psync")) {
+replication.c:781:            char *master_replid = c->argv[1]->ptr;
+replication.c:793:        c->flags |= CLIENT_PRE_PSYNC;
+replication.c:801:    c->replstate = SLAVE_STATE_WAIT_BGSAVE_START;
+replication.c:803:        connDisableTcpNoDelay(c->conn); /* Non critical if it fails. */
+replication.c:804:    c->repldbfd = -1;
+replication.c:805:    c->flags |= CLIENT_SLAVE;
+replication.c:838:        if (ln && ((c->slave_capa & slave->slave_capa) == slave->slave_capa)) {
+replication.c:861:        if (server.repl_diskless_sync && (c->slave_capa & SLAVE_CAPA_EOF)) {
+replication.c:872:                startBgsaveForReplication(c->slave_capa);
+replication.c:898:    if ((c->argc % 2) == 0) {
+replication.c:906:    for (j = 1; j < c->argc; j+=2) {
+replication.c:907:        if (!strcasecmp(c->argv[j]->ptr,"listening-port")) {
+replication.c:910:            if ((getLongFromObjectOrReply(c,c->argv[j+1],
+replication.c:913:            c->slave_listening_port = port;
+replication.c:914:        } else if (!strcasecmp(c->argv[j]->ptr,"ip-address")) {
+replication.c:915:            sds ip = c->argv[j+1]->ptr;
+replication.c:916:            if (sdslen(ip) < sizeof(c->slave_ip)) {
+replication.c:917:                memcpy(c->slave_ip,ip,sdslen(ip)+1);
+replication.c:923:        } else if (!strcasecmp(c->argv[j]->ptr,"capa")) {
+replication.c:925:            if (!strcasecmp(c->argv[j+1]->ptr,"eof"))
+replication.c:926:                c->slave_capa |= SLAVE_CAPA_EOF;
+replication.c:927:            else if (!strcasecmp(c->argv[j+1]->ptr,"psync2"))
+replication.c:928:                c->slave_capa |= SLAVE_CAPA_PSYNC2;
+replication.c:929:        } else if (!strcasecmp(c->argv[j]->ptr,"ack")) {
+replication.c:935:            if (!(c->flags & CLIENT_SLAVE)) return;
+replication.c:936:            if ((getLongLongFromObject(c->argv[j+1], &offset) != C_OK))
+replication.c:938:            if (offset > c->repl_ack_off)
+replication.c:939:                c->repl_ack_off = offset;
+replication.c:940:            c->repl_ack_time = server.unixtime;
+replication.c:946:            if (c->repl_put_online_on_ack && c->replstate == SLAVE_STATE_ONLINE)
+replication.c:950:        } else if (!strcasecmp(c->argv[j]->ptr,"getack")) {
+replication.c:957:                (char*)c->argv[j]->ptr);
+replication.c:2349:    serverLog(LL_NOTICE," -------try to partial sync-------");
+replication.c:2701:    if (!strcasecmp(c->argv[1]->ptr,"no") &&
+replication.c:2702:        !strcasecmp(c->argv[2]->ptr,"one")) {
+replication.c:2713:        if (c->flags & CLIENT_SLAVE)
+replication.c:2722:        if ((getLongFromObjectOrReply(c, c->argv[2], &port, NULL) != C_OK))
+replication.c:2726:        if (server.masterhost && !strcasecmp(server.masterhost,c->argv[1]->ptr)
+replication.c:2737:        replicationSetMaster(c->argv[1]->ptr, port);
+replication.c:2809:        c->flags |= CLIENT_MASTER_FORCE_REPLY;
+replication.c:2813:        addReplyBulkLongLong(c,c->reploff);
+replication.c:2814:        c->flags &= ~CLIENT_MASTER_FORCE_REPLY;
+replication.c:2852:    if (c->flags & CLIENT_MULTI) discardTransaction(c);
+replication.c:2853:    listEmpty(c->reply);
+replication.c:2854:    c->sentlen = 0;
+replication.c:2855:    c->reply_bytes = 0;
+replication.c:2856:    c->bufpos = 0;
+replication.c:2864:    if (c->peerid) {
+replication.c:2865:        sdsfree(c->peerid);
+replication.c:2866:        c->peerid = NULL;
+replication.c:3118:    long long offset = c->woff;
+replication.c:3126:    if (getLongFromObjectOrReply(c,c->argv[1],&numreplicas,NULL) != C_OK)
+replication.c:3128:    if (getTimeoutFromObjectOrReply(c,c->argv[2],&timeout,UNIT_MILLISECONDS)
+replication.c:3132:    ackreplicas = replicationCountAcksByOffset(c->woff);
+replication.c:3133:    if (ackreplicas >= numreplicas || c->flags & CLIENT_MULTI) {
+replication.c:3140:    c->bpop.timeout = timeout;
+replication.c:3141:    c->bpop.reploffset = offset;
+replication.c:3142:    c->bpop.numreplicas = numreplicas;
+replication.c:3178:        if (last_offset && last_offset > c->bpop.reploffset &&
+replication.c:3179:                           last_numreplicas > c->bpop.numreplicas)
+replication.c:3184:            int numreplicas = replicationCountAcksByOffset(c->bpop.reploffset);
+replication.c:3186:            if (numreplicas >= c->bpop.numreplicas) {
+replication.c:3187:                last_offset = c->bpop.reploffset;
+Binary file redis-check-aof matches
+t_zset.c:304:    return spec->minex ? (value > spec->min) : (value >= spec->min);
+t_zset.c:308:    return spec->maxex ? (value < spec->max) : (value <= spec->max);
+t_zset.c:523:    spec->minex = spec->maxex = 0;
+t_zset.c:530:        spec->min = (long)min->ptr;
+t_zset.c:533:            spec->min = strtod((char*)min->ptr+1,&eptr);
+t_zset.c:534:            if (eptr[0] != '\0' || isnan(spec->min)) return C_ERR;
+t_zset.c:535:            spec->minex = 1;
+t_zset.c:537:            spec->min = strtod((char*)min->ptr,&eptr);
+t_zset.c:538:            if (eptr[0] != '\0' || isnan(spec->min)) return C_ERR;
+t_zset.c:542:        spec->max = (long)max->ptr;
+t_zset.c:545:            spec->max = strtod((char*)max->ptr+1,&eptr);
+t_zset.c:546:            if (eptr[0] != '\0' || isnan(spec->max)) return C_ERR;
+t_zset.c:547:            spec->maxex = 1;
+t_zset.c:549:            spec->max = strtod((char*)max->ptr,&eptr);
+t_zset.c:550:            if (eptr[0] != '\0' || isnan(spec->max)) return C_ERR;
+t_zset.c:602:    if (spec->min != shared.minstring &&
+t_zset.c:603:        spec->min != shared.maxstring) sdsfree(spec->min);
+t_zset.c:604:    if (spec->max != shared.minstring &&
+t_zset.c:605:        spec->max != shared.maxstring) sdsfree(spec->max);
+t_zset.c:619:    spec->min = spec->max = NULL;
+t_zset.c:620:    if (zslParseLexRangeItem(min, &spec->min, &spec->minex) == C_ERR ||
+t_zset.c:621:        zslParseLexRangeItem(max, &spec->max, &spec->maxex) == C_ERR) {
+t_zset.c:640:    return spec->minex ?
+t_zset.c:641:        (sdscmplex(value,spec->min) > 0) :
+t_zset.c:642:        (sdscmplex(value,spec->min) >= 0);
+t_zset.c:646:    return spec->maxex ?
+t_zset.c:647:        (sdscmplex(value,spec->max) < 0) :
+t_zset.c:648:        (sdscmplex(value,spec->max) <= 0);
+t_zset.c:1535:    robj *key = c->argv[1];
+t_zset.c:1552:    while(scoreidx < c->argc) {
+t_zset.c:1553:        char *opt = c->argv[scoreidx]->ptr;
+t_zset.c:1570:    elements = c->argc-scoreidx;
+t_zset.c:1595:        if (getDoubleFromObjectOrReply(c,c->argv[scoreidx+j*2],&scores[j],NULL)
+t_zset.c:1600:    zobj = lookupKeyWrite(c->db,key);
+t_zset.c:1604:            server.zset_max_ziplist_value < sdslen(c->argv[scoreidx+1]->ptr))
+t_zset.c:1610:        dbAdd(c->db,key,zobj);
+t_zset.c:1623:        ele = c->argv[scoreidx+1+j*2]->ptr;
+t_zset.c:1649:        signalModifiedKey(c,c->db,key);
+t_zset.c:1651:            incr ? "zincr" : "zadd", key, c->db->id);
+t_zset.c:1664:    robj *key = c->argv[1];
+t_zset.c:1671:    for (j = 2; j < c->argc; j++) {
+t_zset.c:1672:        if (zsetDel(zobj,c->argv[j]->ptr)) deleted++;
+t_zset.c:1674:            dbDelete(c->db,key);
+t_zset.c:1681:        notifyKeyspaceEvent(NOTIFY_ZSET,"zrem",key,c->db->id);
+t_zset.c:1683:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",key,c->db->id);
+t_zset.c:1684:        signalModifiedKey(c,c->db,key);
+t_zset.c:1695:    robj *key = c->argv[1];
+t_zset.c:1705:        if ((getLongFromObjectOrReply(c,c->argv[2],&start,NULL) != C_OK) ||
+t_zset.c:1706:            (getLongFromObjectOrReply(c,c->argv[3],&end,NULL) != C_OK))
+t_zset.c:1709:        if (zslParseRange(c->argv[2],c->argv[3],&range) != C_OK) {
+t_zset.c:1714:        if (zslParseLexRange(c->argv[2],c->argv[3],&lexrange) != C_OK) {
+t_zset.c:1754:            dbDelete(c->db,key);
+t_zset.c:1772:            dbDelete(c->db,key);
+t_zset.c:1782:        signalModifiedKey(c,c->db,key);
+t_zset.c:1783:        notifyKeyspaceEvent(NOTIFY_ZSET,event[rangetype],key,c->db->id);
+t_zset.c:1785:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",key,c->db->id);
+t_zset.c:2189:    if ((getLongFromObjectOrReply(c, c->argv[2], &setnum, NULL) != C_OK))
+t_zset.c:2199:    if (setnum > c->argc-3) {
+t_zset.c:2207:        robj *obj = lookupKeyWrite(c->db,c->argv[j]);
+t_zset.c:2227:    if (j < c->argc) {
+t_zset.c:2228:        int remaining = c->argc - j;
+t_zset.c:2232:                !strcasecmp(c->argv[j]->ptr,"weights"))
+t_zset.c:2236:                    if (getDoubleFromObjectOrReply(c,c->argv[j],&src[i].weight,
+t_zset.c:2244:                       !strcasecmp(c->argv[j]->ptr,"aggregate"))
+t_zset.c:2247:                if (!strcasecmp(c->argv[j]->ptr,"sum")) {
+t_zset.c:2249:                } else if (!strcasecmp(c->argv[j]->ptr,"min")) {
+t_zset.c:2251:                } else if (!strcasecmp(c->argv[j]->ptr,"max")) {
+t_zset.c:2381:        setKey(c,c->db,dstkey,dstobj);
+t_zset.c:2385:            dstkey,c->db->id);
+t_zset.c:2389:        if (dbDelete(c->db,dstkey)) {
+t_zset.c:2390:            signalModifiedKey(c,c->db,dstkey);
+t_zset.c:2391:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",dstkey,c->db->id);
+t_zset.c:2400:    zunionInterGenericCommand(c,c->argv[1], SET_OP_UNION);
+t_zset.c:2404:    zunionInterGenericCommand(c,c->argv[1], SET_OP_INTER);
+t_zset.c:2408:    robj *key = c->argv[1];
+t_zset.c:2416:    if ((getLongFromObjectOrReply(c, c->argv[2], &start, NULL) != C_OK) ||
+t_zset.c:2417:        (getLongFromObjectOrReply(c, c->argv[3], &end, NULL) != C_OK)) return;
+t_zset.c:2419:    if (c->argc == 5 && !strcasecmp(c->argv[4]->ptr,"withscores")) {
+t_zset.c:2421:    } else if (c->argc >= 5) {
+t_zset.c:2447:    if (withscores && c->resp == 2)
+t_zset.c:2471:            if (withscores && c->resp > 2) addReplyArrayLen(c,2);
+t_zset.c:2504:            if (withscores && c->resp > 2) addReplyArrayLen(c,2);
+t_zset.c:2525:    robj *key = c->argv[1];
+t_zset.c:2542:    if (zslParseRange(c->argv[minidx],c->argv[maxidx],&range) != C_OK) {
+t_zset.c:2549:    if (c->argc > 4) {
+t_zset.c:2550:        int remaining = c->argc - 4;
+t_zset.c:2554:            if (remaining >= 1 && !strcasecmp(c->argv[pos]->ptr,"withscores")) {
+t_zset.c:2557:            } else if (remaining >= 3 && !strcasecmp(c->argv[pos]->ptr,"limit")) {
+t_zset.c:2558:                if ((getLongFromObjectOrReply(c, c->argv[pos+1], &offset, NULL)
+t_zset.c:2560:                    (getLongFromObjectOrReply(c, c->argv[pos+2], &limit, NULL)
+t_zset.c:2632:            if (withscores && c->resp > 2) addReplyArrayLen(c,2);
+t_zset.c:2689:            if (withscores && c->resp > 2) addReplyArrayLen(c,2);
+t_zset.c:2704:    if (withscores && c->resp == 2) rangelen *= 2;
+t_zset.c:2717:    robj *key = c->argv[1];
+t_zset.c:2723:    if (zslParseRange(c->argv[2],c->argv[3],&range) != C_OK) {
+t_zset.c:2794:    robj *key = c->argv[1];
+t_zset.c:2800:    if (zslParseLexRange(c->argv[2],c->argv[3],&range) != C_OK) {
+t_zset.c:2875:    robj *key = c->argv[1];
+t_zset.c:2891:    if (zslParseLexRange(c->argv[minidx],c->argv[maxidx],&range) != C_OK) {
+t_zset.c:2898:    if (c->argc > 4) {
+t_zset.c:2899:        int remaining = c->argc - 4;
+t_zset.c:2903:            if (remaining >= 3 && !strcasecmp(c->argv[pos]->ptr,"limit")) {
+t_zset.c:2904:                if ((getLongFromObjectOrReply(c, c->argv[pos+1], &offset, NULL) != C_OK) ||
+t_zset.c:2905:                    (getLongFromObjectOrReply(c, c->argv[pos+2], &limit, NULL) != C_OK)) {
+t_zset.c:3061:    robj *key = c->argv[1];
+t_zset.c:3071:    robj *key = c->argv[1];
+t_zset.c:3075:    if ((zobj = lookupKeyReadOrReply(c,key,shared.null[c->resp])) == NULL ||
+t_zset.c:3078:    if (zsetScore(zobj,c->argv[2]->ptr,&score) == C_ERR) {
+t_zset.c:3086:    robj *key = c->argv[1];
+t_zset.c:3087:    robj *ele = c->argv[2];
+t_zset.c:3091:    if ((zobj = lookupKeyReadOrReply(c,key,shared.null[c->resp])) == NULL ||
+t_zset.c:3115:    if (parseScanCursorOrReply(c,c->argv[2],&cursor) == C_ERR) return;
+t_zset.c:3116:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptyscan)) == NULL ||
+t_zset.c:3152:        zobj = lookupKeyWrite(c->db,key);
+t_zset.c:3214:            notifyKeyspaceEvent(NOTIFY_ZSET,events[where],key,c->db->id);
+t_zset.c:3215:            signalModifiedKey(c,c->db,key);
+t_zset.c:3225:            dbDelete(c->db,key);
+t_zset.c:3226:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",key,c->db->id);
+t_zset.c:3236:    if (c->argc > 3) {
+t_zset.c:3240:    genericZpopCommand(c,&c->argv[1],1,ZSET_MIN,0,
+t_zset.c:3241:        c->argc == 3 ? c->argv[2] : NULL);
+t_zset.c:3246:    if (c->argc > 3) {
+t_zset.c:3250:    genericZpopCommand(c,&c->argv[1],1,ZSET_MAX,0,
+t_zset.c:3251:        c->argc == 3 ? c->argv[2] : NULL);
+t_zset.c:3260:    if (getTimeoutFromObjectOrReply(c,c->argv[c->argc-1],&timeout,UNIT_SECONDS)
+t_zset.c:3263:    for (j = 1; j < c->argc-1; j++) {
+t_zset.c:3264:        o = lookupKeyWrite(c->db,c->argv[j]);
+t_zset.c:3272:                    genericZpopCommand(c,&c->argv[j],1,where,1,NULL);
+t_zset.c:3276:                        c->argv[j]);
+t_zset.c:3285:    if (c->flags & CLIENT_MULTI) {
+t_zset.c:3291:    blockForKeys(c,BLOCKED_ZSET,c->argv + 1,c->argc - 2,timeout,NULL,NULL);
+Binary file latency.o matches
+redis-cli.c:711:            int toremove = argc-1;
+redis-cli.c:1287:                      (!strcasecmp(argv[1],"malloc-stats") ||
+redis-cli.c:1393:    assert(!c->err);
+redis-cli.c:1395:        while (c->err & (REDIS_ERR_IO | REDIS_ERR_EOF)) {
+redis-cli.c:1402:            if (!c->err && config.tls) {
+redis-cli.c:1416:        if (c->err && !(c->err & (REDIS_ERR_IO | REDIS_ERR_EOF))) {
+redis-cli.c:1417:            fprintf(stderr, "Error: %s\n", c->errstr);
+redis-cli.c:1436:        int lastarg = i==argc-1;
+redis-cli.c:1499:        } else if (!strcmp(argv[i],"--intrinsic-latency") && !lastarg) {
+redis-cli.c:1524:        } else if (!strcmp(argv[i],"--ldb-sync-mode")) {
+redis-cli.c:1652:        fprintf(stderr,"Options --ldb and --ldb-sync-mode require --eval.\n");
+redis-cli.c:1762:"  --intrinsic-latency <sec> Run a test to measure intrinsic system latency.\n"
+redis-cli.c:1766:"  --ldb-sync-mode    Like --ldb but uses the synchronous Lua debugger, in\n"
+redis-cli.c:2026:                    issueCommandRepeat(argc-skipargs, argv+skipargs, repeat);
+redis-cli.c:2049:        /* linenoise() returns malloc-ed lines like readline() */
+redis-cli.c:4818:                              src->ip, src->port, dst->ip, dst->port);
+redis-cli.c:4868:        for (int i = 0; i < src->migrating_count; i += 2) {
+redis-cli.c:4869:            sds migrating_slot = src->migrating[i];
+redis-cli.c:4871:                target_id = src->migrating[i + 1];
+redis-cli.c:4893:                                  slot, src->ip, src->port,
+redis-cli.c:6144:        int sb = abs(src->balance);
+redis-cli.c:6148:                                                            src->ip,
+redis-cli.c:6149:                                                            src->port,
+redis-cli.c:6189:        src->balance -= numslots;
+redis-cli.c:6191:        if (src->balance == 0) src_idx --;
+redis-cli.c:6405:    argc--;
+redis-cli.c:6806:    c->obuf = sdscatlen(c->obuf, buf, buf_len);
+redis-cli.c:6808:        sdsrange(c->obuf, 0, -(buf_len+1));
+redis-cli.c:6809:        if (!(c->flags & REDIS_BLOCK))
+redis-cli.c:6814:    size_t left = sdslen(c->obuf);
+redis-cli.c:6815:    sdsclear(c->obuf);
+redis-cli.c:6828:    return c->funcs->read(c, buf, len);
+modules/hellotype.c:216:    return HelloTypeRange_RedisCommand(ctx,argv,argc-1);
+modules/hellotype.c:257:        return HelloTypeRange_RedisCommand(ctx,argv,argc-1);
+t_list.c:199:    robj *lobj = lookupKeyWrite(c->db,c->argv[1]);
+t_list.c:206:    for (j = 2; j < c->argc; j++) {
+t_list.c:211:            dbAdd(c->db,c->argv[1],lobj);
+t_list.c:213:        listTypePush(lobj,c->argv[j],where);
+t_list.c:220:        signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:221:        notifyKeyspaceEvent(NOTIFY_LIST,event,c->argv[1],c->db->id);
+t_list.c:238:    if ((subject = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_list.c:241:    for (j = 2; j < c->argc; j++) {
+t_list.c:242:        listTypePush(subject,c->argv[j],where);
+t_list.c:250:        signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:251:        notifyKeyspaceEvent(NOTIFY_LIST,event,c->argv[1],c->db->id);
+t_list.c:271:    if (strcasecmp(c->argv[2]->ptr,"after") == 0) {
+t_list.c:273:    } else if (strcasecmp(c->argv[2]->ptr,"before") == 0) {
+t_list.c:280:    if ((subject = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL ||
+t_list.c:286:        if (listTypeEqual(&entry,c->argv[3])) {
+t_list.c:287:            listTypeInsert(&entry,c->argv[4],where);
+t_list.c:295:        signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:297:                            c->argv[1],c->db->id);
+t_list.c:309:    robj *o = lookupKeyReadOrReply(c,c->argv[1],shared.czero);
+t_list.c:315:    robj *o = lookupKeyReadOrReply(c,c->argv[1],shared.null[c->resp]);
+t_list.c:320:    if ((getLongFromObjectOrReply(c, c->argv[2], &index, NULL) != C_OK))
+t_list.c:342:    robj *o = lookupKeyWriteOrReply(c,c->argv[1],shared.nokeyerr);
+t_list.c:345:    robj *value = c->argv[3];
+t_list.c:347:    if ((getLongFromObjectOrReply(c, c->argv[2], &index, NULL) != C_OK))
+t_list.c:358:            signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:359:            notifyKeyspaceEvent(NOTIFY_LIST,"lset",c->argv[1],c->db->id);
+t_list.c:368:    robj *o = lookupKeyWriteOrReply(c,c->argv[1],shared.null[c->resp]);
+t_list.c:379:        notifyKeyspaceEvent(NOTIFY_LIST,event,c->argv[1],c->db->id);
+t_list.c:382:                                c->argv[1],c->db->id);
+t_list.c:383:            dbDelete(c->db,c->argv[1]);
+t_list.c:385:        signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:402:    if ((getLongFromObjectOrReply(c, c->argv[2], &start, NULL) != C_OK) ||
+t_list.c:403:        (getLongFromObjectOrReply(c, c->argv[3], &end, NULL) != C_OK)) return;
+t_list.c:405:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptyarray)) == NULL
+t_list.c:448:    if ((getLongFromObjectOrReply(c, c->argv[2], &start, NULL) != C_OK) ||
+t_list.c:449:        (getLongFromObjectOrReply(c, c->argv[3], &end, NULL) != C_OK)) return;
+t_list.c:451:    if ((o = lookupKeyWriteOrReply(c,c->argv[1],shared.ok)) == NULL ||
+t_list.c:480:    notifyKeyspaceEvent(NOTIFY_LIST,"ltrim",c->argv[1],c->db->id);
+t_list.c:482:        dbDelete(c->db,c->argv[1]);
+t_list.c:483:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],c->db->id);
+t_list.c:485:    signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:509:    ele = c->argv[2];
+t_list.c:514:    for (int j = 3; j < c->argc; j++) {
+t_list.c:515:        char *opt = c->argv[j]->ptr;
+t_list.c:516:        int moreargs = (c->argc-1)-j;
+t_list.c:520:            if (getLongFromObjectOrReply(c, c->argv[j], &rank, NULL) != C_OK)
+t_list.c:529:            if (getLongFromObjectOrReply(c, c->argv[j], &count, NULL) != C_OK)
+t_list.c:537:            if (getLongFromObjectOrReply(c, c->argv[j], &maxlen, NULL) != C_OK)
+t_list.c:557:    if ((o = lookupKeyRead(c->db,c->argv[1])) == NULL) {
+t_list.c:561:            addReply(c,shared.null[c->resp]);
+t_list.c:602:            addReply(c,shared.null[c->resp]);
+t_list.c:608:    obj = c->argv[3];
+t_list.c:612:    if ((getLongFromObjectOrReply(c, c->argv[2], &toremove, NULL) != C_OK))
+t_list.c:615:    subject = lookupKeyWriteOrReply(c,c->argv[1],shared.czero);
+t_list.c:638:        signalModifiedKey(c,c->db,c->argv[1]);
+t_list.c:639:        notifyKeyspaceEvent(NOTIFY_LIST,"lrem",c->argv[1],c->db->id);
+t_list.c:643:        dbDelete(c->db,c->argv[1]);
+t_list.c:644:        notifyKeyspaceEvent(NOTIFY_GENERIC,"del",c->argv[1],c->db->id);
+t_list.c:672:        dbAdd(c->db,dstkey,dstobj);
+t_list.c:674:    signalModifiedKey(c,c->db,dstkey);
+t_list.c:676:    notifyKeyspaceEvent(NOTIFY_LIST,"lpush",dstkey,c->db->id);
+t_list.c:683:    if ((sobj = lookupKeyWriteOrReply(c,c->argv[1],shared.null[c->resp]))
+t_list.c:691:        robj *dobj = lookupKeyWrite(c->db,c->argv[2]);
+t_list.c:692:        robj *touchedkey = c->argv[1];
+t_list.c:700:        rpoplpushHandlePush(c,c->argv[2],dobj,value);
+t_list.c:706:        notifyKeyspaceEvent(NOTIFY_LIST,"rpop",touchedkey,c->db->id);
+t_list.c:708:            dbDelete(c->db,touchedkey);
+t_list.c:710:                                touchedkey,c->db->id);
+t_list.c:712:        signalModifiedKey(c,c->db,touchedkey);
+t_list.c:715:        if (c->cmd->proc == brpoplpushCommand) {
+t_list.c:716:            rewriteClientCommandVector(c,3,shared.rpoplpush,c->argv[1],c->argv[2]);
+t_list.c:800:    if (getTimeoutFromObjectOrReply(c,c->argv[c->argc-1],&timeout,UNIT_SECONDS)
+t_list.c:803:    for (j = 1; j < c->argc-1; j++) {
+t_list.c:804:        o = lookupKeyWrite(c->db,c->argv[j]);
+t_list.c:817:                    addReplyBulk(c,c->argv[j]);
+t_list.c:821:                                        c->argv[j],c->db->id);
+t_list.c:823:                        dbDelete(c->db,c->argv[j]);
+t_list.c:825:                                            c->argv[j],c->db->id);
+t_list.c:827:                    signalModifiedKey(c,c->db,c->argv[j]);
+t_list.c:833:                        c->argv[j]);
+t_list.c:842:    if (c->flags & CLIENT_MULTI) {
+t_list.c:848:    blockForKeys(c,BLOCKED_LIST,c->argv + 1,c->argc - 2,timeout,NULL,NULL);
+t_list.c:862:    if (getTimeoutFromObjectOrReply(c,c->argv[3],&timeout,UNIT_SECONDS)
+t_list.c:865:    robj *key = lookupKeyWrite(c->db, c->argv[1]);
+t_list.c:868:        if (c->flags & CLIENT_MULTI) {
+t_list.c:874:            blockForKeys(c,BLOCKED_LIST,c->argv + 1,1,timeout,c->argv[2],NULL);
+t_stream.c:861:    propagate(server.xclaimCommand,c->db->id,argv,14,PROPAGATE_AOF|PROPAGATE_REPL);
+t_stream.c:893:    propagate(server.xgroupCommand,c->db->id,argv,5,PROPAGATE_AOF|PROPAGATE_REPL);
+t_stream.c:1112:    robj *o = lookupKeyWrite(c->db,key);
+t_stream.c:1115:        dbAdd(c->db,key,o);
+t_stream.c:1211:    for (; i < c->argc; i++) {
+t_stream.c:1212:        int moreargs = (c->argc-1) - i; /* Number of additional arguments. */
+t_stream.c:1213:        char *opt = c->argv[i]->ptr;
+t_stream.c:1220:            char *next = c->argv[i+1]->ptr;
+t_stream.c:1228:            if (getLongLongFromObjectOrReply(c,c->argv[i+1],&maxlen,NULL)
+t_stream.c:1239:            if (streamParseStrictIDOrReply(c,c->argv[i],&id,0) != C_OK) return;
+t_stream.c:1247:    if ((c->argc - field_pos) < 2 || ((c->argc-field_pos) % 2) == 1) {
+t_stream.c:1263:    if ((o = streamTypeLookupWriteOrCreate(c,c->argv[1])) == NULL) return;
+t_stream.c:1274:    if (streamAppendItem(s,c->argv+field_pos,(c->argc-field_pos)/2,
+t_stream.c:1284:    signalModifiedKey(c,c->db,c->argv[1]);
+t_stream.c:1285:    notifyKeyspaceEvent(NOTIFY_STREAM,"xadd",c->argv[1],c->db->id);
+t_stream.c:1291:            notifyKeyspaceEvent(NOTIFY_STREAM,"xtrim",c->argv[1],c->db->id);
+t_stream.c:1305:        signalKeyAsReady(c->db, c->argv[1]);
+t_stream.c:1314:    robj *startarg = rev ? c->argv[3] : c->argv[2];
+t_stream.c:1315:    robj *endarg = rev ? c->argv[2] : c->argv[3];
+t_stream.c:1321:    if (c->argc > 4) {
+t_stream.c:1322:        for (int j = 4; j < c->argc; j++) {
+t_stream.c:1323:            int additional = c->argc-j-1;
+t_stream.c:1324:            if (strcasecmp(c->argv[j]->ptr,"COUNT") == 0 && additional >= 1) {
+t_stream.c:1325:                if (getLongLongFromObjectOrReply(c,c->argv[j+1],&count,NULL)
+t_stream.c:1337:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.emptyarray)) == NULL ||
+t_stream.c:1363:    if ((o = lookupKeyReadOrReply(c,c->argv[1],shared.czero)) == NULL
+t_stream.c:1386:    int xreadgroup = sdslen(c->argv[0]->ptr) == 10; /* XREAD or XREADGROUP? */
+t_stream.c:1391:    for (int i = 1; i < c->argc; i++) {
+t_stream.c:1392:        int moreargs = c->argc-i-1;
+t_stream.c:1393:        char *o = c->argv[i]->ptr;
+t_stream.c:1395:            if (c->flags & CLIENT_LUA) {
+t_stream.c:1397:                addReplyErrorFormat(c, "%s command is not allowed with BLOCK option from scripts", (char *)c->argv[0]->ptr);
+t_stream.c:1401:            if (getTimeoutFromObjectOrReply(c,c->argv[i],&timeout,
+t_stream.c:1405:            if (getLongLongFromObjectOrReply(c,c->argv[i],&count,NULL) != C_OK)
+t_stream.c:1410:            streams_count = (c->argc-streams_arg);
+t_stream.c:1425:            groupname = c->argv[i+1];
+t_stream.c:1426:            consumername = c->argv[i+2];
+t_stream.c:1459:    for (int i = streams_arg + streams_count; i < c->argc; i++) {
+t_stream.c:1464:        robj *key = c->argv[i-streams_count];
+t_stream.c:1465:        robj *o = lookupKeyRead(c->db,key);
+t_stream.c:1484:        if (strcmp(c->argv[i]->ptr,"$") == 0) {
+t_stream.c:1501:        } else if (strcmp(c->argv[i]->ptr,">") == 0) {
+t_stream.c:1515:        if (streamParseStrictIDOrReply(c,c->argv[i],ids+id_idx,0) != C_OK)
+t_stream.c:1523:        robj *o = lookupKeyRead(c->db,c->argv[streams_arg+i]);
+t_stream.c:1573:            if (c->resp == 2) addReplyArrayLen(c,2);
+t_stream.c:1574:            addReplyBulk(c,c->argv[streams_arg+i]);
+t_stream.c:1579:            streamPropInfo spi = {c->argv[i+streams_arg],groupname};
+t_stream.c:1592:        if (c->resp == 2)
+t_stream.c:1603:        if (c->flags & CLIENT_MULTI) {
+t_stream.c:1607:        blockForKeys(c, BLOCKED_STREAM, c->argv+streams_arg, streams_count,
+t_stream.c:1612:        c->bpop.xread_count = count ? count : XREAD_BLOCKED_DEFAULT_COUNT;
+t_stream.c:1621:            c->bpop.xread_group = groupname;
+t_stream.c:1622:            c->bpop.xread_consumer = consumername;
+t_stream.c:1623:            c->bpop.xread_group_noack = noack;
+t_stream.c:1625:            c->bpop.xread_group = NULL;
+t_stream.c:1626:            c->bpop.xread_consumer = NULL;
+t_stream.c:1671:    raxFree(sc->pel); /* No value free callback: the PEL entries are shared
+t_stream.c:1673:    sdsfree(sc->name);
+t_stream.c:1780:    char *opt = c->argv[1]->ptr; /* Subcommand name. */
+t_stream.c:1786:    if (c->argc == 6 && !strcasecmp(opt,"CREATE")) {
+t_stream.c:1787:        if (strcasecmp(c->argv[5]->ptr,"MKSTREAM")) {
+t_stream.c:1792:        grpname = c->argv[3]->ptr;
+t_stream.c:1796:    if (c->argc >= 4) {
+t_stream.c:1797:        o = lookupKeyWrite(c->db,c->argv[2]);
+t_stream.c:1802:        grpname = c->argv[3]->ptr;
+t_stream.c:1806:    if (c->argc >= 4 && !mkstream) {
+t_stream.c:1823:                                   (char*)grpname, (char*)c->argv[2]->ptr);
+t_stream.c:1829:    if (!strcasecmp(opt,"CREATE") && (c->argc == 5 || c->argc == 6)) {
+t_stream.c:1831:        if (!strcmp(c->argv[4]->ptr,"$")) {
+t_stream.c:1838:        } else if (streamParseStrictIDOrReply(c,c->argv[4],&id,0) != C_OK) {
+t_stream.c:1846:            dbAdd(c->db,c->argv[2],o);
+t_stream.c:1848:            signalModifiedKey(c,c->db,c->argv[2]);
+t_stream.c:1856:                                c->argv[2],c->db->id);
+t_stream.c:1861:    } else if (!strcasecmp(opt,"SETID") && c->argc == 5) {
+t_stream.c:1863:        if (!strcmp(c->argv[4]->ptr,"$")) {
+t_stream.c:1865:        } else if (streamParseIDOrReply(c,c->argv[4],&id,0) != C_OK) {
+t_stream.c:1871:        notifyKeyspaceEvent(NOTIFY_STREAM,"xgroup-setid",c->argv[2],c->db->id);
+t_stream.c:1872:    } else if (!strcasecmp(opt,"DESTROY") && c->argc == 4) {
+t_stream.c:1879:                                c->argv[2],c->db->id);
+t_stream.c:1881:            signalKeyAsReady(c->db,c->argv[2]);
+t_stream.c:1885:    } else if (!strcasecmp(opt,"DELCONSUMER") && c->argc == 5) {
+t_stream.c:1888:        long long pending = streamDelConsumer(cg,c->argv[4]->ptr);
+t_stream.c:1892:                            c->argv[2],c->db->id);
+t_stream.c:1893:    } else if (c->argc == 2 && !strcasecmp(opt,"HELP")) {
+t_stream.c:1904:    robj *o = lookupKeyWriteOrReply(c,c->argv[1],shared.nokeyerr);
+t_stream.c:1909:    if (streamParseStrictIDOrReply(c,c->argv[2],&id,0) != C_OK) return;
+t_stream.c:1927:    notifyKeyspaceEvent(NOTIFY_STREAM,"xsetid",c->argv[1],c->db->id);
+t_stream.c:1941:    robj *o = lookupKeyRead(c->db,c->argv[1]);
+t_stream.c:1944:        group = streamLookupCG(o->ptr,c->argv[2]->ptr);
+t_stream.c:1959:    int id_count = c->argc-3;
+t_stream.c:1962:    for (int j = 3; j < c->argc; j++) {
+t_stream.c:1963:        if (streamParseStrictIDOrReply(c,c->argv[j],&ids[j-3],0) != C_OK) goto cleanup;
+t_stream.c:1967:    for (int j = 3; j < c->argc; j++) {
+t_stream.c:1998:    int justinfo = c->argc == 3; /* Without the range just outputs general
+t_stream.c:2000:    robj *key = c->argv[1];
+t_stream.c:2001:    robj *groupname = c->argv[2];
+t_stream.c:2002:    robj *consumername = (c->argc == 7) ? c->argv[6] : NULL;
+t_stream.c:2007:    if (c->argc != 3 && c->argc != 6 && c->argc != 7) {
+t_stream.c:2014:    if (c->argc >= 6) {
+t_stream.c:2015:        if (getLongLongFromObjectOrReply(c,c->argv[5],&count,NULL) == C_ERR)
+t_stream.c:2018:        if (streamParseIDOrReply(c,c->argv[3],&startid,0) == C_ERR)
+t_stream.c:2020:        if (streamParseIDOrReply(c,c->argv[4],&endid,UINT64_MAX) == C_ERR)
+t_stream.c:2025:    robj *o = lookupKeyRead(c->db,c->argv[1]);
+t_stream.c:2207:    robj *o = lookupKeyRead(c->db,c->argv[1]);
+t_stream.c:2216:        group = streamLookupCG(o->ptr,c->argv[2]->ptr);
+t_stream.c:2223:                              "consumer group '%s'", (char*)c->argv[1]->ptr,
+t_stream.c:2224:                              (char*)c->argv[2]->ptr);
+t_stream.c:2228:    if (getLongLongFromObjectOrReply(c,c->argv[4],&minidle,
+t_stream.c:2240:    int id_count = c->argc-5;
+t_stream.c:2243:    for (j = 5; j < c->argc; j++) {
+t_stream.c:2244:        if (streamParseStrictIDOrReply(NULL,c->argv[j],&ids[j-5],0) != C_OK) break;
+t_stream.c:2253:    for (; j < c->argc; j++) {
+t_stream.c:2254:        int moreargs = (c->argc-1) - j; /* Number of additional arguments. */
+t_stream.c:2255:        char *opt = c->argv[j]->ptr;
+t_stream.c:2262:            if (getLongLongFromObjectOrReply(c,c->argv[j],&deliverytime,
+t_stream.c:2268:            if (getLongLongFromObjectOrReply(c,c->argv[j],&deliverytime,
+t_stream.c:2273:            if (getLongLongFromObjectOrReply(c,c->argv[j],&retrycount,
+t_stream.c:2278:            if (streamParseStrictIDOrReply(c,c->argv[j],&last_id,0) != C_OK) goto cleanup;
+t_stream.c:2358:                consumer = streamLookupConsumer(group,c->argv[3]->ptr,SLC_NONE);
+t_stream.c:2381:            streamPropagateXCLAIM(c,c->argv[1],group,c->argv[2],c->argv[j],nack);
+t_stream.c:2387:        streamPropagateGroupID(c,c->argv[1],group,c->argv[2]);
+t_stream.c:2405:    if ((o = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL
+t_stream.c:2414:    int id_count = c->argc-2;
+t_stream.c:2417:    for (int j = 2; j < c->argc; j++) {
+t_stream.c:2418:        if (streamParseStrictIDOrReply(c,c->argv[j],&ids[j-2],0) != C_OK) goto cleanup;
+t_stream.c:2423:    for (int j = 2; j < c->argc; j++) {
+t_stream.c:2429:        signalModifiedKey(c,c->db,c->argv[1]);
+t_stream.c:2430:        notifyKeyspaceEvent(NOTIFY_STREAM,"xdel",c->argv[1],c->db->id);
+t_stream.c:2455:    if ((o = lookupKeyWriteOrReply(c,c->argv[1],shared.czero)) == NULL
+t_stream.c:2468:    for (; i < c->argc; i++) {
+t_stream.c:2469:        int moreargs = (c->argc-1) - i; /* Number of additional arguments. */
+t_stream.c:2470:        char *opt = c->argv[i]->ptr;
+t_stream.c:2474:            char *next = c->argv[i+1]->ptr;
+t_stream.c:2482:            if (getLongLongFromObjectOrReply(c,c->argv[i+1],&maxlen,NULL)
+t_stream.c:2508:        signalModifiedKey(c,c->db,c->argv[1]);
+t_stream.c:2509:        notifyKeyspaceEvent(NOTIFY_STREAM,"xtrim",c->argv[1],c->db->id);
+t_stream.c:2521:    robj **optv = c->argv + 3; /* Options start after XINFO STREAM <key> */
+t_stream.c:2522:    int optc = c->argc - 3;
+t_stream.c:2721:    if (!strcasecmp(c->argv[1]->ptr,"HELP")) {
+t_stream.c:2724:    } else if (c->argc < 3) {
+t_stream.c:2731:    opt = c->argv[1]->ptr;
+t_stream.c:2732:    key = c->argv[2];
+t_stream.c:2740:    if (!strcasecmp(opt,"CONSUMERS") && c->argc == 4) {
+t_stream.c:2742:        streamCG *cg = streamLookupCG(s,c->argv[3]->ptr);
+t_stream.c:2746:                                   (char*)c->argv[3]->ptr, (char*)key->ptr);
+t_stream.c:2769:    } else if (!strcasecmp(opt,"GROUPS") && c->argc == 3) {
+geo.c:407:    if ((c->argc - 2) % 3 != 0) {
+geo.c:414:    int elements = (c->argc - 2) / 3;
+geo.c:418:    argv[1] = c->argv[1]; /* key */
+geo.c:428:        if (extractLongLatOrReply(c, (c->argv+2)+(i*3),xy) == C_ERR) {
+geo.c:440:        robj *val = c->argv[2 + i * 3 + 2];
+geo.c:463:    robj *key = c->argv[1];
+geo.c:479:        if (extractLongLatOrReply(c, c->argv + 2, xy) == C_ERR)
+geo.c:483:        robj *member = c->argv[2];
+geo.c:495:    if ((radius_meters = extractDistanceOrReply(c, c->argv + base_args - 2,
+geo.c:504:    if (c->argc > base_args) {
+geo.c:505:        int remaining = c->argc - base_args;
+geo.c:507:            char *arg = c->argv[base_args + i]->ptr;
+geo.c:519:                if (getLongLongFromObjectOrReply(c, c->argv[base_args+i+1],
+geo.c:530:                storekey = c->argv[base_args+i+1];
+geo.c:537:                storekey = c->argv[base_args+i+1];
+geo.c:660:            setKey(c,c->db,storekey,zobj);
+geo.c:663:                                c->db->id);
+geo.c:665:        } else if (dbDelete(c->db,storekey)) {
+geo.c:666:            signalModifiedKey(c,c->db,storekey);
+geo.c:667:            notifyKeyspaceEvent(NOTIFY_GENERIC,"del",storekey,c->db->id);
+geo.c:704:    robj *zobj = lookupKeyRead(c->db, c->argv[1]);
+geo.c:709:    addReplyArrayLen(c,c->argc-2);
+geo.c:710:    for (j = 2; j < c->argc; j++) {
+geo.c:712:        if (!zobj || zsetScore(zobj, c->argv[j]->ptr, &score) == C_ERR) {
+geo.c:765:    robj *zobj = lookupKeyRead(c->db, c->argv[1]);
+geo.c:770:    addReplyArrayLen(c,c->argc-2);
+geo.c:771:    for (j = 2; j < c->argc; j++) {
+geo.c:773:        if (!zobj || zsetScore(zobj, c->argv[j]->ptr, &score) == C_ERR) {
+geo.c:798:    if (c->argc == 5) {
+geo.c:799:        to_meter = extractUnitOrReply(c,c->argv[4]);
+geo.c:801:    } else if (c->argc > 5) {
+geo.c:808:    if ((zobj = lookupKeyReadOrReply(c, c->argv[1], shared.null[c->resp]))
+geo.c:813:    if (zsetScore(zobj, c->argv[2]->ptr, &score1) == C_ERR ||
+geo.c:814:        zsetScore(zobj, c->argv[3]->ptr, &score2) == C_ERR)
+module.c:589:    if (c->flags & CLIENT_LUA) return;
+module.c:593:    alsoPropagate(server.execCommand,c->db->id,&shared.exec,1,
+module.c:636:    RedisModuleCommandProxy *cp = (void*)(unsigned long)c->cmd->getkeys_proc;
+module.c:642:    cp->func(&ctx,(void**)c->argv,c->argc);
+module.c:654:    for (int i = 0; i < c->argc; i++) {
+module.c:657:        if (c->argv[i]->refcount > 1)
+module.c:658:            trimStringObjectIfNeeded(c->argv[i]);
+module.c:1869:        if (c && (c->flags & (CLIENT_DIRTY_CAS|CLIENT_DIRTY_EXEC))) {
+module.c:3267:    c->user = NULL; /* Root user. */
+module.c:3273:    c->flags |= CLIENT_MODULE;
+module.c:3274:    c->db = ctx->client->db;
+module.c:3275:    c->argv = argv;
+module.c:3276:    c->argc = argc;
+module.c:3292:    cmd = lookupCommand(c->argv[0]->ptr);
+module.c:3297:    c->cmd = c->lastcmd = cmd;
+module.c:3311:        c->flags &= ~(CLIENT_READONLY|CLIENT_ASKING);
+module.c:3312:        c->flags |= ctx->client->flags & (CLIENT_READONLY|CLIENT_ASKING);
+module.c:3313:        if (getNodeByQuery(c,c->cmd,c->argv,c->argc,NULL,&error_code) !=
+module.c:3343:    sds proto = sdsnewlen(c->buf,c->bufpos);
+module.c:3344:    c->bufpos = 0;
+module.c:3345:    while(listLength(c->reply)) {
+module.c:3346:        clientReplyBlock *o = listNodeValue(listFirst(c->reply));
+module.c:3349:        listDelNode(c->reply,listFirst(c->reply));
+module.c:4291:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4294:     * bc->disconnect_callback is set to NULL if the client gets disconnected
+module.c:4297:    if (bc->disconnect_callback) {
+module.c:4299:        ctx.blocked_privdata = bc->privdata;
+module.c:4300:        ctx.module = bc->module;
+module.c:4301:        ctx.client = bc->client;
+module.c:4302:        bc->disconnect_callback(&ctx,bc);
+module.c:4321:    if (bc->blocked_on_keys && !bc->unblocked)
+module.c:4324:    bc->client = NULL;
+module.c:4354:    int islua = c->flags & CLIENT_LUA;
+module.c:4355:    int ismulti = c->flags & CLIENT_MULTI;
+module.c:4357:    c->bpop.module_blocked_handle = zmalloc(sizeof(RedisModuleBlockedClient));
+module.c:4358:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4366:    bc->client = (islua || ismulti) ? NULL : c;
+module.c:4367:    bc->module = ctx->module;
+module.c:4368:    bc->reply_callback = reply_callback;
+module.c:4369:    bc->timeout_callback = timeout_callback;
+module.c:4370:    bc->disconnect_callback = NULL; /* Set by RM_SetDisconnectCallback() */
+module.c:4371:    bc->free_privdata = free_privdata;
+module.c:4372:    bc->privdata = privdata;
+module.c:4373:    bc->reply_client = createClient(NULL);
+module.c:4374:    bc->reply_client->flags |= CLIENT_MODULE;
+module.c:4375:    bc->dbid = c->db->id;
+module.c:4376:    bc->blocked_on_keys = keys != NULL;
+module.c:4377:    bc->unblocked = 0;
+module.c:4378:    c->bpop.timeout = timeout;
+module.c:4381:        c->bpop.module_blocked_handle = NULL;
+module.c:4396: * blocked for BLOCKED_MODULE and subtype 'on keys' (bc->blocked_on_keys true)
+module.c:4404:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4409:    if (bc->unblocked) return 0;
+module.c:4414:    ctx.blocked_privdata = bc->privdata;
+module.c:4415:    ctx.module = bc->module;
+module.c:4416:    ctx.client = bc->client;
+module.c:4418:    if (bc->reply_callback(&ctx,(void**)c->argv,c->argc) == REDISMODULE_OK)
+module.c:4529:    if (!bc->blocked_on_keys) bc->privdata = privdata;
+module.c:4530:    bc->unblocked = 1;
+module.c:4542:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4549:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4550:    return bc->blocked_on_keys;
+module.c:4574:    if (bc->blocked_on_keys) {
+module.c:4577:        if (bc->timeout_callback == NULL) return REDISMODULE_ERR;
+module.c:4578:        if (bc->unblocked) return REDISMODULE_OK;
+module.c:4579:        if (bc->client) moduleBlockedClientTimedOut(bc->client);
+module.c:4588:    bc->reply_callback = NULL;
+module.c:4589:    bc->disconnect_callback = NULL;
+module.c:4610:    bc->disconnect_callback = callback;
+module.c:4633:        client *c = bc->client;
+module.c:4645:        if (c && !bc->blocked_on_keys && bc->reply_callback) {
+module.c:4648:            ctx.blocked_privdata = bc->privdata;
+module.c:4650:            ctx.module = bc->module;
+module.c:4651:            ctx.client = bc->client;
+module.c:4653:            bc->reply_callback(&ctx,(void**)c->argv,c->argc);
+module.c:4658:        if (bc->privdata && bc->free_privdata) {
+module.c:4662:            ctx.blocked_privdata = bc->privdata;
+module.c:4663:            ctx.module = bc->module;
+module.c:4664:            ctx.client = bc->client;
+module.c:4665:            bc->free_privdata(&ctx,bc->privdata);
+module.c:4673:        if (c) AddReplyFromClient(c, bc->reply_client);
+module.c:4674:        freeClient(bc->reply_client);
+module.c:4680:            bc->disconnect_callback = NULL;
+module.c:4686:                !(c->flags & CLIENT_PENDING_WRITE))
+module.c:4688:                c->flags |= CLIENT_PENDING_WRITE;
+module.c:4696:        bc->module->blocked_clients--;
+module.c:4710:    RedisModuleBlockedClient *bc = c->bpop.module_blocked_handle;
+module.c:4713:    ctx.module = bc->module;
+module.c:4714:    ctx.client = bc->client;
+module.c:4716:    bc->timeout_callback(&ctx,(void**)c->argv,c->argc);
+module.c:4721:    bc->disconnect_callback = NULL;
+module.c:4791:        ctx->module = bc->module;
+module.c:4800:        selectDb(ctx->client,bc->dbid);
+module.c:4801:        if (bc->client) ctx->client->id = bc->client->id;
+module.c:5390:    if (c->auth_callback) {
+module.c:5391:        c->auth_callback(c->id, c->auth_callback_privdata);
+module.c:5396:        c->auth_callback = NULL;
+module.c:5397:        c->auth_callback_privdata = NULL;
+module.c:5398:        c->auth_module = NULL;
+module.c:5410:    c->user = DefaultUser;
+module.c:5411:    c->authenticated = 0;
+module.c:5424:        if (!c->auth_module) continue;
+module.c:5426:        RedisModule *auth_module = (RedisModule *) c->auth_module;
+module.c:6382:        .argv = c->argv,
+module.c:6383:        .argc = c->argc
+module.c:6398:    c->argv = filter.argv;
+module.c:6399:    c->argc = filter.argc;
+module.c:6466:    for (i = pos; i < fctx->argc-1; i++) {
+module.c:6469:    fctx->argc--;
+module.c:7557:    char *subcmd = c->argv[1]->ptr;
+module.c:7558:    if (c->argc == 2 && !strcasecmp(subcmd,"help")) {
+module.c:7567:    if (!strcasecmp(subcmd,"load") && c->argc >= 3) {
+module.c:7571:        if (c->argc > 3) {
+module.c:7572:            argc = c->argc - 3;
+module.c:7573:            argv = &c->argv[3];
+module.c:7576:        if (moduleLoad(c->argv[2]->ptr,(void **)argv,argc) == C_OK)
+module.c:7581:    } else if (!strcasecmp(subcmd,"unload") && c->argc == 3) {
+module.c:7582:        if (moduleUnload(c->argv[2]->ptr) == C_OK)
+module.c:7608:    } else if (!strcasecmp(subcmd,"list") && c->argc == 2) {
+Binary file redis-cli matches
+lolwut5.c:146:    if (c->argc > 1 &&
+lolwut5.c:147:        getLongFromObjectOrReply(c,c->argv[1],&cols,NULL) != C_OK)
+lolwut5.c:150:    if (c->argc > 2 &&
+lolwut5.c:151:        getLongFromObjectOrReply(c,c->argv[2],&squares_per_row,NULL) != C_OK)
+lolwut5.c:154:    if (c->argc > 3 &&
+lolwut5.c:155:        getLongFromObjectOrReply(c,c->argv[3],&squares_per_col,NULL) != C_OK)
+Binary file redis-check-rdb matches
+Binary file sentinel.o matches
+Binary file t_zset.o matches
+slowlog.c:59:        if (slargc != argc && j == slargc-1) {
+slowlog.c:62:                argc-slargc+1));
+slowlog.c:92:    se->cname = c->name ? sdsnew(c->name->ptr) : sdsempty();
+slowlog.c:143:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+slowlog.c:153:    } else if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"reset")) {
+slowlog.c:156:    } else if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"len")) {
+slowlog.c:158:    } else if ((c->argc == 2 || c->argc == 3) &&
+slowlog.c:159:               !strcasecmp(c->argv[1]->ptr,"get"))
+slowlog.c:167:        if (c->argc == 3 &&
+slowlog.c:168:            getLongFromObjectOrReply(c,c->argv[2],&count,NULL) != C_OK)
+Binary file replication.o matches
+networking.c:103:    c->client_list_node = listLast(server.clients);
+networking.c:104:    uint64_t id = htonu64(c->id);
+networking.c:116:    c->client_list_node = listLast(server.clients);
+networking.c:117:    uint64_t id = htonu64(c->id);
+networking.c:140:    c->id = client_id;
+networking.c:141:    c->resp = 2;
+networking.c:142:    c->conn = conn;
+networking.c:143:    c->name = NULL;
+networking.c:144:    c->bufpos = 0;
+networking.c:145:    c->qb_pos = 0;
+networking.c:146:    c->querybuf = sdsempty();
+networking.c:147:    c->pending_querybuf = sdsempty();
+networking.c:148:    c->querybuf_peak = 0;
+networking.c:149:    c->reqtype = 0;
+networking.c:150:    c->argc = 0;
+networking.c:151:    c->argv = NULL;
+networking.c:152:    c->cmd = c->lastcmd = NULL;
+networking.c:153:    c->user = DefaultUser;
+networking.c:154:    c->multibulklen = 0;
+networking.c:155:    c->bulklen = -1;
+networking.c:156:    c->sentlen = 0;
+networking.c:157:    c->flags = 0;
+networking.c:158:    c->ctime = c->lastinteraction = server.unixtime;
+networking.c:161:    c->authenticated = (c->user->flags & USER_FLAG_NOPASS) &&
+networking.c:162:                       !(c->user->flags & USER_FLAG_DISABLED);
+networking.c:163:    c->replstate = REPL_STATE_NONE;
+networking.c:164:    c->repl_put_online_on_ack = 0;
+networking.c:165:    c->reploff = 0;
+networking.c:166:    c->read_reploff = 0;
+networking.c:167:    c->repl_ack_off = 0;
+networking.c:168:    c->repl_ack_time = 0;
+networking.c:169:    c->slave_listening_port = 0;
+networking.c:170:    c->slave_ip[0] = '\0';
+networking.c:171:    c->slave_capa = SLAVE_CAPA_NONE;
+networking.c:172:    c->reply = listCreate();
+networking.c:173:    c->reply_bytes = 0;
+networking.c:174:    c->obuf_soft_limit_reached_time = 0;
+networking.c:175:    listSetFreeMethod(c->reply,freeClientReplyValue);
+networking.c:176:    listSetDupMethod(c->reply,dupClientReplyValue);
+networking.c:177:    c->btype = BLOCKED_NONE;
+networking.c:178:    c->bpop.timeout = 0;
+networking.c:179:    c->bpop.keys = dictCreate(&objectKeyHeapPointerValueDictType,NULL);
+networking.c:180:    c->bpop.target = NULL;
+networking.c:181:    c->bpop.xread_group = NULL;
+networking.c:182:    c->bpop.xread_consumer = NULL;
+networking.c:183:    c->bpop.xread_group_noack = 0;
+networking.c:184:    c->bpop.numreplicas = 0;
+networking.c:185:    c->bpop.reploffset = 0;
+networking.c:186:    c->woff = 0;
+networking.c:187:    c->watched_keys = listCreate();
+networking.c:188:    c->pubsub_channels = dictCreate(&objectKeyPointerValueDictType,NULL);
+networking.c:189:    c->pubsub_patterns = listCreate();
+networking.c:190:    c->peerid = NULL;
+networking.c:191:    c->client_list_node = NULL;
+networking.c:192:    c->client_tracking_redirection = 0;
+networking.c:193:    c->client_tracking_prefixes = NULL;
+networking.c:194:    c->client_cron_last_memory_usage = 0;
+networking.c:195:    c->client_cron_last_memory_type = CLIENT_TYPE_NORMAL;
+networking.c:196:    c->auth_callback = NULL;
+networking.c:197:    c->auth_callback_privdata = NULL;
+networking.c:198:    c->auth_module = NULL;
+networking.c:199:    listSetFreeMethod(c->pubsub_patterns,decrRefCountVoid);
+networking.c:200:    listSetMatchMethod(c->pubsub_patterns,listMatchObjects);
+networking.c:217:    if (!(c->flags & CLIENT_PENDING_WRITE) &&
+networking.c:218:        (c->replstate == REPL_STATE_NONE ||
+networking.c:219:         (c->replstate == SLAVE_STATE_ONLINE && !c->repl_put_online_on_ack)))
+networking.c:227:        c->flags |= CLIENT_PENDING_WRITE;
+networking.c:257:    if (c->flags & (CLIENT_LUA|CLIENT_MODULE)) return C_OK;
+networking.c:260:    if (c->flags & (CLIENT_REPLY_OFF|CLIENT_REPLY_SKIP)) return C_ERR;
+networking.c:264:    if ((c->flags & CLIENT_MASTER) &&
+networking.c:265:        !(c->flags & CLIENT_MASTER_FORCE_REPLY)) return C_ERR;
+networking.c:267:    if (!c->conn) return C_ERR; /* Fake client for AOF loading. */
+networking.c:282:    size_t available = sizeof(c->buf)-c->bufpos;
+networking.c:284:    if (c->flags & CLIENT_CLOSE_AFTER_REPLY) return C_OK;
+networking.c:288:    if (listLength(c->reply) > 0) return C_ERR;
+networking.c:293:    memcpy(c->buf+c->bufpos,s,len);
+networking.c:294:    c->bufpos+=len;
+networking.c:299:    if (c->flags & CLIENT_CLOSE_AFTER_REPLY) return;
+networking.c:301:    listNode *ln = listLast(c->reply);
+networking.c:328:        listAddNodeTail(c->reply, tail);
+networking.c:329:        c->reply_bytes += tail->size;
+networking.c:412:    if (ctype == CLIENT_TYPE_MASTER || ctype == CLIENT_TYPE_SLAVE || c->id == CLIENT_ID_AOF) {
+networking.c:415:        if (c->id == CLIENT_ID_AOF) {
+networking.c:426:        char *cmdname = c->lastcmd ? c->lastcmd->name : "<unknown>";
+networking.c:486:    listNode *ln = listLast(c->reply);
+networking.c:505:        c->reply_bytes = c->reply_bytes + tail->size - old_size;
+networking.c:518:    listAddNodeTail(c->reply,NULL); /* NULL is our placeholder. */
+networking.c:519:    return listLast(c->reply);
+networking.c:550:        listDelNode(c->reply,ln);
+networking.c:559:        c->reply_bytes += buf->size;
+networking.c:569:    int prefix = c->resp == 2 ? '*' : '%';
+networking.c:570:    if (c->resp == 2) length *= 2;
+networking.c:575:    int prefix = c->resp == 2 ? '*' : '~';
+networking.c:580:    int prefix = c->resp == 2 ? '*' : '|';
+networking.c:581:    if (c->resp == 2) length *= 2;
+networking.c:586:    int prefix = c->resp == 2 ? '*' : '>';
+networking.c:595:        if (c->resp == 2) {
+networking.c:605:        if (c->resp == 2) {
+networking.c:620:    if (c->resp == 2) {
+networking.c:678:    int prefix = c->resp == 2 ? '*' : '%';
+networking.c:679:    if (c->resp == 2) length *= 2;
+networking.c:684:    int prefix = c->resp == 2 ? '*' : '~';
+networking.c:689:    int prefix = c->resp == 2 ? '*' : '|';
+networking.c:690:    if (c->resp == 2) length *= 2;
+networking.c:695:    int prefix = c->resp == 2 ? '*' : '>';
+networking.c:700:    if (c->resp == 2) {
+networking.c:708:    if (c->resp == 2) {
+networking.c:720:    if (c->resp == 2) {
+networking.c:786:    if (c->resp == 2) {
+networking.c:810:    sds cmd = sdsnew((char*) c->argv[0]->ptr);
+networking.c:829:    sds cmd = sdsnew((char*) c->argv[0]->ptr);
+networking.c:833:        (char*)c->argv[1]->ptr,cmd);
+networking.c:842:    addReplyProto(dst,src->buf, src->bufpos);
+networking.c:843:    if (listLength(src->reply))
+networking.c:844:        listJoin(dst->reply,src->reply);
+networking.c:845:    dst->reply_bytes += src->reply_bytes;
+networking.c:846:    src->reply_bytes = 0;
+networking.c:847:    src->bufpos = 0;
+networking.c:856:    dst->reply = listDup(src->reply);
+networking.c:857:    memcpy(dst->buf,src->buf,src->bufpos);
+networking.c:858:    dst->bufpos = src->bufpos;
+networking.c:859:    dst->reply_bytes = src->reply_bytes;
+networking.c:865:    return c->bufpos || listLength(c->reply);
+networking.c:886:        !(c->flags & CLIENT_UNIX_SOCKET))
+networking.c:913:            if (connWrite(c->conn,err,strlen(err)) == -1) {
+networking.c:980:    c->flags |= flags;
+networking.c:1062:    for (j = 0; j < c->argc; j++)
+networking.c:1063:        decrRefCount(c->argv[j]);
+networking.c:1064:    c->argc = 0;
+networking.c:1065:    c->cmd = NULL;
+networking.c:1092:    if (c->conn) {
+networking.c:1094:        if (c->client_list_node) {
+networking.c:1095:            uint64_t id = htonu64(c->id);
+networking.c:1097:            listDelNode(server.clients,c->client_list_node);
+networking.c:1098:            c->client_list_node = NULL;
+networking.c:1103:        if (c->flags & CLIENT_SLAVE &&
+networking.c:1104:            c->replstate == SLAVE_STATE_WAIT_BGSAVE_END &&
+networking.c:1109:                if (server.rdb_pipe_conns[i] == c->conn) {
+networking.c:1110:                    rdbPipeWriteHandlerConnRemoved(c->conn);
+networking.c:1116:        connClose(c->conn);
+networking.c:1117:        c->conn = NULL;
+networking.c:1121:    if (c->flags & CLIENT_PENDING_WRITE) {
+networking.c:1125:        c->flags &= ~CLIENT_PENDING_WRITE;
+networking.c:1129:    if (c->flags & CLIENT_PENDING_READ) {
+networking.c:1133:        c->flags &= ~CLIENT_PENDING_READ;
+networking.c:1138:    if (c->flags & CLIENT_UNBLOCKED) {
+networking.c:1142:        c->flags &= ~CLIENT_UNBLOCKED;
+networking.c:1146:    if (c->flags & CLIENT_TRACKING) disableTracking(c);
+networking.c:1154:    if (c->flags & CLIENT_PROTECTED) {
+networking.c:1160:    if (c->conn) {
+networking.c:1173:    if (c->flags & CLIENT_CLOSE_ASAP) {
+networking.c:1184:    if (server.master && c->flags & CLIENT_MASTER) {
+networking.c:1186:        if (!(c->flags & (CLIENT_PROTOCOL_ERROR|CLIENT_BLOCKED))) {
+networking.c:1187:            c->flags &= ~(CLIENT_CLOSE_ASAP|CLIENT_CLOSE_AFTER_REPLY);
+networking.c:1200:    sdsfree(c->querybuf);
+networking.c:1201:    sdsfree(c->pending_querybuf);
+networking.c:1202:    c->querybuf = NULL;
+networking.c:1205:    if (c->flags & CLIENT_BLOCKED) unblockClient(c);
+networking.c:1206:    dictRelease(c->bpop.keys);
+networking.c:1210:    listRelease(c->watched_keys);
+networking.c:1215:    dictRelease(c->pubsub_channels);
+networking.c:1216:    listRelease(c->pubsub_patterns);
+networking.c:1219:    listRelease(c->reply);
+networking.c:1229:    if (c->flags & CLIENT_SLAVE) {
+networking.c:1230:        if (c->replstate == SLAVE_STATE_SEND_BULK) {
+networking.c:1231:            if (c->repldbfd != -1) close(c->repldbfd);
+networking.c:1232:            if (c->replpreamble) sdsfree(c->replpreamble);
+networking.c:1234:        list *l = (c->flags & CLIENT_MONITOR) ? server.monitors : server.slaves;
+networking.c:1245:        if (c->replstate == SLAVE_STATE_ONLINE)
+networking.c:1253:    if (c->flags & CLIENT_MASTER) replicationHandleMasterDisconnection();
+networking.c:1257:    server.stat_clients_type_memory[c->client_cron_last_memory_type] -=
+networking.c:1258:        c->client_cron_last_memory_usage;
+networking.c:1262:    if (c->name) decrRefCount(c->name);
+networking.c:1263:    zfree(c->argv);
+networking.c:1265:    sdsfree(c->peerid);
+networking.c:1279:    if (c->flags & CLIENT_CLOSE_ASAP || c->flags & CLIENT_LUA) return;
+networking.c:1280:    c->flags |= CLIENT_CLOSE_ASAP;
+networking.c:1303:        if (c->flags & CLIENT_PROTECTED) continue;
+networking.c:1305:        c->flags &= ~CLIENT_CLOSE_ASAP;
+networking.c:1354:            if (c->bufpos > 0) {
+networking.c:1355:                nwritten = connWrite(c->conn,c->buf+c->sentlen,c->bufpos-c->sentlen);
+networking.c:1358:                c->sentlen += nwritten;
+networking.c:1363:                if ((int)c->sentlen == c->bufpos) {
+networking.c:1364:                    c->bufpos = 0;
+networking.c:1365:                    c->sentlen = 0;
+networking.c:1368:                o = listNodeValue(listFirst(c->reply));
+networking.c:1372:                    c->reply_bytes -= o->size;
+networking.c:1373:                    listDelNode(c->reply,listFirst(c->reply));
+networking.c:1377:                nwritten = connWrite(c->conn, o->buf + c->sentlen, objlen - c->sentlen);
+networking.c:1380:                c->sentlen += nwritten;
+networking.c:1384:                if (c->sentlen == objlen) {
+networking.c:1385:                    c->reply_bytes -= o->size;
+networking.c:1386:                    listDelNode(c->reply,listFirst(c->reply));
+networking.c:1387:                    c->sentlen = 0;
+networking.c:1390:                    if (listLength(c->reply) == 0)
+networking.c:1391:                        serverAssert(c->reply_bytes == 0);
+networking.c:1409:                !(c->flags & CLIENT_SLAVE)) break;
+networking.c:1413:            if (connGetState(c->conn) == CONN_STATE_CONNECTED) {
+networking.c:1417:                    "Error writing to client: %s", connGetLastError(c->conn));
+networking.c:1427:            if (!(c->flags & CLIENT_MASTER)) c->lastinteraction = server.unixtime;
+networking.c:1430:            c->sentlen = 0;
+networking.c:1435:            if (handler_installed) connSetWriteHandler(c->conn, NULL);
+networking.c:1438:            if (c->flags & CLIENT_CLOSE_AFTER_REPLY) {
+networking.c:1466:        if (c->bufpos > 0) {
+networking.c:1468:     //       serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
+networking.c:1469:            nwritten = connWrite(c->conn,c->buf+c->sentlen,c->bufpos-c->sentlen);
+networking.c:1471:          //  serverLog(LL_NOTICE, "## send data length = %ld, socket_number = %d", c->bufpos-c->sentlen, c->conn->fd);
+networking.c:1473:            if(c->conn->fd ==7){
+networking.c:1477:                    if(w_tv.tv_usec-p_tv.tv_usec != 0){
+networking.c:1478:                        bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+networking.c:1490:            c->sentlen += nwritten;
+networking.c:1495:            if ((int)c->sentlen == c->bufpos) {
+networking.c:1496:                c->bufpos = 0;
+networking.c:1497:                c->sentlen = 0;
+networking.c:1500:            o = listNodeValue(listFirst(c->reply));
+networking.c:1504:                c->reply_bytes -= o->size;
+networking.c:1505:                listDelNode(c->reply,listFirst(c->reply));
+networking.c:1510:    //        serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
+networking.c:1511:            //serverLog(LL_NOTICE, "## send data length = %lu", c->bufpos-c->sentlen);
+networking.c:1512:            nwritten = connWrite(c->conn, o->buf + c->sentlen, objlen - c->sentlen);
+networking.c:1514:            if(c->conn->fd ==7){
+networking.c:1517:                    if(w_tv.tv_usec-p_tv.tv_usec != 0){
+networking.c:1518:                        bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+networking.c:1531:            c->sentlen += nwritten;
+networking.c:1535:            if (c->sentlen == objlen) {
+networking.c:1536:                c->reply_bytes -= o->size;
+networking.c:1537:                listDelNode(c->reply,listFirst(c->reply));
+networking.c:1538:                c->sentlen = 0;
+networking.c:1541:                if (listLength(c->reply) == 0)
+networking.c:1542:                    serverAssert(c->reply_bytes == 0);
+networking.c:1560:            !(c->flags & CLIENT_SLAVE)) break;
+networking.c:1564:        if (connGetState(c->conn) == CONN_STATE_CONNECTED) {
+networking.c:1568:                "Error writing to client: %s", connGetLastError(c->conn));
+networking.c:1578:        if (!(c->flags & CLIENT_MASTER)) c->lastinteraction = server.unixtime;
+networking.c:1581:        c->sentlen = 0;
+networking.c:1598:                connSetWriteHandler(c->conn, NULL);
+networking.c:1605:        if (c->flags & CLIENT_CLOSE_AFTER_REPLY) {
+networking.c:1652:        c->flags &= ~CLIENT_PENDING_WRITE;
+networking.c:1657:        if (c->flags & CLIENT_PROTECTED) continue;
+networking.c:1676:            if (connSetWriteHandlerWithBarrier(c->conn, sendReplyToClient, ae_barrier) == C_ERR) {
+networking.c:1686:    redisCommandProc *prevcmd = c->cmd ? c->cmd->proc : NULL;
+networking.c:1689:    c->reqtype = 0;
+networking.c:1690:    c->multibulklen = 0;
+networking.c:1691:    c->bulklen = -1;
+networking.c:1695:    if (!(c->flags & CLIENT_MULTI) && prevcmd != askingCommand)
+networking.c:1696:        c->flags &= ~CLIENT_ASKING;
+networking.c:1701:    if (!(c->flags & CLIENT_MULTI) && prevcmd != clientCommand)
+networking.c:1702:        c->flags &= ~CLIENT_TRACKING_CACHING;
+networking.c:1707:    c->flags &= ~CLIENT_REPLY_SKIP;
+networking.c:1708:    if (c->flags & CLIENT_REPLY_SKIP_NEXT) {
+networking.c:1709:        c->flags |= CLIENT_REPLY_SKIP;
+networking.c:1710:        c->flags &= ~CLIENT_REPLY_SKIP_NEXT;
+networking.c:1728:    c->flags |= CLIENT_PROTECTED;
+networking.c:1729:    connSetReadHandler(c->conn,NULL);
+networking.c:1730:    connSetWriteHandler(c->conn,NULL);
+networking.c:1735:    if (c->flags & CLIENT_PROTECTED) {
+networking.c:1736:        c->flags &= ~CLIENT_PROTECTED;
+networking.c:1737:        connSetReadHandler(c->conn,readQueryFromClient);
+networking.c:1756:    newline = strchr(c->querybuf+c->qb_pos,'\n');
+networking.c:1760:        if (sdslen(c->querybuf)-c->qb_pos > PROTO_INLINE_MAX_SIZE) {
+networking.c:1768:    if (newline && newline != c->querybuf+c->qb_pos && *(newline-1) == '\r')
+networking.c:1772:    querylen = newline-(c->querybuf+c->qb_pos);
+networking.c:1773:    aux = sdsnewlen(c->querybuf+c->qb_pos,querylen);
+networking.c:1786:        c->repl_ack_time = server.unixtime;
+networking.c:1795:    if (querylen != 0 && c->flags & CLIENT_MASTER) {
+networking.c:1802:    c->qb_pos += querylen+linefeed_chars;
+networking.c:1806:        if (c->argv) zfree(c->argv);
+networking.c:1807:        c->argv = zmalloc(sizeof(robj*)*argc);
+networking.c:1811:    for (c->argc = 0, j = 0; j < argc; j++) {
+networking.c:1812:        c->argv[c->argc] = createObject(OBJ_STRING,argv[j]);
+networking.c:1813:        c->argc++;
+networking.c:1815:    serverLog(LL_NOTICE," process inline buffer = c-> argc %d", c->argc);
+networking.c:1825:    if (server.verbosity <= LL_VERBOSE || c->flags & CLIENT_MASTER) {
+networking.c:1830:        if (sdslen(c->querybuf)-c->qb_pos < PROTO_DUMP_LEN) {
+networking.c:1831:            snprintf(buf,sizeof(buf),"Query buffer during protocol error: '%s'", c->querybuf+c->qb_pos);
+networking.c:1833:            snprintf(buf,sizeof(buf),"Query buffer during protocol error: '%.*s' (... more %zu bytes ...) '%.*s'", PROTO_DUMP_LEN/2, c->querybuf+c->qb_pos, sdslen(c->querybuf)-c->qb_pos-PROTO_DUMP_LEN, PROTO_DUMP_LEN/2, c->querybuf+sdslen(c->querybuf)-PROTO_DUMP_LEN/2);
+networking.c:1844:        int loglevel = (c->flags & CLIENT_MASTER) ? LL_WARNING :
+networking.c:1850:    c->flags |= (CLIENT_CLOSE_AFTER_REPLY|CLIENT_PROTOCOL_ERROR);
+networking.c:1868:    if(c->argc != 0)
+networking.c:1869:        serverLog(LL_NOTICE, "c->argv = %s", c->argv[0]->ptr);
+networking.c:1871:    if (c->multibulklen == 0) {
+networking.c:1873:        serverAssertWithInfo(c,NULL,c->argc == 0);
+networking.c:1877:        newline = strchr(c->querybuf+c->qb_pos,'\r');
+networking.c:1879:            if (sdslen(c->querybuf)-c->qb_pos > PROTO_INLINE_MAX_SIZE) {
+networking.c:1887:        if (newline-(c->querybuf+c->qb_pos) > (ssize_t)(sdslen(c->querybuf)-c->qb_pos-2))
+networking.c:1894:        serverAssertWithInfo(c,NULL,c->querybuf[c->qb_pos] == '*');
+networking.c:1895:        ok = string2ll(c->querybuf+1+c->qb_pos,newline-(c->querybuf+1+c->qb_pos),&ll);
+networking.c:1902:        c->qb_pos = (newline-c->querybuf)+2;
+networking.c:1906:        c->multibulklen = ll;
+networking.c:1909:        if (c->argv) zfree(c->argv);
+networking.c:1910:        c->argv = zmalloc(sizeof(robj*)*c->multibulklen);
+networking.c:1913:    serverAssertWithInfo(c,NULL,c->multibulklen > 0);
+networking.c:1914:    while(c->multibulklen) {
+networking.c:1916:        if (c->bulklen == -1) {
+networking.c:1917:            newline = strchr(c->querybuf+c->qb_pos,'\r');
+networking.c:1919:                if (sdslen(c->querybuf)-c->qb_pos > PROTO_INLINE_MAX_SIZE) {
+networking.c:1929:            if (newline-(c->querybuf+c->qb_pos) > (ssize_t)(sdslen(c->querybuf)-c->qb_pos-2))
+networking.c:1932:            if (c->querybuf[c->qb_pos] != '$') {
+networking.c:1935:                    c->querybuf[c->qb_pos]);
+networking.c:1940:            ok = string2ll(c->querybuf+c->qb_pos+1,newline-(c->querybuf+c->qb_pos+1),&ll);
+networking.c:1947:            c->qb_pos = newline-c->querybuf+2;
+networking.c:1950:                 * try to make it likely that it will start at c->querybuf
+networking.c:1958:                if (sdslen(c->querybuf)-c->qb_pos <= (size_t)ll+2) {
+networking.c:1959:                    sdsrange(c->querybuf,c->qb_pos,-1);
+networking.c:1960:                    c->qb_pos = 0;
+networking.c:1963:                    c->querybuf = sdsMakeRoomFor(c->querybuf,ll+2);
+networking.c:1966:            c->bulklen = ll;
+networking.c:1970:        if (sdslen(c->querybuf)-c->qb_pos < (size_t)(c->bulklen+2)) {
+networking.c:1978:            if (c->qb_pos == 0 &&
+networking.c:1979:                c->bulklen >= PROTO_MBULK_BIG_ARG &&
+networking.c:1980:                sdslen(c->querybuf) == (size_t)(c->bulklen+2))
+networking.c:1982:                c->argv[c->argc++] = createObject(OBJ_STRING,c->querybuf);
+networking.c:1983:                sdsIncrLen(c->querybuf,-2); /* remove CRLF */
+networking.c:1986:                c->querybuf = sdsnewlen(SDS_NOINIT,c->bulklen+2);
+networking.c:1987:                sdsclear(c->querybuf);
+networking.c:1989:                c->argv[c->argc++] =
+networking.c:1990:                    createStringObject(c->querybuf+c->qb_pos,c->bulklen);
+networking.c:1991:                c->qb_pos += c->bulklen+2;
+networking.c:1993:            c->bulklen = -1;
+networking.c:1994:            c->multibulklen--;
+networking.c:1998:    /* We're done when c->multibulk == 0 */
+networking.c:1999:    if (c->multibulklen == 0) return C_OK;
+networking.c:2011:    long long prev_offset = c->reploff;
+networking.c:2012:    if (c->flags & CLIENT_MASTER && !(c->flags & CLIENT_MULTI)) {
+networking.c:2014:        c->reploff = c->read_reploff - sdslen(c->querybuf) + c->qb_pos;
+networking.c:2021:    if (!(c->flags & CLIENT_BLOCKED) ||
+networking.c:2022:        c->btype != BLOCKED_MODULE)
+networking.c:2033:    if (c->flags & CLIENT_MASTER) {
+networking.c:2034:        long long applied = c->reploff - prev_offset;
+networking.c:2037:                    c->pending_querybuf, applied);
+networking.c:2038:            sdsrange(c->pending_querybuf,applied,-1);
+networking.c:2055:    if (!strcasecmp(c->argv[0]->ptr,"SET")) nvalue_count++;
+networking.c:2084:        c->deadclient = 0;
+networking.c:2089:        if (server.current_client == NULL) c->deadclient = 1;
+networking.c:2117:    while(c->qb_pos < sdslen(c->querybuf)) {
+networking.c:2119:        if (!(c->flags & CLIENT_SLAVE) && clientsArePaused()) break;
+networking.c:2122:        if (c->flags & CLIENT_BLOCKED) break;
+networking.c:2125:         * commands to execute in c->argv. */
+networking.c:2126:        if (c->flags & CLIENT_PENDING_COMMAND) break;
+networking.c:2132:        if (server.lua_timedout && c->flags & CLIENT_MASTER) break;
+networking.c:2139:        if (c->flags & (CLIENT_CLOSE_AFTER_REPLY|CLIENT_CLOSE_ASAP)) break;
+networking.c:2142:        if (!c->reqtype) {
+networking.c:2143:            if (c->querybuf[c->qb_pos] == '*') {
+networking.c:2144:                c->reqtype = PROTO_REQ_MULTIBULK;
+networking.c:2146:                c->reqtype = PROTO_REQ_INLINE;
+networking.c:2151:        if (c->reqtype == PROTO_REQ_INLINE) {
+networking.c:2156:                ((c->argc == 1 && ((char*)(c->argv[0]->ptr))[0] == '/') ||
+networking.c:2157:                  c->argc == 0))
+networking.c:2161:                c->flags |= CLIENT_CLOSE_AFTER_REPLY;
+networking.c:2164:        } else if (c->reqtype == PROTO_REQ_MULTIBULK) {
+networking.c:2176:        if (c->argc == 0) {
+networking.c:2182:            if (c->flags & CLIENT_PENDING_READ) {
+networking.c:2183:                c->flags |= CLIENT_PENDING_COMMAND;
+networking.c:2192:            if (!strcasecmp(c->argv[0]->ptr,"GET") && server.masterhost!=NULL) {
+networking.c:2230:    if (c->qb_pos) {
+networking.c:2231:        sdsrange(c->querybuf,c->qb_pos,-1);
+networking.c:2232:        c->qb_pos = 0;
+networking.c:2271:    if (c->reqtype == PROTO_REQ_MULTIBULK && c->multibulklen && c->bulklen != -1
+networking.c:2272:        && c->bulklen >= PROTO_MBULK_BIG_ARG)
+networking.c:2274:        ssize_t remaining = (size_t)(c->bulklen+2)-sdslen(c->querybuf);
+networking.c:2281:    qblen = sdslen(c->querybuf);
+networking.c:2282:    if (c->querybuf_peak < qblen) c->querybuf_peak = qblen;
+networking.c:2283:    c->querybuf = sdsMakeRoomFor(c->querybuf, readlen);
+networking.c:2290:    nread = connRead(c->conn, c->querybuf+qblen, readlen);
+networking.c:2314:    if(c->conn->fd ==7){
+networking.c:2318:            if(r_tv.tv_usec-pr_tv.tv_usec != 0){
+networking.c:2319:                master_send_bps=master_send_bps + (float)((nread)/(r_tv.tv_usec-pr_tv.tv_usec));
+networking.c:2337:            serverLog(LL_VERBOSE, "Reading from client: %s",connGetLastError(c->conn));
+networking.c:2345:    } else if (c->flags & CLIENT_MASTER) {
+networking.c:2349:        c->pending_querybuf = sdscatlen(c->pending_querybuf,
+networking.c:2350:                                        c->querybuf+qblen,nread);
+networking.c:2353:    sdsIncrLen(c->querybuf,nread);
+networking.c:2354:    c->lastinteraction = server.unixtime;
+networking.c:2355:    if (c->flags & CLIENT_MASTER) c->read_reploff += nread;
+networking.c:2357:    if (sdslen(c->querybuf) > server.client_max_querybuf_len) {
+networking.c:2360:        bytes = sdscatrepr(bytes,c->querybuf,64);
+networking.c:2385:        if (listLength(c->reply) > lol) lol = listLength(c->reply);
+networking.c:2386:        if (sdslen(c->querybuf) > bib) bib = sdslen(c->querybuf);
+networking.c:2421:    if (c->peerid == NULL) {
+networking.c:2423:        c->peerid = sdsnew(peerid);
+networking.c:2425:    return c->peerid;
+networking.c:2516:        if (c->name) decrRefCount(c->name);
+networking.c:2517:        c->name = NULL;
+networking.c:2532:    if (c->name) decrRefCount(c->name);
+networking.c:2533:    c->name = name;
+networking.c:2542:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+networking.c:2564:    } else if (!strcasecmp(c->argv[1]->ptr,"id") && c->argc == 2) {
+networking.c:2566:        addReplyLongLong(c,c->id);
+networking.c:2567:    } else if (!strcasecmp(c->argv[1]->ptr,"list")) {
+networking.c:2570:        if (c->argc == 4 && !strcasecmp(c->argv[2]->ptr,"type")) {
+networking.c:2571:            type = getClientTypeByName(c->argv[3]->ptr);
+networking.c:2574:                    (char*) c->argv[3]->ptr);
+networking.c:2577:        } else if (c->argc != 2) {
+networking.c:2584:    } else if (!strcasecmp(c->argv[1]->ptr,"reply") && c->argc == 3) {
+networking.c:2586:        if (!strcasecmp(c->argv[2]->ptr,"on")) {
+networking.c:2587:            c->flags &= ~(CLIENT_REPLY_SKIP|CLIENT_REPLY_OFF);
+networking.c:2589:        } else if (!strcasecmp(c->argv[2]->ptr,"off")) {
+networking.c:2590:            c->flags |= CLIENT_REPLY_OFF;
+networking.c:2591:        } else if (!strcasecmp(c->argv[2]->ptr,"skip")) {
+networking.c:2592:            if (!(c->flags & CLIENT_REPLY_OFF))
+networking.c:2593:                c->flags |= CLIENT_REPLY_SKIP_NEXT;
+networking.c:2598:    } else if (!strcasecmp(c->argv[1]->ptr,"kill")) {
+networking.c:2608:        if (c->argc == 3) {
+networking.c:2610:            addr = c->argv[2]->ptr;
+networking.c:2612:        } else if (c->argc > 3) {
+networking.c:2616:            while(i < c->argc) {
+networking.c:2617:                int moreargs = c->argc > i+1;
+networking.c:2619:                if (!strcasecmp(c->argv[i]->ptr,"id") && moreargs) {
+networking.c:2622:                    if (getLongLongFromObjectOrReply(c,c->argv[i+1],&tmp,NULL)
+networking.c:2625:                } else if (!strcasecmp(c->argv[i]->ptr,"type") && moreargs) {
+networking.c:2626:                    type = getClientTypeByName(c->argv[i+1]->ptr);
+networking.c:2629:                            (char*) c->argv[i+1]->ptr);
+networking.c:2632:                } else if (!strcasecmp(c->argv[i]->ptr,"addr") && moreargs) {
+networking.c:2633:                    addr = c->argv[i+1]->ptr;
+networking.c:2634:                } else if (!strcasecmp(c->argv[i]->ptr,"user") && moreargs) {
+networking.c:2635:                    user = ACLGetUserByName(c->argv[i+1]->ptr,
+networking.c:2636:                                            sdslen(c->argv[i+1]->ptr));
+networking.c:2639:                            (char*) c->argv[i+1]->ptr);
+networking.c:2642:                } else if (!strcasecmp(c->argv[i]->ptr,"skipme") && moreargs) {
+networking.c:2643:                    if (!strcasecmp(c->argv[i+1]->ptr,"yes")) {
+networking.c:2645:                    } else if (!strcasecmp(c->argv[i+1]->ptr,"no")) {
+networking.c:2682:        if (c->argc == 3) {
+networking.c:2693:        if (close_this_client) c->flags |= CLIENT_CLOSE_AFTER_REPLY;
+networking.c:2694:    } else if (!strcasecmp(c->argv[1]->ptr,"unblock") && (c->argc == 3 ||
+networking.c:2695:                                                          c->argc == 4))
+networking.c:2701:        if (c->argc == 4) {
+networking.c:2702:            if (!strcasecmp(c->argv[3]->ptr,"timeout")) {
+networking.c:2704:            } else if (!strcasecmp(c->argv[3]->ptr,"error")) {
+networking.c:2712:        if (getLongLongFromObjectOrReply(c,c->argv[2],&id,NULL)
+networking.c:2726:    } else if (!strcasecmp(c->argv[1]->ptr,"setname") && c->argc == 3) {
+networking.c:2728:        if (clientSetNameOrReply(c,c->argv[2]) == C_OK)
+networking.c:2730:    } else if (!strcasecmp(c->argv[1]->ptr,"getname") && c->argc == 2) {
+networking.c:2732:        if (c->name)
+networking.c:2733:            addReplyBulk(c,c->name);
+networking.c:2736:    } else if (!strcasecmp(c->argv[1]->ptr,"pause") && c->argc == 3) {
+networking.c:2740:        if (getTimeoutFromObjectOrReply(c,c->argv[2],&duration,
+networking.c:2744:    } else if (!strcasecmp(c->argv[1]->ptr,"tracking") && c->argc >= 3) {
+networking.c:2753:        for (int j = 3; j < c->argc; j++) {
+networking.c:2754:            int moreargs = (c->argc-1) - j;
+networking.c:2756:            if (!strcasecmp(c->argv[j]->ptr,"redirect") && moreargs) {
+networking.c:2765:                if (getLongLongFromObjectOrReply(c,c->argv[j],&redir,NULL) !=
+networking.c:2780:            } else if (!strcasecmp(c->argv[j]->ptr,"bcast")) {
+networking.c:2782:            } else if (!strcasecmp(c->argv[j]->ptr,"optin")) {
+networking.c:2784:            } else if (!strcasecmp(c->argv[j]->ptr,"optout")) {
+networking.c:2786:            } else if (!strcasecmp(c->argv[j]->ptr,"noloop")) {
+networking.c:2788:            } else if (!strcasecmp(c->argv[j]->ptr,"prefix") && moreargs) {
+networking.c:2791:                prefix[numprefix++] = c->argv[j];
+networking.c:2800:        if (!strcasecmp(c->argv[2]->ptr,"on")) {
+networking.c:2810:            if (c->flags & CLIENT_TRACKING) {
+networking.c:2811:                int oldbcast = !!(c->flags & CLIENT_TRACKING_BCAST);
+networking.c:2840:            if ((options & CLIENT_TRACKING_OPTIN && c->flags & CLIENT_TRACKING_OPTOUT) ||
+networking.c:2841:                (options & CLIENT_TRACKING_OPTOUT && c->flags & CLIENT_TRACKING_OPTIN))
+networking.c:2852:        } else if (!strcasecmp(c->argv[2]->ptr,"off")) {
+networking.c:2861:    } else if (!strcasecmp(c->argv[1]->ptr,"caching") && c->argc >= 3) {
+networking.c:2862:        if (!(c->flags & CLIENT_TRACKING)) {
+networking.c:2869:        char *opt = c->argv[2]->ptr;
+networking.c:2871:            if (c->flags & CLIENT_TRACKING_OPTIN) {
+networking.c:2872:                c->flags |= CLIENT_TRACKING_CACHING;
+networking.c:2878:            if (c->flags & CLIENT_TRACKING_OPTOUT) {
+networking.c:2879:                c->flags |= CLIENT_TRACKING_CACHING;
+networking.c:2891:    } else if (!strcasecmp(c->argv[1]->ptr,"getredir") && c->argc == 2) {
+networking.c:2893:        if (c->flags & CLIENT_TRACKING) {
+networking.c:2894:            addReplyLongLong(c,c->client_tracking_redirection);
+networking.c:2899:        addReplyErrorFormat(c, "Unknown subcommand or wrong number of arguments for '%s'. Try CLIENT HELP", (char*)c->argv[1]->ptr);
+networking.c:2907:    if (getLongLongFromObject(c->argv[1],&ver) != C_OK ||
+networking.c:2914:    for (int j = 2; j < c->argc; j++) {
+networking.c:2915:        int moreargs = (c->argc-1) - j;
+networking.c:2916:        const char *opt = c->argv[j]->ptr;
+networking.c:2918:            if (ACLAuthenticateUser(c, c->argv[j+1], c->argv[j+2]) == C_ERR) {
+networking.c:2924:            if (clientSetNameOrReply(c, c->argv[j+1]) == C_ERR) return;
+networking.c:2933:    if (!c->authenticated) {
+networking.c:2942:    c->resp = ver;
+networking.c:2955:    addReplyLongLong(c,c->id);
+networking.c:3011:    for (j = 0; j < c->argc; j++) decrRefCount(c->argv[j]);
+networking.c:3012:    zfree(c->argv);
+networking.c:3014:    c->argv = argv;
+networking.c:3015:    c->argc = argc;
+networking.c:3016:    c->cmd = lookupCommandOrOriginal(c->argv[0]->ptr);
+networking.c:3017:    serverAssertWithInfo(c,NULL,c->cmd != NULL);
+networking.c:3024:    zfree(c->argv);
+networking.c:3025:    c->argv = argv;
+networking.c:3026:    c->argc = argc;
+networking.c:3027:    c->cmd = lookupCommandOrOriginal(c->argv[0]->ptr);
+networking.c:3028:    serverAssertWithInfo(c,NULL,c->cmd != NULL);
+networking.c:3036: * and c->argc set to the max value. However it's up to the caller to
+networking.c:3040: *    want to end with, it's up to the caller to set c->argc and
+networking.c:3041: *    free the no longer used objects on c->argv. */
+networking.c:3045:    if (i >= c->argc) {
+networking.c:3046:        c->argv = zrealloc(c->argv,sizeof(robj*)*(i+1));
+networking.c:3047:        c->argc = i+1;
+networking.c:3048:        c->argv[i] = NULL;
+networking.c:3050:    oldval = c->argv[i];
+networking.c:3051:    c->argv[i] = newval;
+networking.c:3055:    /* If this is the command name make sure to fix c->cmd. */
+networking.c:3057:        c->cmd = lookupCommandOrOriginal(c->argv[0]->ptr);
+networking.c:3058:        serverAssertWithInfo(c,NULL,c->cmd != NULL);
+networking.c:3070:    return c->reply_bytes + (list_item_size*listLength(c->reply));
+networking.c:3083:    if (c->flags & CLIENT_MASTER) return CLIENT_TYPE_MASTER;
+networking.c:3086:    if ((c->flags & CLIENT_SLAVE) && !(c->flags & CLIENT_MONITOR))
+networking.c:3088:    if (c->flags & CLIENT_PUBSUB) return CLIENT_TYPE_PUBSUB;
+networking.c:3136:        if (c->obuf_soft_limit_reached_time == 0) {
+networking.c:3137:            c->obuf_soft_limit_reached_time = server.unixtime;
+networking.c:3140:            time_t elapsed = server.unixtime - c->obuf_soft_limit_reached_time;
+networking.c:3150:        c->obuf_soft_limit_reached_time = 0;
+networking.c:3163:    if (!c->conn) return; /* It is unsafe to free fake clients. */
+networking.c:3164:    serverAssert(c->reply_bytes < SIZE_MAX-(1024*64));
+networking.c:3165:    if (c->reply_bytes == 0 || c->flags & CLIENT_CLOSE_ASAP) return;
+networking.c:3256:            if (c->flags & (CLIENT_SLAVE|CLIENT_BLOCKED)) continue;
+networking.c:3355:                readQueryFromClient(c->conn);
+networking.c:3468:        c->flags &= ~CLIENT_PENDING_WRITE;
+networking.c:3508:                connSetWriteHandler(c->conn, sendReplyToClient) == AE_ERR)
+networking.c:3529:        !(c->flags & (CLIENT_MASTER|CLIENT_SLAVE|CLIENT_PENDING_READ)))
+networking.c:3531:        c->flags |= CLIENT_PENDING_READ;
+networking.c:3576:        readQueryFromClient(c->conn);
+networking.c:3593:        c->flags &= ~CLIENT_PENDING_READ;
+networking.c:3596:        if (c->flags & CLIENT_PENDING_COMMAND) {
+networking.c:3597:            c->flags &= ~CLIENT_PENDING_COMMAND;
+pubsub.c:44:    if (c->resp == 2)
+pubsub.c:57:    if (c->resp == 2)
+pubsub.c:69:    if (c->resp == 2)
+pubsub.c:83:    if (c->resp == 2)
+pubsub.c:97:    if (c->resp == 2)
+pubsub.c:111:    if (c->resp == 2)
+pubsub.c:143:    return dictSize(c->pubsub_channels)+
+pubsub.c:144:           listLength(c->pubsub_patterns);
+pubsub.c:155:    if (dictAdd(c->pubsub_channels,channel,NULL) == DICT_OK) {
+pubsub.c:185:    if (dictDelete(c->pubsub_channels,channel) == DICT_OK) {
+pubsub.c:213:    if (listSearchKey(c->pubsub_patterns,pattern) == NULL) {
+pubsub.c:216:        listAddNodeTail(c->pubsub_patterns,pattern);
+pubsub.c:248:    if ((ln = listSearchKey(c->pubsub_patterns,pattern)) != NULL) {
+pubsub.c:250:        listDelNode(c->pubsub_patterns,ln);
+pubsub.c:277:    dictIterator *di = dictGetSafeIterator(c->pubsub_channels);
+pubsub.c:299:    listRewind(c->pubsub_patterns,&li);
+pubsub.c:363:    for (j = 1; j < c->argc; j++)
+pubsub.c:364:        pubsubSubscribeChannel(c,c->argv[j]);
+pubsub.c:365:    c->flags |= CLIENT_PUBSUB;
+pubsub.c:369:    if (c->argc == 1) {
+pubsub.c:374:        for (j = 1; j < c->argc; j++)
+pubsub.c:375:            pubsubUnsubscribeChannel(c,c->argv[j],1);
+pubsub.c:377:    if (clientSubscriptionsCount(c) == 0) c->flags &= ~CLIENT_PUBSUB;
+pubsub.c:383:    for (j = 1; j < c->argc; j++)
+pubsub.c:384:        pubsubSubscribePattern(c,c->argv[j]);
+pubsub.c:385:    c->flags |= CLIENT_PUBSUB;
+pubsub.c:389:    if (c->argc == 1) {
+pubsub.c:394:        for (j = 1; j < c->argc; j++)
+pubsub.c:395:            pubsubUnsubscribePattern(c,c->argv[j],1);
+pubsub.c:397:    if (clientSubscriptionsCount(c) == 0) c->flags &= ~CLIENT_PUBSUB;
+pubsub.c:401:    int receivers = pubsubPublishMessage(c->argv[1],c->argv[2]);
+pubsub.c:403:        clusterPropagatePublish(c->argv[1],c->argv[2]);
+pubsub.c:411:    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr,"help")) {
+pubsub.c:419:    } else if (!strcasecmp(c->argv[1]->ptr,"channels") &&
+pubsub.c:420:        (c->argc == 2 || c->argc == 3))
+pubsub.c:423:        sds pat = (c->argc == 2) ? NULL : c->argv[2]->ptr;
+pubsub.c:443:    } else if (!strcasecmp(c->argv[1]->ptr,"numsub") && c->argc >= 2) {
+pubsub.c:447:        addReplyArrayLen(c,(c->argc-2)*2);
+pubsub.c:448:        for (j = 2; j < c->argc; j++) {
+pubsub.c:449:            list *l = dictFetchValue(server.pubsub_channels,c->argv[j]);
+pubsub.c:451:            addReplyBulk(c,c->argv[j]);
+pubsub.c:454:    } else if (!strcasecmp(c->argv[1]->ptr,"numpat") && c->argc == 2) {
+Binary file aof.o matches

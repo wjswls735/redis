@@ -56,6 +56,23 @@
 #include <locale.h>
 #include <sys/socket.h>
 
+#ifdef DVFS
+
+#include <sched.h>
+#include <ctype.h>
+
+pthread_cond_t nc = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+int threadcount=0;
+extern void* threadprocessCommandAndResetClient(); 
+extern void* threadwriteToClient();
+struct timeval create_thread, fin_thread;
+void* threadbeforeSleep();
+volatile int not_empty=0;
+volatile int finish_flag=0;
+
+pthread_t read_thread;
+#endif
 /* Our shared "common" objects */
 
 struct sharedObjectsStruct shared;
@@ -2107,6 +2124,107 @@ extern int ProcessingEventsWhileBlocked;
  *
  * The most important is freeClientsInAsyncFreeQueue but we also
  * call some other low-risk functions. */
+#ifdef DVFS
+void* threadbeforeSleep() {
+
+  //  aeSetBeforeSleepProc(server.el, (aeBeforeSleepProc *)threadbeforeSleep);
+    while(1){
+        serverLog(LL_NOTICE, "!!!!!!!!!beforeSleep start!!!!!!!!!!!!!!!!!!!");
+        pthread_mutex_lock(&m);
+        pthread_cond_wait(&nc, &m);
+        pthread_mutex_unlock(&m);
+        UNUSED(server.el);
+
+        /* Just call a subset of vital functions in case we are re-entering
+         * the event loop from processEventsWhileBlocked(). Note that in this
+         * case we keep track of the number of events we are processing, since
+         * processEventsWhileBlocked() wants to stop ASAP if there are no longer
+         * events to handle. */
+        if (ProcessingEventsWhileBlocked) {
+            uint64_t processed = 0;
+            processed += handleClientsWithPendingReadsUsingThreads();
+            processed += tlsProcessPendingData();
+            processed += handleClientsWithPendingWrites();
+            processed += freeClientsInAsyncFreeQueue();
+            server.events_processed_while_blocked += processed;
+            continue;
+        }
+
+        /* Handle precise timeouts of blocked clients. */
+        handleBlockedClientsTimeout();
+
+        /* We should handle pending reads clients ASAP after event loop. */
+        handleClientsWithPendingReadsUsingThreads();
+
+        /* Handle TLS pending data. (must be done before flushAppendOnlyFile) */
+        tlsProcessPendingData();
+
+        /* If tls still has pending unread data don't sleep at all. */
+        aeSetDontWait(server.el, tlsHasPendingData());
+
+        /* Call the Redis Cluster before sleep function. Note that this function
+         * may change the state of Redis Cluster (from ok to fail or vice versa),
+         * so it's a good idea to call it before serving the unblocked clients
+         * later in this function. */
+        if (server.cluster_enabled) clusterBeforeSleep();
+
+        /* Run a fast expire cycle (the called function will return
+         * ASAP if a fast cycle is not needed). */
+        if (server.active_expire_enabled && server.masterhost == NULL)
+            activeExpireCycle(ACTIVE_EXPIRE_CYCLE_FAST);
+
+        /* Unblock all the clients blocked for synchronous replication
+         * in WAIT. */
+        if (listLength(server.clients_waiting_acks))
+            processClientsWaitingReplicas();
+
+        /* Check if there are clients unblocked by modules that implement
+         * blocking commands. */
+        if (moduleCount()) moduleHandleBlockedClients();
+
+        /* Try to process pending commands for clients that were just unblocked. */
+        if (listLength(server.unblocked_clients))
+            processUnblockedClients();
+
+        /* Send all the slaves an ACK request if at least one client blocked
+         * during the previous event loop iteration. Note that we do this after
+         * processUnblockedClients(), so if there are multiple pipelined WAITs
+         * and the just unblocked WAIT gets blocked again, we don't have to wait
+         * a server cron cycle in absence of other event loop events. See #6623. */
+        if (server.get_ack_from_slaves) {
+            robj *argv[3];
+
+            argv[0] = createStringObject("REPLCONF",8);
+            argv[1] = createStringObject("GETACK",6);
+            argv[2] = createStringObject("*",1); /* Not used argument. */
+            replicationFeedSlaves(server.slaves, server.slaveseldb, argv, 3);
+            decrRefCount(argv[0]);
+            decrRefCount(argv[1]);
+            decrRefCount(argv[2]);
+            server.get_ack_from_slaves = 0;
+        }
+
+        /* Send the invalidation messages to clients participating to the
+         * client side caching protocol in broadcasting (BCAST) mode. */
+        trackingBroadcastInvalidationMessages();
+
+        /* Write the AOF buffer on disk */
+        flushAppendOnlyFile(0);
+
+        /* Handle writes with pending output buffers. */
+        handleClientsWithPendingWritesUsingThreads();
+                /* Close clients that need to be closed asynchronous */
+        freeClientsInAsyncFreeQueue();
+
+        /* Before we are going to sleep, let the threads access the dataset by
+         * releasing the GIL. Redis main thread will not touch anything at this
+         * time. */
+        if (moduleCount()) moduleReleaseGIL();
+    }
+    return NULL;
+}
+#endif
+
 void beforeSleep(struct aeEventLoop *eventLoop) {
     UNUSED(eventLoop);
 
@@ -2188,8 +2306,7 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
 
     /* Handle writes with pending output buffers. */
     handleClientsWithPendingWritesUsingThreads();
-
-    /* Close clients that need to be closed asynchronous */
+       /* Close clients that need to be closed asynchronous */
     freeClientsInAsyncFreeQueue();
 
     /* Before we are going to sleep, let the threads access the dataset by
@@ -2928,9 +3045,27 @@ void initServer(void) {
 
     /* Register before and after sleep handlers (note this needs to be done
      * before loading persistence since it is used by processEventsWhileBlocked. */
-    aeSetBeforeSleepProc(server.el,beforeSleep);
-    aeSetAfterSleepProc(server.el,afterSleep);
+#ifdef DVFS
+    if(server.masterhost!=NULL){
 
+    //aeSetBeforeSleepProc(server.el,beforeSleep);
+        pthread_create(&read_thread, NULL, threadbeforeSleep, NULL);
+        serverLog(LL_NOTICE, " pthread_create = %lu", (fin_thread.tv_usec - create_thread.tv_usec));
+        pthread_detach(read_thread);
+        
+        pthread_cond_signal(&nc);
+       // aeSetBeforeSleepProc(server.el, (aeBeforeSleepProc *)threadbeforeSleep);
+        aeSetAfterSleepProc(server.el,afterSleep);
+    }
+    else{
+#endif
+        aeSetBeforeSleepProc(server.el,beforeSleep);
+        aeSetAfterSleepProc(server.el,afterSleep);
+#ifdef DVFS
+    }
+#endif
+
+    serverLog(LL_NOTICE, "!!!!!!!!!!!InitServer!!!!!!!");
     /* Open the AOF file if needed. */
     if (server.aof_state == AOF_ON) {
         server.aof_fd = open(server.aof_filename,
@@ -5029,7 +5164,6 @@ int iAmMaster(void) {
             (server.cluster_enabled && nodeIsMaster(server.cluster->myself)));
 }
 
-
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;
@@ -5240,6 +5374,59 @@ int main(int argc, char **argv) {
     }
 
     redisSetCpuAffinity(server.server_cpulist);
+#ifdef DVFS
+
+    serverLog(LL_NOTICE, "masterhost = %s", server.masterhost);
+    if(server.masterhost != NULL){
+        
+       
+        int cpufd;
+        cpufd = open("/sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq", O_WRONLY);
+       // cpufd = open("/scaling_max_freq", O_CREAT | O_WRONLY, 644);
+
+        char freq[8]="1000000";
+                
+        ssize_t w_s = write(cpufd, freq, 8);
+        if(w_s <= 0){
+            serverLog(LL_NOTICE, "cpu freq config write Error = %ld, errno = %d, cpufd = %d", w_s, errno, cpufd);
+        }
+        close(cpufd);
+            
+        gettimeofday(&create_thread, NULL);
+//        pthread_create(&read_thread, NULL, threadprocessCommandAndResetClient, NULL); 
+//        pthread_create(&read_thread, NULL, threadwriteToClient, NULL); 
+        /*
+        pthread_create(&read_thread, NULL, threadbeforeSleep, NULL);
+        gettimeofday(&fin_thread, NULL); 
+        serverLog(LL_NOTICE, " pthread_create = %lu", (fin_thread.tv_usec - create_thread.tv_usec));
+        pthread_detach(read_thread);
+
+        */
+        cpu_set_t org_core;
+        CPU_ZERO(&org_core);
+        CPU_SET(4, &org_core);
+        if(pthread_setaffinity_np(read_thread, sizeof(cpu_set_t), &org_core)<0){
+            perror("pthread_setaffinity");
+        }
+        not_empty=0; 
+        
+       // threadcount++;
+      
+
+    }
+
+    else{
+        
+        cpu_set_t master_set;
+        CPU_ZERO(&master_set);
+        CPU_SET(2, &master_set);
+        if(sched_setaffinity(0, sizeof(cpu_set_t), &master_set) <0){
+            perror("sched_setaffinity");
+        }
+    }
+
+#endif
+    
     aeMain(server.el);
     aeDeleteEventLoop(server.el);
     return 0;

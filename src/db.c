@@ -30,7 +30,7 @@
 #include "server.h"
 #include "cluster.h"
 #include "atomicvar.h"
-
+#include <sys/time.h>
 #include <signal.h>
 #include <ctype.h>
 
@@ -162,7 +162,8 @@ robj *lookupKeyWrite(redisDb *db, robj *key) {
 
 robj *lookupKeyReadOrReply(client *c, robj *key, robj *reply) {
     robj *o = lookupKeyRead(c->db, key);
-    if (!o) addReply(c,reply);
+    if (!o)
+        addReply(c,reply);
     return o;
 }
 
@@ -243,6 +244,9 @@ void dbOverwrite(redisDb *db, robj *key, robj *val) {
  * in a context where there is no clear client performing the operation. */
 /*count check JINSU*/
 long value_count=0;
+struct timeval past_tv;
+float rbps=0;
+float rtotal_rate=0;
 void genericSetKey(client *c, redisDb *db, robj *key, robj *val, int keepttl, int signal) {
 
     if (lookupKeyWrite(db,key) == NULL) {
@@ -250,7 +254,19 @@ void genericSetKey(client *c, redisDb *db, robj *key, robj *val, int keepttl, in
     } else {
         dbOverwrite(db,key,val);
     }
+    
+    past_tv.tv_usec=server.read_tv.tv_usec;
+    gettimeofday(&(server.read_tv), NULL);
+
+    if(server.read_tv.tv_usec-past_tv.tv_usec != 0){
+        rbps=rbps + (float)((server.readbuf_size)/(server.read_tv.tv_usec-past_tv.tv_usec));
+        rtotal_rate=rbps/value_count;
+        serverLog(LL_NOTICE, "read bps = %.3lf KB/ms", rtotal_rate);
+    }
+
+
     value_count++;
+
     serverLog(LL_NOTICE, "value count = %lu", value_count);
     incrRefCount(val);
     if (!keepttl) removeExpire(db,key);

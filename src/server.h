@@ -85,12 +85,9 @@ typedef long long ustime_t; /* microsecond time type. */
 
 
 /*DVFS*/
-//#define DVFS
-#ifdef DVFS
-#include <linux/cpufreq.h>
-
-#endif
-
+#define DVFS
+/*Queueing wait*/
+#define QW
 /*shared memory*/
 
 //#define SHM
@@ -875,6 +872,9 @@ typedef struct client {
     /* Response buffer */
     int bufpos;
     char buf[PROTO_REPLY_CHUNK_BYTES];
+    
+    int deadclient; 
+    
 } client;
 
 struct saveparam {
@@ -1304,6 +1304,13 @@ struct redisServer {
     void *shared_memory;
     key_t repl_backlog_key;
 #endif
+
+    //jinsu
+    struct timeval read_tv;
+    int readbuf_size;
+    //timeval
+
+
     char *repl_backlog;             /* Replication backlog for partial syncs */
     long long repl_backlog_size;    /* Backlog circular buffer size */
     long long repl_backlog_histlen; /* Backlog actual data length */
@@ -1480,11 +1487,13 @@ struct redisServer {
     char *aof_rewrite_cpulist; /* cpu affinity list of aof rewrite process. */
     char *bgsave_cpulist; /* cpu affinity list of bgsave process. */
 
-    /*DVFS*/
-
 #ifdef DVFS
-    struct cpufreq_policy *policy;
+    client *newc;
+    int thread_handler;
+    int not_empty;
+    int finish_flag;
 #endif
+
 };
 
 typedef struct pubsubPattern {

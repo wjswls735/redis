@@ -36,11 +36,29 @@
 #include <ctype.h>
 /*time 측정*/
 
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include <sys/time.h>
 ustime_t start, duration;
 struct timeval w_tv, w_tz;
 long long nvalue_count=0;
+
+#ifdef DVFS
+extern pthread_mutex_t m;
+extern pthread_cond_t nc;
+pthread_cond_t wc;
+extern int threadcount;
+struct timeval past_thread, finish_thread;
+
+extern volatile int not_empty;
+extern volatile int finish_flag;
+int volatile queue_len=0;
+#ifdef QW
+int volatile thread_sleep=1;
+#endif
+#endif
 
 static void setProtocolError(const char *errstr, client *c);
 int postponeClientRead(client *c);
@@ -1315,6 +1333,157 @@ client *lookupClientByID(uint64_t id) {
  * This function is called by threads, but always with handler_installed
  * set to 0. So when handler_installed is set to 0 the function must be
  * thread safe. */
+struct timeval t_w, t_nw;
+#ifdef DVFS
+void *threadwriteToClient(){
+    while(1){
+        /*
+        pthread_mutex_lock(&m);
+        pthread_cond_wait(&nc, &m);
+        pthread_mutex_unlock(&m);
+        */    
+#ifdef QW
+
+        if(queue_len==0 || finish_flag==1){
+            thread_sleep=1;
+            gettimeofday(&t_w, NULL);
+            pthread_mutex_lock(&m);
+            pthread_cond_wait(&nc, &m);
+            pthread_mutex_unlock(&m);
+            gettimeofday(&t_nw, NULL);
+            serverLog(LL_NOTICE, "wait time = %ldus", (t_nw.tv_usec - t_w.tv_usec));
+        }
+
+#else
+        if(not_empty==0){
+            continue;
+        }
+#endif
+        int handler_installed =server.thread_handler;
+        client *c;
+ 
+        c=server.newc;
+
+                 /* Update total number of writes on server */
+        server.stat_total_writes_processed++;
+
+        ssize_t nwritten = 0, totwritten = 0;
+        size_t objlen;
+        clientReplyBlock *o;
+
+        while(clientHasPendingReplies(c)) {
+            if (c->bufpos > 0) {
+                nwritten = connWrite(c->conn,c->buf+c->sentlen,c->bufpos-c->sentlen);
+                if (nwritten <= 0) break;
+                c->sentlen += nwritten;
+                totwritten += nwritten;
+
+                /* If the buffer was sent, set bufpos to zero to continue with
+                 * the remainder of the reply. */
+                if ((int)c->sentlen == c->bufpos) {
+                    c->bufpos = 0;
+                    c->sentlen = 0;
+                }
+            } else {
+                o = listNodeValue(listFirst(c->reply));
+                objlen = o->used;
+
+                if (objlen == 0) {
+                    c->reply_bytes -= o->size;
+                    listDelNode(c->reply,listFirst(c->reply));
+                    continue;
+                }
+
+                nwritten = connWrite(c->conn, o->buf + c->sentlen, objlen - c->sentlen);
+
+                if (nwritten <= 0) break;
+                c->sentlen += nwritten;
+                totwritten += nwritten;
+
+                /* If we fully sent the object on head go to the next one */
+                if (c->sentlen == objlen) {
+                    c->reply_bytes -= o->size;
+                    listDelNode(c->reply,listFirst(c->reply));
+                    c->sentlen = 0;
+                    /* If there are no longer objects in the list, we expect
+                     * the count of reply bytes to be exactly zero. */
+                    if (listLength(c->reply) == 0)
+                        serverAssert(c->reply_bytes == 0);
+                }
+            }
+            /* Note that we avoid to send more than NET_MAX_WRITES_PER_EVENT
+             * bytes, in a single threaded server it's a good idea to serve
+             * other clients as well, even if a very large request comes from
+             * super fast link that is always able to accept data (in real world
+             * scenario think about 'KEYS *' against the loopback interface).
+             *
+             * However if we are over the maxmemory limit we ignore that and
+             * just deliver as much data as it is possible to deliver.
+             *
+             * Moreover, we also send as much as possible if the client is
+             * a slave or a monitor (otherwise, on high-speed traffic, the
+             * replication/output buffer will grow indefinitely) */
+            if (totwritten > NET_MAX_WRITES_PER_EVENT &&
+                (server.maxmemory == 0 ||
+                 zmalloc_used_memory() < server.maxmemory) &&
+                !(c->flags & CLIENT_SLAVE)) break;
+#ifdef QW
+            pthread_mutex_lock(&m);
+            queue_len--;
+            pthread_mutex_unlock(&m);
+            if(queue_len<0){
+                queue_len=0;
+            }
+#endif
+        }
+        server.stat_net_output_bytes += totwritten;
+        if (nwritten == -1) {
+            if (connGetState(c->conn) == CONN_STATE_CONNECTED) {
+                nwritten = 0;
+            } else {
+                serverLog(LL_VERBOSE,
+                    "Error writing to client: %s", connGetLastError(c->conn));
+                freeClientAsync(c);
+      //          return C_ERR;
+            }
+        }
+        if (totwritten > 0) {
+            /* For clients representing masters we don't count sending data
+             * as an interaction, since we always send REPLCONF ACK commands
+             * that take some time to just fill the socket output buffer.
+             * We just rely on data / pings received for timeout detection. */
+            if (!(c->flags & CLIENT_MASTER)) c->lastinteraction = server.unixtime;
+        }
+        if (!clientHasPendingReplies(c)) {
+            c->sentlen = 0;
+            /* Note that writeToClient() is called in a threaded way, but
+             * adDeleteFileEvent() is not thread safe: however writeToClient()
+             * is always called with handler_installed set to 0 from threads
+             * so we are fine. */
+            if (handler_installed) connSetWriteHandler(c->conn, NULL);
+
+            /* Close connection after entire reply has been sent. */
+            if (c->flags & CLIENT_CLOSE_AFTER_REPLY) {
+                freeClientAsync(c);
+        //        return C_ERR;
+            }
+        }
+        
+        
+        not_empty=0;
+#ifdef QW
+        finish_flag=1;
+        queue_len--;
+#endif
+
+    }
+       
+      //  return C_OK;
+   return NULL;
+}   
+#endif
+
+struct timeval start_w, fin_w;
 long long write_count=0;
 struct timeval p_tv; 
 long send_count=0;
@@ -1323,6 +1492,7 @@ float total_rate=0;
 float bps=0;
 int writeToClient(client *c, int handler_installed) {
     /* Update total number of writes on server */
+    gettimeofday(&start_w, NULL);
     server.stat_total_writes_processed++;
 
     ssize_t nwritten = 0, totwritten = 0;
@@ -1331,21 +1501,26 @@ int writeToClient(client *c, int handler_installed) {
 
     while(clientHasPendingReplies(c)) {
         if (c->bufpos > 0) {
-            gettimeofday(&w_tv, NULL);
+    //        gettimeofday(&w_tv, NULL);
      //       serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
-            serverLog(LL_NOTICE, "## send data length = %ld", c->bufpos-c->sentlen);
             nwritten = connWrite(c->conn,c->buf+c->sentlen,c->bufpos-c->sentlen);
             
+          //  serverLog(LL_NOTICE, "## send data length = %ld, socket_number = %d", c->bufpos-c->sentlen, c->conn->fd);
+            /*
             if(c->conn->fd ==7){
-                if(past_value_count < nvalue_count && nvalue_count >2){
+                if(past_value_count < nvalue_count && nvalue_count >1){
+                    serverLog(LL_NOTICE, "nvalue_count = %llu", nvalue_count);
                     past_value_count = nvalue_count;
-                    bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
-                    send_count++;
-                    total_rate=bps/send_count;
-                    serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                    if(w_tv.tv_usec-p_tv.tv_usec != 0){
+                        bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+                        send_count++;
+                        total_rate=bps/send_count;
+                        serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                    }
                 }
             }
             p_tv.tv_usec=w_tv.tv_usec;
+            */
            // gettimeofday(&w_tv, NULL);
            // serverLog(LL_NOTICE, "## pending Client write fin time = %lu", w_tv.tv_usec);
             if (nwritten <= 0) break;
@@ -1368,22 +1543,24 @@ int writeToClient(client *c, int handler_installed) {
                 continue;
             }
 
-            gettimeofday(&w_tv, NULL);
+           // gettimeofday(&w_tv, NULL);
     //        serverLog(LL_NOTICE, "## pending Client write start time = %lu socket_number = %d", w_tv.tv_usec, c->conn->fd);
-            serverLog(LL_NOTICE, "## send data length = %lu", c->bufpos-c->sentlen);
+            //serverLog(LL_NOTICE, "## send data length = %lu", c->bufpos-c->sentlen);
             nwritten = connWrite(c->conn, o->buf + c->sentlen, objlen - c->sentlen);
- 
+ /*
             if(c->conn->fd ==7){
-                if(past_value_count < nvalue_count && nvalue_count >2){
+                if(past_value_count < nvalue_count && nvalue_count >1){
                     past_value_count = nvalue_count;
-                    bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
-                    send_count++;
-                    total_rate=bps/send_count;
-                    serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                    if(w_tv.tv_usec-p_tv.tv_usec != 0){
+                        bps=bps + (float)((c->bufpos-c->sentlen)/(w_tv.tv_usec-p_tv.tv_usec));
+                        send_count++;
+                        total_rate=bps/send_count;
+                        serverLog(LL_NOTICE, "write bps = %.3lf KB/ms", total_rate);
+                    }
                 }
             }
             p_tv.tv_usec=w_tv.tv_usec;
-
+*/
 //            gettimeofday(&w_tv, NULL);
   //          serverLog(LL_NOTICE, "## pending Client write fin time = %lu", w_tv.tv_usec);
 
@@ -1443,7 +1620,9 @@ int writeToClient(client *c, int handler_installed) {
          * adDeleteFileEvent() is not thread safe: however writeToClient()
          * is always called with handler_installed set to 0 from threads
          * so we are fine. */
-        if (handler_installed) connSetWriteHandler(c->conn, NULL);
+        if (handler_installed) {
+                connSetWriteHandler(c->conn, NULL);
+        }
 
         /* Close connection after entire reply has been sent. */
         if (c->flags & CLIENT_CLOSE_AFTER_REPLY) {
@@ -1453,19 +1632,53 @@ int writeToClient(client *c, int handler_installed) {
     }
     write_count++;
   //  serverLog(LL_NOTICE,"write count = %llu", write_count); 
+    gettimeofday(&fin_w, NULL);
+    serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
     return C_OK;
 }
 
 /* Write event handler. Just send data to the client. */
 void sendReplyToClient(connection *conn) {
     client *c = connGetPrivateData(conn);
-    writeToClient(c,1);
+#if 0
+    
+    if(server.masterhost!=NULL){
+        
+       
+            server.newc=c;
+            server.thread_handler=1;
+            finish_flag=0;
+           
+            not_empty=1;
+            /*
+#ifdef QW
+            if(queue_len==0 || thread_sleep == 1){
+                queue_len++;
+                pthread_cond_signal(&nc);
+            }
+            else{
+                queue_len++;
+            }
+            
+            
+#endif*/
+
+            
+    }
+    else{
+#endif
+
+        writeToClient(c,1);
+#if 0
+    }
+#endif
 }
 
 /* This function is called just before entering the event loop, in the hope
  * we can just write the replies to the client output buffer without any
  * need to use a syscall in order to install the writable event handler,
  * get it called, and so forth. */
+struct timeval pw, nw;
 int handleClientsWithPendingWrites(void) {
     listIter li;
     listNode *ln;
@@ -1482,7 +1695,60 @@ int handleClientsWithPendingWrites(void) {
         if (c->flags & CLIENT_PROTECTED) continue;
 
         /* Try to write buffers to the client socket. */
-        if (writeToClient(c,0) == C_ERR) continue;
+#if 0
+    
+        if(server.masterhost!=NULL){
+        
+        /*
+            pthread_mutex_lock(&m);
+            pthread_cond_signal(&nc);
+            pthread_mutex_unlock(&m);
+          */  
+            
+            server.newc=c;
+            server.thread_handler=0;
+            finish_flag=0;
+ 
+            not_empty=1;
+
+            pw=nw;
+            gettimeofday(&nw, NULL);
+            serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
+/*
+
+#ifdef QW
+            if(queue_len==0 || thread_sleep==1){
+               
+                queue_len++;
+                pthread_cond_signal(&nc);
+            }
+            else{
+                queue_len++;
+            }
+#endif
+  */          
+            /*
+            
+            while(1){
+                if(finish_flag==1) break;
+            }
+*/
+        //serverLog(LL_NOTICE," --------------");
+        }
+        else{
+#endif
+
+            pw=nw;
+            gettimeofday(&nw, NULL);
+            serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
+
+
+
+            if (writeToClient(c,0) == C_ERR) continue;
+            gettimeofday(&nw, NULL);
+#if 0
+        }
+#endif
 
         /* If after the synchronous writes above we still have data to
          * output to the client, we need to install the writable handler. */
@@ -1637,6 +1903,7 @@ int processInlineBuffer(client *c) {
         c->argv[c->argc] = createObject(OBJ_STRING,argv[j]);
         c->argc++;
     }
+    serverLog(LL_NOTICE," process inline buffer = c-> argc %d", c->argc);
     zfree(argv);
     return C_OK;
 }
@@ -1689,10 +1956,13 @@ int processMultibulkBuffer(client *c) {
     char *newline = NULL;
     int ok;
     long long ll;
+    if(c->argc != 0)
+        serverLog(LL_NOTICE, "c->argv = %s", c->argv[0]->ptr);
 
     if (c->multibulklen == 0) {
         /* The client should have been reset */
         serverAssertWithInfo(c,NULL,c->argc == 0);
+       // serverLog(LL_NOTICE,"=========");
 
         /* Multi bulk length cannot be read without a \r\n */
         newline = strchr(c->querybuf+c->qb_pos,'\r');
@@ -1706,8 +1976,10 @@ int processMultibulkBuffer(client *c) {
 
         /* Buffer should also contain \n */
         if (newline-(c->querybuf+c->qb_pos) > (ssize_t)(sdslen(c->querybuf)-c->qb_pos-2))
-            return C_ERR;
+        {
 
+            return C_ERR;
+        }
         /* We know for sure there is a whole line since newline != NULL,
          * so go ahead and find out the multi bulk length. */
         serverAssertWithInfo(c,NULL,c->querybuf[c->qb_pos] == '*');
@@ -1787,6 +2059,7 @@ int processMultibulkBuffer(client *c) {
 
         /* Read bulk argument */
         if (sdslen(c->querybuf)-c->qb_pos < (size_t)(c->bulklen+2)) {
+            serverLog(LL_NOTICE, " ----------000");
             /* Not enough data (+2 == trailing \r\n) */
             break;
         } else {
@@ -1881,6 +2154,52 @@ int processCommandAndResetClient(client *c) {
     return deadclient ? C_ERR : C_OK;
 }
 
+#if 0
+void *threadprocessCommandAndResetClient() {
+
+    while(1){
+        
+        if(threadcount<1){
+            break;
+        }
+                
+//        pthread_mutex_lock(&m);
+  //      pthread_cond_wait(&nc, &m);
+    //    pthread_mutex_unlock(&m);
+        
+        gettimeofday(&finish_thread, NULL);
+        serverLog(LL_NOTICE,"signal ustime = %lu us", (finish_thread.tv_usec - past_thread.tv_usec));
+        
+        client *c;
+        c = server.newc; 
+
+        c->deadclient = 0;
+        server.current_client = c;
+        if (processCommand(c) == C_OK) {
+            commandProcessed(c);
+        }
+        if (server.current_client == NULL) c->deadclient = 1;
+        server.current_client = NULL;
+        gettimeofday(&past_thread, NULL);
+        serverLog(LL_NOTICE, "processing ustime = %lu us",(past_thread.tv_usec - finish_thread.tv_usec));
+
+        /*
+        pthread_mutex_lock(&m);
+        pthread_cond_wait(&wc, &m);
+        pthread_mutex_unlock(&m);
+ */
+        writeToClient(c,0);
+        /* freeMemoryIfNeeded may flush slave output buffers. This may
+         * result into a slave, that may be the active client, to be
+         * freed. */
+    }
+    return NULL;
+}
+#endif
+
+struct timeval fin_r;
+struct timeval start_r;
+struct timeval start_db, fin_db;
 /* This function is called every time, in the client structure 'c', there is
  * more query buffer to process, because we read more data from the socket
  * or because a client was blocked and later reactivated, so there could be
@@ -1942,6 +2261,8 @@ void processInputBuffer(client *c) {
     
       // duration=ustime()-start;
       // serverLog(LL_NOTICE, "ready command = %llu", duration);
+        gettimeofday(&fin_r, NULL);
+        serverLog(LL_NOTICE, "read and robj change time =%lu", (fin_r.tv_usec - start_r.tv_usec));
 
         /* Multibulk processing could see a <= 0 length. */
         if (c->argc == 0) {
@@ -1957,14 +2278,43 @@ void processInputBuffer(client *c) {
  
           //  start=server.ustime;
             /* We are finally ready to execute the command. */
-            if (processCommandAndResetClient(c) == C_ERR) {
-                /* If the client is no longer valid, we avoid exiting this
-                 * loop and trimming the client buffer later. So we return
-                 * ASAP in that case. */
-                return;
+
+#ifdef DVFS
+       /*    
+            if (!strcasecmp(c->argv[0]->ptr,"GET") && server.masterhost!=NULL) {
+                
+            //    pthread_t read_thread;
+            //    pthread_create(&read_thread, NULL, threadprocessCommandAndResetClient, (void *)c);
+             //   pthread_detach(read_thread);
+                gettimeofday(&past_thread, NULL);
+                
+       //         threadcount=1;
+                pthread_mutex_lock(&m);
+                pthread_cond_signal(&nc);
+                pthread_mutex_unlock(&m);
+               
             }
+            else {
+         */      
+#endif
+                gettimeofday(&start_db, NULL); 
+                if (processCommandAndResetClient(c) == C_ERR) {
+                    /* If the client is no longer valid, we avoid exiting this
+                     * loop and trimming the client buffer later. So we return
+                     * ASAP in that case. */
+                    return;
+                }
+                gettimeofday(&fin_db, NULL); 
+                serverLog(LL_NOTICE, "db insert time = %lu", (fin_db.tv_usec - start_db.tv_usec));
             //duration=ustime()-start;
            // serverLog(LL_NOTICE, "exec시간 : %llu", duration); 
+
+#ifdef DVFS
+          /*      
+            }
+            */
+#endif
+
         }
     }
 
@@ -1974,16 +2324,23 @@ void processInputBuffer(client *c) {
         c->qb_pos = 0;
     }
 }
+
+
 long long read_memcpy_count=0;
 struct timeval r_tv, pr_tv;
-long read_count=0;
+long master_send_read_count=0;
 long long rpast_value_count=0;
-float rtotal_rate=0;
-float rbps=0;
+float master_send_total_rate=0;
+float master_send_bps=0;
+
 
 void readQueryFromClient(connection *conn) {
 
+    gettimeofday(&start_r, NULL);
     client *c = connGetPrivateData(conn);
+#ifdef DVFS
+    server.newc = c;
+#endif
     int nread, readlen;
     size_t qblen;
     
@@ -2017,25 +2374,53 @@ void readQueryFromClient(connection *conn) {
     if (c->querybuf_peak < qblen) c->querybuf_peak = qblen;
     c->querybuf = sdsMakeRoomFor(c->querybuf, readlen);
     start=server.ustime;
-    nread = connRead(c->conn, c->querybuf+qblen, readlen);
-    serverLog(LL_NOTICE, "read size = %d", nread);
-    duration=ustime()-start;
-    gettimeofday(&r_tv, NULL);
 
+    /*
+    gettimeofday(&r_tv, NULL);
+    gettimeofday(&(server.read_tv), NULL);
+    */
+    nread = connRead(c->conn, c->querybuf+qblen, readlen);
+    server.readbuf_size=nread;
+//  serverLog(LL_NOTICE, "read size = %d", nread);
+    duration=ustime()-start;
+/*
+    
+    int cpufd;
+    cpufd=open("/sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq", O_WRONLY);
+
+//    int freq=1000000;
+
+    //write(cpufd, 1000000, strlen("1000000")
+    
+    char freq[8]="1000000";
+
+    ssize_t w_s = write(cpufd, freq, 8);
+    if(w_s<=0){
+        serverLog(LL_NOTICE, "write_error");
+    }
+
+    close(cpufd);
+*/
+
+    /*
     if(c->conn->fd ==7){
         if(past_value_count < nvalue_count && nvalue_count >2){
             rpast_value_count = nvalue_count;
-            rbps=rbps + (float)((nread)/(r_tv.tv_usec-pr_tv.tv_usec));
-            read_count++;
-            rtotal_rate=rbps/read_count;
-            serverLog(LL_NOTICE, "read bps = %.3lf KB/ms", rtotal_rate);
+
+            if(r_tv.tv_usec-pr_tv.tv_usec != 0){
+                master_send_bps=master_send_bps + (float)((nread)/(r_tv.tv_usec-pr_tv.tv_usec));
+                master_send_read_count++;
+                master_send_total_rate=master_send_bps/master_send_read_count;
+               // serverLog(LL_NOTICE, "master send bps = %.3lf KB/ms", master_send_total_rate);
+                serverLog(LL_NOTICE, "read count = %ld", master_send_read_count);
+            }
         }
     }
     pr_tv.tv_usec=r_tv.tv_usec;
-
+*/
    // serverLog(LL_NOTICE, "read size =  %d", nread);
-    read_memcpy_count++;
-    if(read_memcpy_count > 100000)serverLog(LL_NOTICE, "read_memcpy_count = %llu", read_memcpy_count);
+  //  read_memcpy_count++;
+   // if(read_memcpy_count > 100000)serverLog(LL_NOTICE, "read_memcpy_count = %llu", read_memcpy_count);
     
     if (nread == -1) {
         if (connGetState(conn) == CONN_STATE_CONNECTED) {
@@ -2075,6 +2460,7 @@ void readQueryFromClient(connection *conn) {
     /* There is more data in the client input buffer, continue parsing it
      * in case to check if there is a full command to execute. */
      processInputBuffer(c);
+     
 }
 
 void getClientsMaxBuffers(unsigned long *longest_output_list,
@@ -3028,7 +3414,7 @@ void *IOThreadMain(void *myid) {
 
     snprintf(thdname, sizeof(thdname), "io_thd_%ld", id);
     redis_set_thread_title(thdname);
-    redisSetCpuAffinity(server.server_cpulist);
+//    redisSetCpuAffinity(server.server_cpulist);
 
 // serverLog(LL_NOTICE, "########Start IO THREAD ########");
     while(1) {
@@ -3099,6 +3485,13 @@ void initThreadedIO(void) {
             serverLog(LL_WARNING,"Fatal: Can't initialize IO thread.");
             exit(1);
         }
+        cpu_set_t org_core;
+        CPU_ZERO(&org_core);
+        CPU_SET(4, &org_core);
+        if(pthread_setaffinity_np(tid, sizeof(cpu_set_t), &org_core)<0){
+            perror("phread_setaffinity");
+        }
+
         io_threads[i] = tid;
     }
 }

@@ -1,0 +1,1 @@
+cluster.c:4085:        if (flags & nodeflag->flag) ci = sdscat(ci, nodeflag->name);

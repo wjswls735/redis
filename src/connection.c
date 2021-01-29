@@ -30,6 +30,10 @@
 #include "server.h"
 #include "connhelpers.h"
 
+#ifdef DVFS
+extern pthread_cond_t nc;
+extern pthread_mutex_t m;
+#endif
 /* The connections module provides a lean abstraction of network connections
  * to avoid direct socket and async event management across the Redis code base.
  *
@@ -241,6 +245,8 @@ static int connSocketSetReadHandler(connection *conn, ConnectionCallbackFunc fun
 static const char *connSocketGetLastError(connection *conn) {
     return strerror(conn->last_errno);
 }
+extern pthread_mutex_t m;
+extern pthread_cond_t nc;
 
 static void connSocketEventHandler(struct aeEventLoop *el, int fd, void *clientData, int mask)
 {
@@ -264,6 +270,7 @@ static void connSocketEventHandler(struct aeEventLoop *el, int fd, void *clientD
         conn->conn_handler = NULL;
     }
 
+
     /* Normally we execute the readable event first, and the writable
      * event later. This is useful as sometimes we may be able
      * to serve the reply of a query immediately after processing the
@@ -286,7 +293,26 @@ static void connSocketEventHandler(struct aeEventLoop *el, int fd, void *clientD
     }
     /* Fire the writable event. */
     if (call_write) {
-        if (!callHandler(conn, conn->write_handler)) return;
+        /*
+        
+#ifdef DVFS
+        serverLog(LL_NOTICE, "-----");
+        if(server.masterhost!=NULL){
+            serverLog(LL_NOTICE, "-----");
+            pthread_mutex_lock(&m);
+            pthread_cond_signal(&nc);
+            pthread_mutex_unlock(&m);
+            return;
+        }
+        else{
+#endif*/
+
+            if (!callHandler(conn, conn->write_handler)) return;
+        /*    
+#ifdef DVFS
+        }
+#endif
+*/
     }
     /* If we have to invert the call, fire the readable event now
      * after the writable one. */

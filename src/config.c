@@ -411,12 +411,6 @@ void loadServerConfigFromString(char *config) {
             server.masterhost = sdsnew(argv[1]);
             server.masterport = atoi(argv[2]);
             server.repl_state = REPL_STATE_CONNECT;
-            
-#ifdef DVFS
-
-            server.cpufreq_policy->policy=ondemend
-            cpufreq_driver_target(server.cpufreq_policy->policy, 1000000,CPUFREQ_RELATION_L);
-#endif
 
         } else if (!strcasecmp(argv[0],"requirepass") && argc == 2) {
             if (strlen(argv[1]) > CONFIG_AUTHPASS_MAX_LEN) {
