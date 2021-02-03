@@ -73,6 +73,15 @@ volatile int finish_flag=0;
 
 pthread_t read_thread;
 #endif
+#ifdef CFT
+pthread_cond_t uc = PTHREAD_COND_INITIALIZER;
+pthread_cond_t dc = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t um = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t dm = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_t up_t;
+pthread_t down_t;
+#endif   
 /* Our shared "common" objects */
 
 struct sharedObjectsStruct shared;
@@ -5163,7 +5172,54 @@ int iAmMaster(void) {
     return ((!server.cluster_enabled && server.masterhost == NULL) ||
             (server.cluster_enabled && nodeIsMaster(server.cluster->myself)));
 }
+#ifdef CFT
+void *threadWriteDownFreq(){
 
+    while(1){
+
+        int cpufd;
+        cpufd = open("/sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq", O_WRONLY);
+       // cpufd = open("/scaling_max_freq", O_CREAT | O_WRONLY, 644);
+
+        char freq[8]="1000000";
+                
+        pthread_mutex_lock(&um);
+        ssize_t w_s = write(cpufd, freq, 8);
+        if(w_s <= 0){
+            serverLog(LL_NOTICE, "cpu freq config write Error = %ld, errno = %d, cpufd = %d", w_s, errno, cpufd);
+        }
+        close(cpufd);
+        serverLog(LL_NOTICE, "!!!!!!!!!CPU DOWN !!!!!!!!!!!");
+        pthread_cond_wait(&uc, &um);
+        pthread_mutex_unlock(&um);
+      
+    }
+    return NULL;
+}
+void *threadWriteUpFreq(){
+    while(1){
+        pthread_mutex_lock(&um);
+        pthread_cond_wait(&uc, &um);
+
+        int cpufd;
+        cpufd = open("/sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq", O_WRONLY);
+       // cpufd = open("/scaling_max_freq", O_CREAT | O_WRONLY, 644);
+
+        char freq[8]="2200000";
+                
+        ssize_t w_s = write(cpufd, freq, 8);
+        if(w_s <= 0){
+            serverLog(LL_NOTICE, "cpu freq config write Error = %ld, errno = %d, cpufd = %d", w_s, errno, cpufd);
+        }
+        pthread_mutex_unlock(&um);
+        close(cpufd);
+        serverLog(LL_NOTICE, "!!!!!!!!!CPU UP !!!!!!!!!!!");
+     
+    }
+    return NULL;
+}
+
+#endif
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;
@@ -5374,12 +5430,61 @@ int main(int argc, char **argv) {
     }
 
     redisSetCpuAffinity(server.server_cpulist);
+#ifdef CFT
+    if(server.masterhost !=NULL){
+
+ 
+        server.thread_flag=false;
+        cpu_set_t replica_set;
+        CPU_ZERO(&replica_set);
+        CPU_SET(3, &replica_set);
+        if(sched_setaffinity(0, sizeof(cpu_set_t), &replica_set) <0){
+            perror("sched_setaffinity");
+        }
+
+        pthread_create(&up_t, NULL, threadWriteUpFreq, NULL);
+        pthread_detach(up_t);
+
+        pthread_create(&down_t, NULL, threadWriteDownFreq, NULL);
+        pthread_detach(down_t);
+
+        cpu_set_t org_core;
+        CPU_ZERO(&org_core);
+        CPU_SET(4, &org_core);
+
+        if(pthread_setaffinity_np(up_t, sizeof(cpu_set_t), &org_core)<0){
+            perror("pthread_setaffinity");
+        }
+        if(pthread_setaffinity_np(down_t, sizeof(cpu_set_t), &org_core)<0){
+            perror("pthread_setaffinity");
+        }
+
+    }
+
+    else{
+        
+        cpu_set_t master_set;
+        CPU_ZERO(&master_set);
+        CPU_SET(2, &master_set);
+        if(sched_setaffinity(0, sizeof(cpu_set_t), &master_set) <0){
+            perror("sched_setaffinity");
+        }
+    }
+    server.client_count=0;
+#endif
+
 #ifdef DVFS
 
     serverLog(LL_NOTICE, "masterhost = %s", server.masterhost);
     if(server.masterhost != NULL){
-        
-       
+  
+        cpu_set_t master_set;
+        CPU_ZERO(&master_set);
+        CPU_SET(3, &master_set);
+        if(sched_setaffinity(0, sizeof(cpu_set_t), &master_set) <0){
+            perror("sched_setaffinity");
+        }
+
         int cpufd;
         cpufd = open("/sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq", O_WRONLY);
        // cpufd = open("/scaling_max_freq", O_CREAT | O_WRONLY, 644);
@@ -5402,6 +5507,7 @@ int main(int argc, char **argv) {
         pthread_detach(read_thread);
 
         */
+       
         cpu_set_t org_core;
         CPU_ZERO(&org_core);
         CPU_SET(4, &org_core);
@@ -5425,6 +5531,11 @@ int main(int argc, char **argv) {
         }
     }
 
+#endif
+#ifdef CFT
+    if(server.masterhost!=NULL){
+        pthread_cond_signal(&dc);
+    }
 #endif
     
     aeMain(server.el);

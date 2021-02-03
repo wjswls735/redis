@@ -63,6 +63,10 @@
 extern pthread_mutex_t m;
 extern pthread_cond_t nc;
 #endif
+#ifdef CFT
+extern pthread_cond_t uc;
+extern pthread_cond_t dc;
+#endif
 
 aeEventLoop *aeCreateEventLoop(int setsize) {
     aeEventLoop *eventLoop;

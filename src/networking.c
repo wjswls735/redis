@@ -51,6 +51,7 @@ extern pthread_cond_t nc;
 pthread_cond_t wc;
 extern int threadcount;
 struct timeval past_thread, finish_thread;
+#endif
 
 extern volatile int not_empty;
 extern volatile int finish_flag;
@@ -58,6 +59,10 @@ int volatile queue_len=0;
 #ifdef QW
 int volatile thread_sleep=1;
 #endif
+
+#ifdef CFT
+extern pthread_cond_t uc;
+extern pthread_cond_t dc;
 #endif
 
 static void setProtocolError(const char *errstr, client *c);
@@ -1634,6 +1639,23 @@ int writeToClient(client *c, int handler_installed) {
   //  serverLog(LL_NOTICE,"write count = %llu", write_count); 
     gettimeofday(&fin_w, NULL);
     serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
+#ifdef CFT
+    if(server.masterhost!=NULL){
+        server.client_count-=1;
+        
+        if(server.client_count<1){
+            server.client_count=0;
+        }
+        serverLog(LL_NOTICE, "server.client_count = %d", server.client_count);
+    }
+#ifdef CFT
+    if(server.client_count<= 1 &&  server.masterhost!=NULL && server.thread_flag==true){
+        server.thread_flag=false;
+        pthread_cond_signal(&dc);
+    }
+#endif
+
+#endif
     return C_OK;
 }
 
@@ -2143,7 +2165,14 @@ int processCommandAndResetClient(client *c) {
     int deadclient = 0;
     server.current_client = c;
     if (processCommand(c) == C_OK) {
-    if (!strcasecmp(c->argv[0]->ptr,"SET")) nvalue_count++;
+        if (!strcasecmp(c->argv[0]->ptr,"SET")){
+            nvalue_count++;
+#ifdef CFT
+            if(server.masterhost!=NULL){
+                server.client_count-=1;
+            }
+#endif
+        }
         commandProcessed(c);
     }
     if (server.current_client == NULL) deadclient = 1;
@@ -2456,11 +2485,22 @@ void readQueryFromClient(connection *conn) {
         freeClientAsync(c);
         return;
     }
+#ifdef CFT
+    if(server.masterhost!=NULL){
+         server.client_count+=1;
+          if(server.client_count >5 && server.thread_flag==false)
+         {
+             server.thread_flag=true;
+             pthread_cond_signal(&uc);
+         }
+    }
+#endif
+  
 
     /* There is more data in the client input buffer, continue parsing it
      * in case to check if there is a full command to execute. */
-     processInputBuffer(c);
-     
+    processInputBuffer(c);
+   
 }
 
 void getClientsMaxBuffers(unsigned long *longest_output_list,

@@ -83,11 +83,13 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "endianconv.h"
 #include "crc64.h"
 
+/*thread_cpu config*/
+#define CFT
 
 /*DVFS*/
-#define DVFS
+//#define DVFS
 /*Queueing wait*/
-#define QW
+//#define QW
 /*shared memory*/
 
 //#define SHM
@@ -1493,7 +1495,10 @@ struct redisServer {
     int not_empty;
     int finish_flag;
 #endif
-
+#ifdef CFT
+    int client_count;
+    bool thread_flag;
+#endif
 };
 
 typedef struct pubsubPattern {
