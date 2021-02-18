@@ -56,10 +56,10 @@
 #include <locale.h>
 #include <sys/socket.h>
 
-#ifdef DVFS
-
 #include <sched.h>
 #include <ctype.h>
+
+#ifdef DVFS
 
 pthread_cond_t nc = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -5190,7 +5190,7 @@ void *threadWriteDownFreq(){
         }
         close(cpufd);
         serverLog(LL_NOTICE, "!!!!!!!!!CPU DOWN !!!!!!!!!!!");
-        pthread_cond_wait(&uc, &um);
+        pthread_cond_wait(&dc, &um);
         pthread_mutex_unlock(&um);
       
     }
@@ -5218,6 +5218,7 @@ void *threadWriteUpFreq(){
     }
     return NULL;
 }
+
 
 #endif
 int main(int argc, char **argv) {
@@ -5470,6 +5471,7 @@ int main(int argc, char **argv) {
             perror("sched_setaffinity");
         }
     }
+    server.pending_count=0;
     server.client_count=0;
 #endif
 

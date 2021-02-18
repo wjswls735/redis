@@ -65,6 +65,13 @@ extern pthread_cond_t uc;
 extern pthread_cond_t dc;
 #endif
 
+#ifdef KBC
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <stdlib.h>
+pthread_t kbuf_check;
+#endif
+
 static void setProtocolError(const char *errstr, client *c);
 int postponeClientRead(client *c);
 int ProcessingEventsWhileBlocked = 0; /* See processEventsWhileBlocked(). */
@@ -127,6 +134,38 @@ void priQueueClient(client *c){
     c->client_list_node = listLast(server.clients);
     uint64_t id = htonu64(c->id);
     raxInsert(server.clients_index,(unsigned char*)&id,sizeof(id),c,NULL);
+}
+#endif
+#ifdef KBC
+void *kernelBufChecker(void *arg){
+    int sockfd=*(int *)arg;
+    zfree(arg);
+    char fname[100]="/home/jinsu/kernel_buf/";
+    char fd_num[10];
+    sprintf(fd_num, "%d.txt", sockfd);
+    strcat(fname, fd_num);
+    serverLog(LL_NOTICE, "%s", fname);
+
+   int w_fd=open(fname, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+    while(1){
+        if(w_fd <0){
+            serverLog(LL_NOTICE, "open error");
+        }
+        unsigned long kernel_buf_size; 
+        ioctl(sockfd, FIONREAD, &kernel_buf_size);
+        char buf[128];
+        sprintf(buf, "%d", (int)kernel_buf_size);
+        strcat(buf, "\n");
+        int ret=write(w_fd, buf, sizeof(strlen(buf)));
+        if(ret<0){
+            perror("write");
+            return NULL;
+        }
+        usleep(100);
+    }
+    close(w_fd);
+
+    return NULL;
 }
 #endif
 
@@ -211,6 +250,10 @@ client *createClient(connection *conn) {
     listSetMatchMethod(c->pubsub_patterns,listMatchObjects);
     if (conn) linkClient(c);
     initClientMultiState(c);
+#ifdef CFT
+    server.client_count +=1;
+#endif
+
     return c;
 }
 
@@ -986,6 +1029,22 @@ static void acceptCommonHandler(connection *conn, int flags, char *ip) {
         connClose(conn); /* May be already closed, just ignore errors */
         return;
     }
+#ifdef KBC
+    if(server.masterhost !=NULL){
+        cpu_set_t other_set;
+        CPU_ZERO(&other_set);
+        CPU_SET(5,&other_set);
+        int *arg=zmalloc(sizeof(int));
+        *(int *)arg=c->conn->fd;
+        
+        pthread_create(&kbuf_check, NULL, kernelBufChecker, (void*)arg);
+        pthread_detach(kbuf_check);
+
+        if(pthread_setaffinity_np(kbuf_check, sizeof(cpu_set_t), &other_set)<0){
+            perror("pthread_setaffinity");
+        }
+    }
+#endif 
 
     /* Last chance to keep flags */
     c->flags |= flags;
@@ -1275,6 +1334,9 @@ void freeClient(client *c) {
     freeClientMultiState(c);
     sdsfree(c->peerid);
     zfree(c);
+#ifdef CFT
+    server.client_count--;
+#endif
 }
 
 /* Schedule a client to free it at a safe time in the serverCron() function.
@@ -1298,6 +1360,9 @@ void freeClientAsync(client *c) {
     pthread_mutex_lock(&async_free_queue_mutex);
     listAddNodeTail(server.clients_to_close,c);
     pthread_mutex_unlock(&async_free_queue_mutex);
+#ifdef CFT
+    server.client_count--;
+#endif
 }
 
 /* Free the clients marked as CLOSE_ASAP, return the number of clients
@@ -1638,22 +1703,31 @@ int writeToClient(client *c, int handler_installed) {
     write_count++;
   //  serverLog(LL_NOTICE,"write count = %llu", write_count); 
     gettimeofday(&fin_w, NULL);
-    serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
+   // serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
 #ifdef CFT
+    server.duration_write = fin_w.tv_usec - start_w.tv_usec;
+    /*
+    if(server.duration_write > 50){
+        server.duration_write = 0;
+    }*/
     if(server.masterhost!=NULL){
-        server.client_count-=1;
-        
-        if(server.client_count<1){
-            server.client_count=0;
+
+        if(server.duration_read + server.duration_write + server.signal_time >= 124 && server.thread_flag==false){
+            if(c->flags & CLIENT_MASTER){}
+            else{
+                server.thread_flag=true;
+                pthread_cond_signal(&uc);
+            }
+           // serverLog(LL_NOTICE, "up = %d read = %d, write = %d", server.duration_read + server.duration_write, server.duration_read, server.duration_write);
         }
-        serverLog(LL_NOTICE, "server.client_count = %d", server.client_count);
+        if(server.client_count <= 2 && server.thread_flag==true)
+        {
+            server.thread_flag=false;
+            pthread_cond_signal(&dc);
+           // serverLog(LL_NOTICE, "down = %d read = %d, write = %d", server.duration_read + server.duration_write, server.duration_read, server.duration_write);
+
+        }
     }
-#ifdef CFT
-    if(server.client_count<= 1 &&  server.masterhost!=NULL && server.thread_flag==true){
-        server.thread_flag=false;
-        pthread_cond_signal(&dc);
-    }
-#endif
 
 #endif
     return C_OK;
@@ -1708,6 +1782,9 @@ int handleClientsWithPendingWrites(void) {
 
     listRewind(server.clients_pending_write,&li);
     while((ln = listNext(&li))) {
+#ifdef CFT
+        server.pending_count -=1;
+#endif
         client *c = listNodeValue(ln);
         c->flags &= ~CLIENT_PENDING_WRITE;
         listDelNode(server.clients_pending_write,ln);
@@ -1762,8 +1839,13 @@ int handleClientsWithPendingWrites(void) {
 
             pw=nw;
             gettimeofday(&nw, NULL);
-            serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
+        //    serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
 
+#ifdef CFT
+            if(nw.tv_usec - pw.tv_usec >2){
+                server.signal_time=nw.tv_usec - pw.tv_usec;
+            }
+#endif
 
 
             if (writeToClient(c,0) == C_ERR) continue;
@@ -1978,9 +2060,10 @@ int processMultibulkBuffer(client *c) {
     char *newline = NULL;
     int ok;
     long long ll;
+    /*
     if(c->argc != 0)
         serverLog(LL_NOTICE, "c->argv = %s", c->argv[0]->ptr);
-
+*/
     if (c->multibulklen == 0) {
         /* The client should have been reset */
         serverAssertWithInfo(c,NULL,c->argc == 0);
@@ -2081,7 +2164,6 @@ int processMultibulkBuffer(client *c) {
 
         /* Read bulk argument */
         if (sdslen(c->querybuf)-c->qb_pos < (size_t)(c->bulklen+2)) {
-            serverLog(LL_NOTICE, " ----------000");
             /* Not enough data (+2 == trailing \r\n) */
             break;
         } else {
@@ -2167,11 +2249,6 @@ int processCommandAndResetClient(client *c) {
     if (processCommand(c) == C_OK) {
         if (!strcasecmp(c->argv[0]->ptr,"SET")){
             nvalue_count++;
-#ifdef CFT
-            if(server.masterhost!=NULL){
-                server.client_count-=1;
-            }
-#endif
         }
         commandProcessed(c);
     }
@@ -2291,7 +2368,7 @@ void processInputBuffer(client *c) {
       // duration=ustime()-start;
       // serverLog(LL_NOTICE, "ready command = %llu", duration);
         gettimeofday(&fin_r, NULL);
-        serverLog(LL_NOTICE, "read and robj change time =%lu", (fin_r.tv_usec - start_r.tv_usec));
+       // serverLog(LL_NOTICE, "read and robj change time =%lu", (fin_r.tv_usec - start_r.tv_usec));
 
         /* Multibulk processing could see a <= 0 length. */
         if (c->argc == 0) {
@@ -2334,7 +2411,7 @@ void processInputBuffer(client *c) {
                     return;
                 }
                 gettimeofday(&fin_db, NULL); 
-                serverLog(LL_NOTICE, "db insert time = %lu", (fin_db.tv_usec - start_db.tv_usec));
+         //       serverLog(LL_NOTICE, "db insert time = %lu", (fin_db.tv_usec - start_db.tv_usec));
             //duration=ustime()-start;
            // serverLog(LL_NOTICE, "exec시간 : %llu", duration); 
 
@@ -2362,6 +2439,7 @@ long long rpast_value_count=0;
 float master_send_total_rate=0;
 float master_send_bps=0;
 
+struct timeval fin_r;
 
 void readQueryFromClient(connection *conn) {
 
@@ -2408,9 +2486,15 @@ void readQueryFromClient(connection *conn) {
     gettimeofday(&r_tv, NULL);
     gettimeofday(&(server.read_tv), NULL);
     */
+#ifdef KBC
+    int kernel_buf_fd=c->conn->fd; 
+    unsigned long kernel_buf_size; 
+    ioctl(kernel_buf_fd, FIONREAD, &kernel_buf_size);
+    serverLog(LL_NOTICE, "kernel_buf = %d", kernel_buf_size);
+#endif
+
     nread = connRead(c->conn, c->querybuf+qblen, readlen);
     server.readbuf_size=nread;
-//  serverLog(LL_NOTICE, "read size = %d", nread);
     duration=ustime()-start;
 /*
     
@@ -2485,21 +2569,15 @@ void readQueryFromClient(connection *conn) {
         freeClientAsync(c);
         return;
     }
-#ifdef CFT
-    if(server.masterhost!=NULL){
-         server.client_count+=1;
-          if(server.client_count >5 && server.thread_flag==false)
-         {
-             server.thread_flag=true;
-             pthread_cond_signal(&uc);
-         }
-    }
-#endif
   
 
     /* There is more data in the client input buffer, continue parsing it
      * in case to check if there is a full command to execute. */
     processInputBuffer(c);
+   // serverLog(LL_NOTICE, "duration read = %d", fin_r.tv_usec - start_r.tv_usec);
+#ifdef CFT
+    server.duration_read = fin_r.tv_usec - start_r.tv_usec;
+#endif
    
 }
 
@@ -3668,6 +3746,9 @@ int postponeClientRead(client *c) {
         !(c->flags & (CLIENT_MASTER|CLIENT_SLAVE|CLIENT_PENDING_READ)))
     {
         c->flags |= CLIENT_PENDING_READ;
+#ifdef CFT
+        server.pending_count +=1;
+#endif
         listAddNodeHead(server.clients_pending_read,c);
         return 1;
     } else {

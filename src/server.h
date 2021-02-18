@@ -84,10 +84,13 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "crc64.h"
 
 /*thread_cpu config*/
-#define CFT
+//#define CFT
+/*kernel_buffer size check*/
+//#define KBC
 
 /*DVFS*/
 //#define DVFS
+
 /*Queueing wait*/
 //#define QW
 /*shared memory*/
@@ -1496,8 +1499,12 @@ struct redisServer {
     int finish_flag;
 #endif
 #ifdef CFT
-    int client_count;
+    int pending_count;
     bool thread_flag;
+    int duration_read;
+    int duration_write;
+    int signal_time;
+    int client_count;
 #endif
 };
 

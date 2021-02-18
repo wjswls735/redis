@@ -261,13 +261,13 @@ void genericSetKey(client *c, redisDb *db, robj *key, robj *val, int keepttl, in
     if(server.read_tv.tv_usec-past_tv.tv_usec != 0){
         rbps=rbps + (float)((server.readbuf_size)/(server.read_tv.tv_usec-past_tv.tv_usec));
         rtotal_rate=rbps/value_count;
-        serverLog(LL_NOTICE, "read bps = %.3lf KB/ms", rtotal_rate);
+       // serverLog(LL_NOTICE, "read bps = %.3lf KB/ms", rtotal_rate);
     }
 
 
     value_count++;
 
-    serverLog(LL_NOTICE, "value count = %lu", value_count);
+// serverLog(LL_NOTICE, "value count = %lu", value_count);
     incrRefCount(val);
     if (!keepttl) removeExpire(db,key);
     if (signal) signalModifiedKey(c,db,key);
