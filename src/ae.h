@@ -57,6 +57,8 @@
 #define AE_NOMORE -1
 #define AE_DELETED_EVENT_ID -1
 
+//#define RFA
+
 /* Macros */
 #define AE_NOTUSED(V) ((void) V)
 
@@ -133,5 +135,8 @@ void aeSetAfterSleepProc(aeEventLoop *eventLoop, aeBeforeSleepProc *aftersleep);
 int aeGetSetSize(aeEventLoop *eventLoop);
 int aeResizeSetSize(aeEventLoop *eventLoop, int setsize);
 void aeSetDontWait(aeEventLoop *eventLoop, int noWait);
+
+int master_fd;
+int master_host;
 
 #endif

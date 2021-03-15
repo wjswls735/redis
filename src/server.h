@@ -87,6 +87,7 @@ typedef long long ustime_t; /* microsecond time type. */
 //#define CFT
 /*kernel_buffer size check*/
 //#define KBC
+//define RFA
 
 /*DVFS*/
 //#define DVFS
@@ -879,6 +880,9 @@ typedef struct client {
     char buf[PROTO_REPLY_CHUNK_BYTES];
     
     int deadclient; 
+#ifdef CFT
+    int kernel_buf_size;
+#endif
     
 } client;
 
@@ -1335,6 +1339,9 @@ struct redisServer {
                                      * see REPL_DISKLESS_LOAD_* enum */
     int repl_diskless_sync_delay;   /* Delay to start a diskless repl BGSAVE. */
     /* Replication (slave) */
+#ifdef RFA
+    int master_read_count;
+#endif
     char *masteruser;               /* AUTH with this user and masterauth with master */
     char *masterauth;               /* AUTH with this password with master */
     char *masterhost;               /* Hostname of master */
@@ -1505,6 +1512,7 @@ struct redisServer {
     int duration_write;
     int signal_time;
     int client_count;
+    int using_socket_check;
 #endif
 };
 

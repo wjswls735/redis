@@ -63,6 +63,10 @@ int volatile thread_sleep=1;
 #ifdef CFT
 extern pthread_cond_t uc;
 extern pthread_cond_t dc;
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <stdlib.h>
+
 #endif
 
 #ifdef KBC
@@ -252,6 +256,7 @@ client *createClient(connection *conn) {
     initClientMultiState(c);
 #ifdef CFT
     server.client_count +=1;
+    c->kernel_buf_size=0;
 #endif
 
     return c;
@@ -1705,30 +1710,7 @@ int writeToClient(client *c, int handler_installed) {
     gettimeofday(&fin_w, NULL);
    // serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
 #ifdef CFT
-    server.duration_write = fin_w.tv_usec - start_w.tv_usec;
-    /*
-    if(server.duration_write > 50){
-        server.duration_write = 0;
-    }*/
-    if(server.masterhost!=NULL){
-
-        if(server.duration_read + server.duration_write + server.signal_time >= 124 && server.thread_flag==false){
-            if(c->flags & CLIENT_MASTER){}
-            else{
-                server.thread_flag=true;
-                pthread_cond_signal(&uc);
-            }
-           // serverLog(LL_NOTICE, "up = %d read = %d, write = %d", server.duration_read + server.duration_write, server.duration_read, server.duration_write);
-        }
-        if(server.client_count <= 2 && server.thread_flag==true)
-        {
-            server.thread_flag=false;
-            pthread_cond_signal(&dc);
-           // serverLog(LL_NOTICE, "down = %d read = %d, write = %d", server.duration_read + server.duration_write, server.duration_read, server.duration_write);
-
-        }
-    }
-
+    server.using_socket_check-=c->kernel_buf_size;
 #endif
     return C_OK;
 }
@@ -1782,9 +1764,6 @@ int handleClientsWithPendingWrites(void) {
 
     listRewind(server.clients_pending_write,&li);
     while((ln = listNext(&li))) {
-#ifdef CFT
-        server.pending_count -=1;
-#endif
         client *c = listNodeValue(ln);
         c->flags &= ~CLIENT_PENDING_WRITE;
         listDelNode(server.clients_pending_write,ln);
@@ -1794,65 +1773,7 @@ int handleClientsWithPendingWrites(void) {
         if (c->flags & CLIENT_PROTECTED) continue;
 
         /* Try to write buffers to the client socket. */
-#if 0
-    
-        if(server.masterhost!=NULL){
-        
-        /*
-            pthread_mutex_lock(&m);
-            pthread_cond_signal(&nc);
-            pthread_mutex_unlock(&m);
-          */  
-            
-            server.newc=c;
-            server.thread_handler=0;
-            finish_flag=0;
- 
-            not_empty=1;
-
-            pw=nw;
-            gettimeofday(&nw, NULL);
-            serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
-/*
-
-#ifdef QW
-            if(queue_len==0 || thread_sleep==1){
-               
-                queue_len++;
-                pthread_cond_signal(&nc);
-            }
-            else{
-                queue_len++;
-            }
-#endif
-  */          
-            /*
-            
-            while(1){
-                if(finish_flag==1) break;
-            }
-*/
-        //serverLog(LL_NOTICE," --------------");
-        }
-        else{
-#endif
-
-            pw=nw;
-            gettimeofday(&nw, NULL);
-        //    serverLog(LL_NOTICE, "signal time = %ldus", (nw.tv_usec - pw.tv_usec)); 
-
-#ifdef CFT
-            if(nw.tv_usec - pw.tv_usec >2){
-                server.signal_time=nw.tv_usec - pw.tv_usec;
-            }
-#endif
-
-
-            if (writeToClient(c,0) == C_ERR) continue;
-            gettimeofday(&nw, NULL);
-#if 0
-        }
-#endif
+        if (writeToClient(c,0) == C_ERR) continue;
 
         /* If after the synchronous writes above we still have data to
          * output to the client, we need to install the writable handler. */
@@ -1873,6 +1794,26 @@ int handleClientsWithPendingWrites(void) {
             }
         }
     }
+   
+#ifdef CFT
+    if(server.masterhost!=NULL){
+
+        if(server.client_count>=8 && server.thread_flag==false && server.using_socket_check/server.client_count >=1055 ){
+            server.thread_flag=true;
+            pthread_cond_signal(&uc);
+        }
+        if(server.client_count <8 && server.thread_flag==true)
+        {
+            server.thread_flag=false;
+            pthread_cond_signal(&dc);
+        }
+        if(server.thread_flag==true && server.using_socket_check/server.client_count<1000){
+            server.thread_flag=false;
+            pthread_cond_signal(&dc);
+        }
+    }
+#endif
+
     return processed;
 }
 
@@ -2486,11 +2427,9 @@ void readQueryFromClient(connection *conn) {
     gettimeofday(&r_tv, NULL);
     gettimeofday(&(server.read_tv), NULL);
     */
-#ifdef KBC
-    int kernel_buf_fd=c->conn->fd; 
-    unsigned long kernel_buf_size; 
-    ioctl(kernel_buf_fd, FIONREAD, &kernel_buf_size);
-    serverLog(LL_NOTICE, "kernel_buf = %d", kernel_buf_size);
+#ifdef CFT
+    ioctl(c->conn->fd, FIONREAD, &(c->kernel_buf_size));
+    server.using_socket_check+=c->kernel_buf_size;
 #endif
 
     nread = connRead(c->conn, c->querybuf+qblen, readlen);
@@ -3746,9 +3685,6 @@ int postponeClientRead(client *c) {
         !(c->flags & (CLIENT_MASTER|CLIENT_SLAVE|CLIENT_PENDING_READ)))
     {
         c->flags |= CLIENT_PENDING_READ;
-#ifdef CFT
-        server.pending_count +=1;
-#endif
         listAddNodeHead(server.clients_pending_read,c);
         return 1;
     } else {

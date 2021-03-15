@@ -59,6 +59,7 @@
         #endif
     #endif
 #endif
+//#define DVFS
 #ifdef DVFS
 extern pthread_mutex_t m;
 extern pthread_cond_t nc;
@@ -66,6 +67,12 @@ extern pthread_cond_t nc;
 #ifdef CFT
 extern pthread_cond_t uc;
 extern pthread_cond_t dc;
+#endif
+
+//#define RFA
+int master_read_count=0;
+#ifdef RFA
+
 #endif
 
 aeEventLoop *aeCreateEventLoop(int setsize) {
@@ -451,7 +458,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
         {
             eventLoop->beforesleep(eventLoop);
 #ifdef DVFS
-            if(server.masterhost!=NULL)
+            if(master_host !=0)
                 pthread_cond_signal(&nc);
 #endif
         }
@@ -467,6 +474,18 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
             aeFileEvent *fe = &eventLoop->events[eventLoop->fired[j].fd];
             int mask = eventLoop->fired[j].mask;
             int fd = eventLoop->fired[j].fd;
+
+#ifdef RFA
+            if(master_host!=0 && numevents>1){
+//                printf("master fd = %d fd= %d\n", master_fd, fd);
+                if(master_fd == fd){
+                    master_read_count++;
+                    if(master_read_count%4!=0){
+                        continue;
+                    }
+                }
+            }
+#endif
             int fired = 0; /* Number of events fired for current fd. */
 
             /* Normally we execute the readable event first, and the writable

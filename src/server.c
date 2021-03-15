@@ -2454,6 +2454,9 @@ void createSharedObjects(void) {
 
 void initServerConfig(void) {
     int j;
+#ifdef RFA
+    master_host=0;
+#endif 
 
     updateCachedTime(1);
     getRandomHexChars(server.runid,CONFIG_RUN_ID_SIZE);
@@ -3072,6 +3075,10 @@ void initServer(void) {
         aeSetAfterSleepProc(server.el,afterSleep);
 #ifdef DVFS
     }
+#endif
+
+#ifdef RFA
+    server.master_read_count=0;
 #endif
 
     serverLog(LL_NOTICE, "!!!!!!!!!!!InitServer!!!!!!!");

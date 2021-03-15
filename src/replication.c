@@ -47,6 +47,8 @@ void replicationResurrectCachedMaster(connection *conn);
 void replicationSendAck(void);
 void putSlaveOnline(client *slave);
 int cancelReplicationHandshake(void);
+#ifdef RFA
+#endif
 
 /* We take a global flag to remember if this instance generated an RDB
  * because of replication, so that we can remove the RDB file in case
@@ -1417,6 +1419,10 @@ void replicationCreateMasterClient(connection *conn, int dbid) {
     if (conn)
         connSetReadHandler(server.master->conn, readQueryFromClient);
     server.master->flags |= CLIENT_MASTER;
+#ifdef RFA
+    master_fd = server.master->conn->fd;
+    master_host=1;
+#endif
     server.master->authenticated = 1;
     server.master->reploff = server.master_initial_offset;
     server.master->read_reploff = server.master->reploff;
