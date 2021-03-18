@@ -87,7 +87,6 @@ typedef long long ustime_t; /* microsecond time type. */
 //#define CFT
 /*kernel_buffer size check*/
 //#define KBC
-//define RFA
 
 /*DVFS*/
 //#define DVFS

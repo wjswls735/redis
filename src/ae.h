@@ -57,7 +57,7 @@
 #define AE_NOMORE -1
 #define AE_DELETED_EVENT_ID -1
 
-//#define RFA
+#define RFA
 
 /* Macros */
 #define AE_NOTUSED(V) ((void) V)
@@ -136,7 +136,11 @@ int aeGetSetSize(aeEventLoop *eventLoop);
 int aeResizeSetSize(aeEventLoop *eventLoop, int setsize);
 void aeSetDontWait(aeEventLoop *eventLoop, int noWait);
 
+#ifdef RFA
 int master_fd;
 int master_host;
+long long int master_repl_lastio;
+long long int replicationCron_time;
+#endif 
 
 #endif

@@ -1551,6 +1551,9 @@ void readSyncBulkPayload(connection *conn) {
              * the connection live. So we refresh our last interaction
              * timestamp. */
             server.repl_transfer_lastio = server.unixtime;
+#ifdef RFA
+            master_repl_lastio = server.repl_transfer_lastio;
+#endif
             return;
         } else if (buf[0] != '$') {
             serverLog(LL_WARNING,"Bad protocol from MASTER, the first byte is not '$' (we received '%s'), are you sure the host and port are right?", buf);
@@ -1634,6 +1637,9 @@ void readSyncBulkPayload(connection *conn) {
          * order to detect timeouts during replication), and write what we
          * got from the socket to the dump file on disk. */
         server.repl_transfer_lastio = server.unixtime;
+#ifdef RFA
+        master_repl_lastio = server.repl_transfer_lastio;
+#endif
         if ((nwritten = write(server.repl_transfer_fd,buf,nread)) != nread) {
             serverLog(LL_WARNING,
                 "Write error or short write writing to the DB dump file "
@@ -1931,6 +1937,9 @@ char *sendSynchronousCommand(int flags, connection *conn, ...) {
                     strerror(errno));
         }
         server.repl_transfer_lastio = server.unixtime;
+#ifdef RFA
+        master_repl_lastio = server.repl_transfer_lastio;
+#endif
         return sdsnew(buf);
     }
     return NULL;
@@ -2425,6 +2434,9 @@ void syncWithMaster(connection *conn) {
     server.repl_transfer_read = 0;
     server.repl_transfer_last_fsync_off = 0;
     server.repl_transfer_lastio = server.unixtime;
+#ifdef RFA
+    master_repl_lastio = server.repl_transfer_lastio;
+#endif
     return;
 
 error:
@@ -2459,6 +2471,9 @@ int connectWithMaster(void) {
 
 
     server.repl_transfer_lastio = server.unixtime;
+#ifdef RFA
+    master_repl_lastio = server.repl_transfer_lastio;
+#endif
     server.repl_state = REPL_STATE_CONNECTING;
     return C_OK;
 }
@@ -3226,11 +3241,12 @@ void replicationCron(void) {
 //    serverLog(LL_NOTICE, "@@@ Replication Cron @@@@");
     static long long replication_cron_loops = 0;
 
+    replicationCron_time = time(NULL);
     /* Non blocking connection timeout? */
     if (server.masterhost &&
         (server.repl_state == REPL_STATE_CONNECTING ||
          slaveIsInHandshakeState()) &&
-         (time(NULL)-server.repl_transfer_lastio) > server.repl_timeout)
+         (time(NULL)-server.repl_transfer_lastio) > server.repl_timeout) // 단위 ms /1000 = s
     {
         serverLog(LL_WARNING,"Timeout connecting to the MASTER...");
         cancelReplicationHandshake();

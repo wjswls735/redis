@@ -59,6 +59,11 @@
         #endif
     #endif
 #endif
+#ifdef RFA
+#include <time.h>
+int rest_count=2;
+#endif
+
 //#define DVFS
 #ifdef DVFS
 extern pthread_mutex_t m;
@@ -69,11 +74,7 @@ extern pthread_cond_t uc;
 extern pthread_cond_t dc;
 #endif
 
-//#define RFA
 int master_read_count=0;
-#ifdef RFA
-
-#endif
 
 aeEventLoop *aeCreateEventLoop(int setsize) {
     aeEventLoop *eventLoop;
@@ -480,8 +481,16 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
 //                printf("master fd = %d fd= %d\n", master_fd, fd);
                 if(master_fd == fd){
                     master_read_count++;
-                    if(master_read_count%4!=0){
+                    if(master_read_count%rest_count!=0 && (replicationCron_time-master_repl_lastio <= 50)){
+                        rest_count++;
                         continue;
+                    }
+                    printf("rest_count = %d, time = %lld \n", rest_count, (replicationCron_time-master_repl_lastio));
+                    if(replicationCron_time-master_repl_lastio > 50){
+                        rest_count--;
+                        if(rest_count<2){
+                            rest_count=2;
+                        }
                     }
                 }
             }
