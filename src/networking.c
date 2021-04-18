@@ -69,12 +69,6 @@ extern pthread_cond_t dc;
 
 #endif
 
-#ifdef KBC
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <stdlib.h>
-pthread_t kbuf_check;
-#endif
 
 static void setProtocolError(const char *errstr, client *c);
 int postponeClientRead(client *c);
@@ -138,38 +132,6 @@ void priQueueClient(client *c){
     c->client_list_node = listLast(server.clients);
     uint64_t id = htonu64(c->id);
     raxInsert(server.clients_index,(unsigned char*)&id,sizeof(id),c,NULL);
-}
-#endif
-#ifdef KBC
-void *kernelBufChecker(void *arg){
-    int sockfd=*(int *)arg;
-    zfree(arg);
-    char fname[100]="/home/jinsu/kernel_buf/";
-    char fd_num[10];
-    sprintf(fd_num, "%d.txt", sockfd);
-    strcat(fname, fd_num);
-    serverLog(LL_NOTICE, "%s", fname);
-
-   int w_fd=open(fname, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
-    while(1){
-        if(w_fd <0){
-            serverLog(LL_NOTICE, "open error");
-        }
-        unsigned long kernel_buf_size; 
-        ioctl(sockfd, FIONREAD, &kernel_buf_size);
-        char buf[128];
-        sprintf(buf, "%d", (int)kernel_buf_size);
-        strcat(buf, "\n");
-        int ret=write(w_fd, buf, sizeof(strlen(buf)));
-        if(ret<0){
-            perror("write");
-            return NULL;
-        }
-        usleep(100);
-    }
-    close(w_fd);
-
-    return NULL;
 }
 #endif
 
@@ -1034,6 +996,7 @@ static void acceptCommonHandler(connection *conn, int flags, char *ip) {
         connClose(conn); /* May be already closed, just ignore errors */
         return;
     }
+    /*
 #ifdef KBC
     if(server.masterhost !=NULL){
         cpu_set_t other_set;
@@ -1050,7 +1013,7 @@ static void acceptCommonHandler(connection *conn, int flags, char *ip) {
         }
     }
 #endif 
-
+*/
     /* Last chance to keep flags */
     c->flags |= flags;
 
@@ -1382,7 +1345,16 @@ int freeClientsInAsyncFreeQueue(void) {
         client *c = listNodeValue(ln);
 
         if (c->flags & CLIENT_PROTECTED) continue;
+        /*
+#ifdef RFA
+        if((c->flags & CLIENT_MASTER))
+        {
+       //     c->flags &= CLIENT_PROTECTED;
+            continue;
+        }
 
+#endif
+*/
         c->flags &= ~CLIENT_CLOSE_ASAP;
         freeClient(c);
         listDelNode(server.clients_to_close,ln);
@@ -2190,6 +2162,8 @@ int processCommandAndResetClient(client *c) {
     if (processCommand(c) == C_OK) {
         if (!strcasecmp(c->argv[0]->ptr,"SET")){
             nvalue_count++;
+
+  //          if(server.masterhost!=NULL) printf("nvalue %lld\n", nvalue_count);
         }
         commandProcessed(c);
     }

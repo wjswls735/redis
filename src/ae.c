@@ -61,7 +61,10 @@
 #endif
 #ifdef RFA
 #include <time.h>
+#include <sys/time.h>
 int rest_count=2;
+int count=0;
+struct timeval t_m, n_m;
 #endif
 
 //#define DVFS
@@ -481,17 +484,36 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
 //                printf("master fd = %d fd= %d\n", master_fd, fd);
                 if(master_fd == fd){
                     master_read_count++;
-                    if(master_read_count%rest_count!=0 && (replicationCron_time-master_repl_lastio <= 50)){
-                        rest_count++;
-                        continue;
-                    }
-                    printf("rest_count = %d, time = %lld \n", rest_count, (replicationCron_time-master_repl_lastio));
-                    if(replicationCron_time-master_repl_lastio > 50){
-                        rest_count--;
+                    
+                    if(count == 1) {
+
+                        rest_count*=2;
+                        count = 0; 
+                    } 
+
+                    if(n_m.tv_sec-t_m.tv_sec>1 ){
+                        rest_count/=4;
                         if(rest_count<2){
                             rest_count=2;
                         }
                     }
+                    
+                    gettimeofday(&n_m, NULL);
+                   // printf("replicationCron_time-master_repl_lastio = %lld\n", replicationCron_time-master_repl_lastio);
+                    if((master_read_count%rest_count!=0 || (n_m.tv_sec-t_m.tv_sec)<1) || count ==0){
+
+       //             printf("n_m.tv_sec-t_m.tv_sec = %ld\n", (n_m.tv_sec-t_m.tv_sec));
+                    //if((n_m.tv_sec-t_m.tv_sec)<1 || count ==0){
+                        count=1;
+                        continue;
+                    }   
+                    gettimeofday(&t_m, NULL);
+
+
+                   // printf("222222222222\n");
+         //           printf("rest_count = %d, time = %lld \n", rest_count, (replicationCron_time-master_repl_lastio));
+      
+                    //count++; 
                 }
             }
 #endif

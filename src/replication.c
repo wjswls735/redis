@@ -49,6 +49,47 @@ void putSlaveOnline(client *slave);
 int cancelReplicationHandshake(void);
 #ifdef RFA
 #endif
+#ifdef KBC
+//#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <stdlib.h>
+pthread_t kbuf_check;
+extern void* kernelBufChecker(void *arg);
+#ifdef KBC
+void *kernelBufChecker(void *arg){
+    int sockfd=*(int *)arg;
+    zfree(arg);
+    char fname[100]="/home/jinsu/kernel_buf/";
+    char fd_num[10];
+    sprintf(fd_num, "%d.txt", sockfd);
+    strcat(fname, fd_num);
+    serverLog(LL_NOTICE, "%s", fname);
+
+   int w_fd=open(fname, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+    while(1){
+        if(w_fd <0){
+            serverLog(LL_NOTICE, "open error");
+        }
+        unsigned long kernel_buf_size; 
+        ioctl(sockfd, FIONREAD, &kernel_buf_size);
+        char buf[128];
+        sprintf(buf, "%d", (int)kernel_buf_size);
+        strcat(buf, "\n");
+        int ret=write(w_fd, buf, sizeof(strlen(buf)));
+        if(ret<0){
+            perror("write");
+            return NULL;
+        }
+        usleep(100000);
+    }
+    close(w_fd);
+
+    return NULL;
+}
+#endif
+
+
+#endif
 
 /* We take a global flag to remember if this instance generated an RDB
  * because of replication, so that we can remove the RDB file in case
@@ -1434,6 +1475,24 @@ void replicationCreateMasterClient(connection *conn, int dbid) {
     if (server.master->reploff == -1)
         server.master->flags |= CLIENT_PRE_PSYNC;
     if (dbid != -1) selectDb(server.master,dbid);
+        
+#ifdef KBC
+    if(server.masterhost !=NULL){
+        cpu_set_t other_set;
+        CPU_ZERO(&other_set);
+        CPU_SET(5,&other_set);
+        int *arg=zmalloc(sizeof(int));
+        *(int *)arg=server.master->conn->fd;
+        
+        pthread_create(&kbuf_check, NULL, kernelBufChecker, (void*)arg);
+        pthread_detach(kbuf_check);
+
+        if(pthread_setaffinity_np(kbuf_check, sizeof(cpu_set_t), &other_set)<0){
+            perror("pthread_setaffinity");
+        }
+    }
+#endif 
+
 }
 
 /* This function will try to re-enable the AOF file after the
@@ -1553,6 +1612,7 @@ void readSyncBulkPayload(connection *conn) {
             server.repl_transfer_lastio = server.unixtime;
 #ifdef RFA
             master_repl_lastio = server.repl_transfer_lastio;
+       //     printf("readSncBulkPayload = %lld\n", master_repl_lastio);
 #endif
             return;
         } else if (buf[0] != '$') {
@@ -2436,6 +2496,7 @@ void syncWithMaster(connection *conn) {
     server.repl_transfer_lastio = server.unixtime;
 #ifdef RFA
     master_repl_lastio = server.repl_transfer_lastio;
+    printf("syncwithmaster = %lld\n", master_repl_lastio);
 #endif
     return;
 
@@ -2826,6 +2887,10 @@ void roleCommand(client *c) {
 void replicationSendAck(void) {
     client *c = server.master;
 
+#ifdef RFA
+    master_repl_lastio =server.unixtime;
+#endif
+
     if (c != NULL) {
         c->flags |= CLIENT_MASTER_FORCE_REPLY;
         addReplyArrayLen(c,3);
@@ -2952,6 +3017,11 @@ void replicationResurrectCachedMaster(connection *conn) {
     server.master->flags &= ~(CLIENT_CLOSE_AFTER_REPLY|CLIENT_CLOSE_ASAP);
     server.master->authenticated = 1;
     server.master->lastinteraction = server.unixtime;
+#ifdef RFA
+
+    //master_repl_lastio = server.master->lastinteraction;
+
+#endif
     server.repl_state = REPL_STATE_CONNECTED;
     server.repl_down_since = 0;
 
@@ -3241,7 +3311,10 @@ void replicationCron(void) {
 //    serverLog(LL_NOTICE, "@@@ Replication Cron @@@@");
     static long long replication_cron_loops = 0;
 
+#ifdef RFA
     replicationCron_time = time(NULL);
+#endif
+
     /* Non blocking connection timeout? */
     if (server.masterhost &&
         (server.repl_state == REPL_STATE_CONNECTING ||
@@ -3264,6 +3337,7 @@ void replicationCron(void) {
     if (server.masterhost && server.repl_state == REPL_STATE_CONNECTED &&
         (time(NULL)-server.master->lastinteraction) > server.repl_timeout)
     {
+
         serverLog(LL_WARNING,"MASTER timeout: no data nor PING received...");
         freeClient(server.master);
     }

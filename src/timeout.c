@@ -54,6 +54,7 @@ int checkBlockedClientTimeout(client *c, mstime_t now) {
  * each iteration would be costly without any actual gain. */
 int clientsCronHandleTimeout(client *c, mstime_t now_ms) {
     time_t now = now_ms/1000;
+    //time_t now = now_ms/100;
 
     if (server.maxidletime &&
         /* This handles the idle clients connection timeout if set. */

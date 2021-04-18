@@ -57,7 +57,7 @@
 #define AE_NOMORE -1
 #define AE_DELETED_EVENT_ID -1
 
-#define RFA
+//#define RFA
 
 /* Macros */
 #define AE_NOTUSED(V) ((void) V)
