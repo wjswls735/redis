@@ -89,13 +89,14 @@ typedef long long ustime_t; /* microsecond time type. */
 //#define KBC
 
 /*DVFS*/
-//#define DVFS
+#define DVFS
 
 /*Queueing wait*/
 //#define QW
 /*shared memory*/
 
 //#define SHM
+//#define j_bench
 
 #ifdef SHM
 #include <sys/types.h>

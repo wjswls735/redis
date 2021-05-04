@@ -31,8 +31,8 @@
 #include "connhelpers.h"
 
 #ifdef DVFS
-extern pthread_cond_t nc;
-extern pthread_mutex_t m;
+//extern pthread_cond_t nc;
+//extern pthread_mutex_t m;
 #endif
 /* The connections module provides a lean abstraction of network connections
  * to avoid direct socket and async event management across the Redis code base.
@@ -245,8 +245,8 @@ static int connSocketSetReadHandler(connection *conn, ConnectionCallbackFunc fun
 static const char *connSocketGetLastError(connection *conn) {
     return strerror(conn->last_errno);
 }
-extern pthread_mutex_t m;
-extern pthread_cond_t nc;
+//extern pthread_mutex_t m;
+//extern pthread_cond_t nc;
 
 static void connSocketEventHandler(struct aeEventLoop *el, int fd, void *clientData, int mask)
 {

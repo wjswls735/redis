@@ -59,6 +59,14 @@
 
 //#define RFA
 
+#define DVFS
+
+#ifdef DVFS
+#include <pthread.h>
+int master_host;
+
+#endif
+
 /* Macros */
 #define AE_NOTUSED(V) ((void) V)
 

@@ -91,6 +91,12 @@ void setGenericCommand(client *c, int flags, robj *key, robj *val, robj *expire,
     if (expire) notifyKeyspaceEvent(NOTIFY_GENERIC,
         "expire",key,c->db->id);
     addReply(c, ok_reply ? ok_reply : shared.ok);
+//for j_benchmark
+#ifdef j_bench
+    addReply(c, val); 
+    robj *temp = createObject(OBJ_STRING,sdsnew("\r\n"));
+    addReply(c, temp);
+#endif
 }
 
 /* SET key value [NX] [XX] [KEEPTTL] [EX <seconds>] [PX <milliseconds>] */

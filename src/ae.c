@@ -67,11 +67,13 @@ int count=0;
 struct timeval t_m, n_m;
 #endif
 
-//#define DVFS
+#define DVFS
+
 #ifdef DVFS
-extern pthread_mutex_t m;
-extern pthread_cond_t nc;
+pthread_cond_t nc = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 #endif
+
 #ifdef CFT
 extern pthread_cond_t uc;
 extern pthread_cond_t dc;
@@ -457,14 +459,31 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
             tv.tv_sec = tv.tv_usec = 0;
             tvp = &tv;
         }
+        
+        /*
+#ifdef DVFS
+        if (flags & AE_CALL_BEFORE_SLEEP){
+            if(master_host !=0)
+                pthread_cond_signal(&nc);
+        }
+#endif*/
 
         if (eventLoop->beforesleep != NULL && flags & AE_CALL_BEFORE_SLEEP)   
         {
-            eventLoop->beforesleep(eventLoop);
+/*
 #ifdef DVFS
+            printf("---------------------------------------\n");
             if(master_host !=0)
                 pthread_cond_signal(&nc);
+            else{
 #endif
+*/
+            eventLoop->beforesleep(eventLoop);
+            /*
+#ifdef DVFS
+            }
+#endif
+*/
         }
        /* Call the multiplexing API, will return only on timeout or when
          * some event fires. */
@@ -609,6 +628,12 @@ char *aeGetApiName(void) {
     return aeApiName();
 }
 void aeSetBeforeSleepProc(aeEventLoop *eventLoop, aeBeforeSleepProc *beforesleep) {
+#ifdef DVFS
+    if(master_host !=0){
+        pthread_cond_signal(&nc);
+    }
+    else
+#endif
     eventLoop->beforesleep = beforesleep;
 }
 

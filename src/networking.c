@@ -1384,11 +1384,7 @@ struct timeval t_w, t_nw;
 #ifdef DVFS
 void *threadwriteToClient(){
     while(1){
-        /*
-        pthread_mutex_lock(&m);
-        pthread_cond_wait(&nc, &m);
-        pthread_mutex_unlock(&m);
-        */    
+           
 #ifdef QW
 
         if(queue_len==0 || finish_flag==1){
@@ -1406,7 +1402,8 @@ void *threadwriteToClient(){
             continue;
         }
 #endif
-        int handler_installed =server.thread_handler;
+//        printf("-------------------------\n");
+        int handler_installed = server.thread_handler;
         client *c;
  
         c=server.newc;
@@ -1518,6 +1515,7 @@ void *threadwriteToClient(){
         
         
         not_empty=0;
+        finish_flag=1;
 #ifdef QW
         finish_flag=1;
         queue_len--;
@@ -1690,7 +1688,8 @@ int writeToClient(client *c, int handler_installed) {
 /* Write event handler. Just send data to the client. */
 void sendReplyToClient(connection *conn) {
     client *c = connGetPrivateData(conn);
-#if 0
+    
+#ifdef DVFS
     
     if(server.masterhost!=NULL){
         
@@ -1698,9 +1697,10 @@ void sendReplyToClient(connection *conn) {
             server.newc=c;
             server.thread_handler=1;
             finish_flag=0;
-           
             not_empty=1;
-            /*
+            
+          //  pthread_cond_signal(&nc);
+            
 #ifdef QW
             if(queue_len==0 || thread_sleep == 1){
                 queue_len++;
@@ -1711,7 +1711,7 @@ void sendReplyToClient(connection *conn) {
             }
             
             
-#endif*/
+#endif
 
             
     }
@@ -1719,7 +1719,8 @@ void sendReplyToClient(connection *conn) {
 #endif
 
         writeToClient(c,1);
-#if 0
+        
+#ifdef DVFS
     }
 #endif
 }
@@ -1745,7 +1746,7 @@ int handleClientsWithPendingWrites(void) {
         if (c->flags & CLIENT_PROTECTED) continue;
 
         /* Try to write buffers to the client socket. */
-        if (writeToClient(c,0) == C_ERR) continue;
+        //if (writeToClient(c,0) == C_ERR) continue;
 
         /* If after the synchronous writes above we still have data to
          * output to the client, we need to install the writable handler. */

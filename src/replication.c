@@ -1464,6 +1464,9 @@ void replicationCreateMasterClient(connection *conn, int dbid) {
     master_fd = server.master->conn->fd;
     master_host=1;
 #endif
+#ifdef DVFS
+    master_host=1;
+#endif
     server.master->authenticated = 1;
     server.master->reploff = server.master_initial_offset;
     server.master->read_reploff = server.master->reploff;

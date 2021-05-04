@@ -61,8 +61,8 @@
 
 #ifdef DVFS
 
-pthread_cond_t nc = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_cond_t nc; 
+extern pthread_mutex_t m;
 int threadcount=0;
 extern void* threadprocessCommandAndResetClient(); 
 extern void* threadwriteToClient();
@@ -2138,7 +2138,7 @@ void* threadbeforeSleep() {
 
   //  aeSetBeforeSleepProc(server.el, (aeBeforeSleepProc *)threadbeforeSleep);
     while(1){
-        serverLog(LL_NOTICE, "!!!!!!!!!beforeSleep start!!!!!!!!!!!!!!!!!!!");
+       // serverLog(LL_NOTICE, "!!!!!!!!!beforeSleep start!!!!!!!!!!!!!!!!!!!");
         pthread_mutex_lock(&m);
         pthread_cond_wait(&nc, &m);
         pthread_mutex_unlock(&m);
@@ -2235,6 +2235,7 @@ void* threadbeforeSleep() {
 #endif
 
 void beforeSleep(struct aeEventLoop *eventLoop) {
+   // serverLog(LL_NOTICE, "original before sleep start!!!!!!!!!!");
     UNUSED(eventLoop);
 
     /* Just call a subset of vital functions in case we are re-entering
@@ -2457,6 +2458,10 @@ void initServerConfig(void) {
 #ifdef RFA
     master_host=0;
 #endif 
+#ifdef DVFS
+    master_host=0;
+#endif
+
 
     updateCachedTime(1);
     getRandomHexChars(server.runid,CONFIG_RUN_ID_SIZE);
@@ -3057,6 +3062,7 @@ void initServer(void) {
 
     /* Register before and after sleep handlers (note this needs to be done
      * before loading persistence since it is used by processEventsWhileBlocked. */
+   /* 
 #ifdef DVFS
     if(server.masterhost!=NULL){
 
@@ -3070,12 +3076,15 @@ void initServer(void) {
         aeSetAfterSleepProc(server.el,afterSleep);
     }
     else{
-#endif
+#endif*/
+
         aeSetBeforeSleepProc(server.el,beforeSleep);
         aeSetAfterSleepProc(server.el,afterSleep);
+        /*
 #ifdef DVFS
     }
-#endif
+#endif*/
+
 
 #ifdef RFA
     server.master_read_count=0;
@@ -5506,16 +5515,16 @@ int main(int argc, char **argv) {
         }
         close(cpufd);
             
-        gettimeofday(&create_thread, NULL);
+//        gettimeofday(&create_thread, NULL);
 //        pthread_create(&read_thread, NULL, threadprocessCommandAndResetClient, NULL); 
-//        pthread_create(&read_thread, NULL, threadwriteToClient, NULL); 
-        /*
-        pthread_create(&read_thread, NULL, threadbeforeSleep, NULL);
-        gettimeofday(&fin_thread, NULL); 
-        serverLog(LL_NOTICE, " pthread_create = %lu", (fin_thread.tv_usec - create_thread.tv_usec));
+        pthread_create(&read_thread, NULL, threadwriteToClient, NULL); 
+        
+//        pthread_create(&read_thread, NULL, threadbeforeSleep, NULL);
+       // gettimeofday(&fin_thread, NULL); 
+//        serverLog(LL_NOTICE, " pthread_create = %lu", (fin_thread.tv_usec - create_thread.tv_usec));
         pthread_detach(read_thread);
 
-        */
+        
        
         cpu_set_t org_core;
         CPU_ZERO(&org_core);
