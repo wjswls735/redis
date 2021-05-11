@@ -1678,7 +1678,7 @@ int writeToClient(client *c, int handler_installed) {
     write_count++;
   //  serverLog(LL_NOTICE,"write count = %llu", write_count); 
     gettimeofday(&fin_w, NULL);
-   // serverLog(LL_NOTICE, "write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
+    printf("write time =%lu", (fin_w.tv_usec - start_w.tv_usec));
 #ifdef CFT
     server.using_socket_check-=c->kernel_buf_size;
 #endif
@@ -2488,7 +2488,7 @@ void readQueryFromClient(connection *conn) {
     /* There is more data in the client input buffer, continue parsing it
      * in case to check if there is a full command to execute. */
     processInputBuffer(c);
-   // serverLog(LL_NOTICE, "duration read = %d", fin_r.tv_usec - start_r.tv_usec);
+    printf("duration read = %d", fin_r.tv_usec - start_r.tv_usec);
 #ifdef CFT
     server.duration_read = fin_r.tv_usec - start_r.tv_usec;
 #endif
